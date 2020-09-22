@@ -15,6 +15,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "142291395026-8am10h9o06rn8m6p3fbe1mu2o39dh7lf.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.donde",
+            "certificate_hash": "ec3ea05c7663cb26e3fa6515a9f17c2009c26e5e"
+          }
+        },
+        {
           "client_id": "142291395026-hi7avmeru1tr24uf5ja7gmmmvvm0n4bv.apps.googleusercontent.com",
           "client_type": 3
         }
