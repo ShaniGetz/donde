@@ -3,6 +3,7 @@ package com.example.donde;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -17,78 +18,80 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
-import com.firebase.client.Firebase;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class Register extends AppCompatActivity {
+public class LoginDonde extends AppCompatActivity {
+    TextView registerUser;
     EditText username, password;
-    Button registerButton;
+    Button loginButton;
     String user, pass;
-    TextView login;
+    Button autofill;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_register);
+        setContentView(R.layout.activity_login_donde);
 
-        username = (EditText) findViewById(R.id.username);
-        password = (EditText) findViewById(R.id.password);
-        registerButton = (Button) findViewById(R.id.registerButton);
-        login = (TextView) findViewById(R.id.login);
+        registerUser = findViewById(R.id.register);
+        autofill = findViewById(R.id.autofill);
+        username = findViewById(R.id.username);
+        password = findViewById(R.id.password);
+        loginButton = findViewById(R.id.loginButton);
 
-        Firebase.setAndroidContext(this);
-
-        login.setOnClickListener(new View.OnClickListener() {
+        autofill.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
-                startActivity(new Intent(Register.this, LoginDonde.class));
+            public void onClick(View view) {
+                Log.e("press","press");
+                user = "alonem";
+                pass = "alon1607";
+                loginButton.callOnClick();
             }
         });
 
-        registerButton.setOnClickListener(new View.OnClickListener() {
+        registerUser.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                user = username.getText().toString();
-                pass = password.getText().toString();
+                startActivity(new Intent(LoginDonde.this, Register.class));
+            }
+        });
 
-                if (user.equals("")) {
-                    username.setError("can't be blank");
-                } else if (pass.equals("")) {
-                    password.setError("can't be blank");
-                } else if (!user.matches("[A-Za-z0-9]+")) {
-                    username.setError("only alphabet or number allowed");
-                } else if (user.length() < 5) {
-                    username.setError("at least 5 characters long");
-                } else if (pass.length() < 5) {
-                    password.setError("at least 5 characters long");
+        loginButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+//                user = username.getText().toString();
+//                pass = password.getText().toString();
+
+//                if (user.equals("")) {
+//                    username.setError("can't be blank");
+//                } else if (pass.equals("")) {
+//                    password.setError("can't be blank");
+                if (false) {
                 } else {
-                    final ProgressDialog pd = new ProgressDialog(Register.this);
+                    String url = "https://donde-4cda4.firebaseio.com/users.json";
+                    final ProgressDialog pd = new ProgressDialog(LoginDonde.this);
                     pd.setMessage("Loading...");
                     pd.show();
-
-                    String url = "https://donde-4cda4.firebaseio.com/users.json";
 
                     StringRequest request = new StringRequest(Request.Method.GET, url, new Response.Listener<String>() {
                         @Override
                         public void onResponse(String s) {
-                            Firebase reference = new Firebase("https://donde-4cda4.firebaseio.com/users");
-
                             if (s.equals("null")) {
-                                reference.child(user).child("password").setValue(pass);
-                                Toast.makeText(Register.this, "registration successful", Toast.LENGTH_LONG).show();
+                                Toast.makeText(LoginDonde.this, "user not found", Toast.LENGTH_LONG).show();
                             } else {
                                 try {
                                     JSONObject obj = new JSONObject(s);
 
                                     if (!obj.has(user)) {
-                                        reference.child(user).child("password").setValue(pass);
-                                        Toast.makeText(Register.this, "registration successful", Toast.LENGTH_LONG).show();
+                                        Toast.makeText(LoginDonde.this, "user not found", Toast.LENGTH_LONG).show();
+                                    } else if (obj.getJSONObject(user).getString("password").equals(pass)) {
+                                        UserDetails.username = user;
+                                        UserDetails.password = pass;
+                                        startActivity(new Intent(LoginDonde.this, Events.class));
                                     } else {
-                                        Toast.makeText(Register.this, "username already exists", Toast.LENGTH_LONG).show();
+                                        Toast.makeText(LoginDonde.this, "incorrect password", Toast.LENGTH_LONG).show();
                                     }
-
                                 } catch (JSONException e) {
                                     e.printStackTrace();
                                 }
@@ -96,7 +99,6 @@ public class Register extends AppCompatActivity {
 
                             pd.dismiss();
                         }
-
                     }, new Response.ErrorListener() {
                         @Override
                         public void onErrorResponse(VolleyError volleyError) {
@@ -105,9 +107,10 @@ public class Register extends AppCompatActivity {
                         }
                     });
 
-                    RequestQueue rQueue = Volley.newRequestQueue(Register.this);
+                    RequestQueue rQueue = Volley.newRequestQueue(LoginDonde.this);
                     rQueue.add(request);
                 }
+
             }
         });
     }

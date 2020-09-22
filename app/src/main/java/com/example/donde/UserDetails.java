@@ -1,7 +1,7 @@
 package com.example.donde;
 
 public class UserDetails {
-    static String username = "";
+    public static String username = "";
     static String password = "";
     static String chatWith = "";
 }
