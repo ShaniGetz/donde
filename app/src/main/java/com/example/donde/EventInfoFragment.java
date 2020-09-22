@@ -1,4 +1,4 @@
-package com.example.donde.fragments;
+package com.example.donde;
 
 import android.os.Bundle;
 

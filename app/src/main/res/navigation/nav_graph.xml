@@ -3,65 +3,11 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/loginFragment">
+    app:startDestination="@id/eventsFragment">
 
     <fragment
-        android:id="@+id/loginFragment"
-        android:name="com.example.donde.fragments.LoginFragment"
-        android:label="fragment_login"
-        tools:layout="@layout/fragment_login">
-        <action
-            android:id="@+id/action_loginFragment_to_registerFragment"
-            app:destination="@id/registerFragment" />
-        <action
-            android:id="@+id/action_loginFragment_to_eventsFragment"
-            app:destination="@id/eventsFragment" />
-        <action
-            android:id="@+id/action_loginFragment_to_registerFragment2"
-            app:destination="@id/registerFragment" />
-    </fragment>
-    <fragment
-        android:id="@+id/chatFragment"
-        android:name="com.example.donde.fragments.ChatFragment"
-        android:label="fragment_chat"
-        tools:layout="@layout/fragment_chat" />
-    <fragment
-        android:id="@+id/createEventFragment"
-        android:name="com.example.donde.fragments.CreateEventFragment"
-        android:label="fragment_create_event"
-        tools:layout="@layout/fragment_create_event">
-        <action
-            android:id="@+id/action_createEventFragment_to_eventInfoFragment"
-            app:destination="@id/eventInfoFragment" />
-    </fragment>
-    <fragment
         android:id="@+id/eventsFragment"
-        android:name="com.example.donde.fragments.EventsFragment"
+        android:name="com.example.donde.EventsFragment"
         android:label="fragment_events"
-        tools:layout="@layout/fragment_events">
-        <action
-            android:id="@+id/action_eventsFragment_to_createEventFragment"
-            app:destination="@id/createEventFragment" />
-        <action
-            android:id="@+id/action_eventsFragment_to_eventInfoFragment"
-            app:destination="@id/eventInfoFragment" />
-    </fragment>
-    <fragment
-        android:id="@+id/eventInfoFragment"
-        android:name="com.example.donde.fragments.EventInfoFragment"
-        android:label="fragment_event_info"
-        tools:layout="@layout/fragment_event_info">
-        <action
-            android:id="@+id/action_eventInfoFragment_to_chatFragment"
-            app:destination="@id/chatFragment" />
-    </fragment>
-    <fragment
-        android:id="@+id/registerFragment"
-        android:name="com.example.donde.fragments.RegisterFragment"
-        android:label="fragment_register"
-        tools:layout="@layout/fragment_register">
-        <action
-            android:id="@+id/action_registerFragment_to_eventsFragment"
-            app:destination="@id/eventsFragment" />
-    </fragment>
+        tools:layout="@layout/fragment_events" />
 </navigation>
