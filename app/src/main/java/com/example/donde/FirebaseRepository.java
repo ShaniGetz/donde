@@ -1,5 +1,7 @@
 package com.example.donde;
 
+import android.util.Log;
+
 import androidx.annotation.NonNull;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -21,9 +23,12 @@ public class FirebaseRepository {
     }
 
     public void getEventsData() {
+        Log.e("FirebaseRepository", "in getEventData");
         eventsRef.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                Log.e("FirebaseRepository", "in onComplete");
                 if (task.isSuccessful()) {
                     onFirestoreTaskComplete.eventsListDataAdded(task.getResult().toObjects(EventsListModel.class));
                 } else {

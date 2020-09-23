@@ -1,6 +1,7 @@
 package com.example.donde;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,6 +28,8 @@ public class EventsFragment extends Fragment {
     private EventsListAdapter adapter;
 
     public EventsFragment() {
+        Log.e("EventsFragment", "Constructor");
+
         // Required empty public constructor
     }
 
@@ -35,11 +38,14 @@ public class EventsFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
+        Log.e("EventsFragment", "in onCreateView");
         return inflater.inflate(R.layout.fragment_events, container, false);
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        Log.e("EventsFragment", "in onViewCreated");
+
         super.onViewCreated(view, savedInstanceState);
         listView = view.findViewById(R.id.list_view);
         adapter = new EventsListAdapter();
@@ -52,6 +58,8 @@ public class EventsFragment extends Fragment {
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        Log.e("EventsFragment", "in onActivityCreated");
+
         super.onActivityCreated(savedInstanceState);
         eventsListViewModel = new ViewModelProvider(getActivity()).get(EventsListViewModel.class);
         eventsListViewModel.getEventsListModelData().observe(getViewLifecycleOwner(), new Observer<List<EventsListModel>>() {

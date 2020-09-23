@@ -9,7 +9,7 @@ import java.util.ArrayList;
 public class EventsListModel {
     @DocumentId
     private String quiz_id;
-    private String name, desc, creator_username, location_name;
+    private String name, description, creator_username, location_name;
     //    private long longtitude, latitude;
     private Timestamp time_created;
     private Timestamp time_starting;
@@ -20,12 +20,12 @@ public class EventsListModel {
 
     }
 
-    public EventsListModel(String quiz_id, String name, String desc,
+    public EventsListModel(String quiz_id, String name, String description,
                            String creator_username, String location_name, Timestamp time_created,
                            Timestamp time_starting, GeoPoint location, ArrayList<String> invited_people) {
         this.quiz_id = quiz_id;
         this.name = name;
-        this.desc = desc;
+        this.description = description;
         this.creator_username = creator_username;
         this.location_name = location_name;
         this.time_created = time_created;
@@ -50,12 +50,12 @@ public class EventsListModel {
         this.name = name;
     }
 
-    public String getDesc() {
-        return desc;
+    public String getDescription() {
+        return description;
     }
 
-    public void setDesc(String desc) {
-        this.desc = desc;
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public String getCreator_username() {
