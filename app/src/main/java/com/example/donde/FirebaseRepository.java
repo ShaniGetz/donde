@@ -1,13 +1,16 @@
 package com.example.donde;
 
 import android.util.Log;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.List;
@@ -24,7 +27,14 @@ public class FirebaseRepository {
 
     public void getEventsData() {
         Log.e("FirebaseRepository", "in getEventData");
-        eventsRef.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+         FirebaseAuth mAuth = FirebaseAuth.getInstance();
+
+        String user_email = mAuth.getCurrentUser().getEmail();
+        Log.e ("Repo", user_email);
+
+        Query query = eventsRef.whereArrayContains("invited_people", mAuth.getCurrentUser().getEmail());
+
+        query.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
 
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
