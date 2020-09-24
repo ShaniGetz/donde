@@ -11,6 +11,8 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -19,11 +21,11 @@ import java.util.List;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class EventsFragment extends Fragment {
+public class EventsFragment extends Fragment implements EventsListAdapter.OnEventListItemClicked {
 
     private RecyclerView listView;
     private EventsListViewModel eventsListViewModel;
-
+    private NavController navController;
 
     private EventsListAdapter adapter;
 
@@ -48,11 +50,12 @@ public class EventsFragment extends Fragment {
 
         super.onViewCreated(view, savedInstanceState);
         listView = view.findViewById(R.id.list_view);
-        adapter = new EventsListAdapter();
+        adapter = new EventsListAdapter(this);
 
         listView.setLayoutManager(new LinearLayoutManager(getContext()));
         listView.setHasFixedSize(true);
         listView.setAdapter(adapter);
+        navController = Navigation.findNavController(view);
 
     }
 
@@ -69,5 +72,13 @@ public class EventsFragment extends Fragment {
                 adapter.notifyDataSetChanged();
             }
         });
+    }
+
+    @Override
+    public void onItemClicked(int position) {
+        EventsFragmentDirections.ActionEventsFragmentToEventInfoFragment action =
+                EventsFragmentDirections.actionEventsFragmentToEventInfoFragment();
+        action.setPosition(position);
+        navController.navigate(action);
     }
 }

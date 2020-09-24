@@ -9,5 +9,19 @@
         android:id="@+id/eventsFragment"
         android:name="com.example.donde.EventsFragment"
         android:label="fragment_events"
-        tools:layout="@layout/fragment_events" />
+        tools:layout="@layout/fragment_events" >
+        <action
+            android:id="@+id/action_eventsFragment_to_eventInfoFragment"
+            app:destination="@id/eventInfoFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/eventInfoFragment"
+        android:name="com.example.donde.EventInfoFragment"
+        android:label="fragment_event_info"
+        tools:layout="@layout/fragment_event_info" >
+        <argument
+            android:name="position"
+            app:argType="integer"
+            android:defaultValue="0" />
+    </fragment>
 </navigation>

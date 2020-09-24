@@ -4,6 +4,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -13,6 +14,12 @@ import java.util.List;
 
 public class EventsListAdapter extends RecyclerView.Adapter<EventsListAdapter.EventViewHolder> {
     private List<EventsListModel> eventsListModels;
+    private OnEventListItemClicked onEventListItemClicked;
+
+
+    public EventsListAdapter(OnEventListItemClicked onEventListItemClicked) {
+        this.onEventListItemClicked = onEventListItemClicked;
+    }
 
     public void setEventsListModels(List<EventsListModel> eventsListModels) {
         Log.e("EventListAdapter", "in setEventListModels");
@@ -37,7 +44,7 @@ public class EventsListAdapter extends RecyclerView.Adapter<EventsListAdapter.Ev
         holder.listName.setText(eventsListModels.get(position).getName());
         holder.listDesc.setText(eventsListModels.get(position).getDescription());
         holder.listLocationName.setText(eventsListModels.get(position).getLocation_name());
-        holder.listTimeStarting.setText(eventsListModels.get(position).getTime_starting().toDate().toString());
+//        holder.listTimeStarting.setText(eventsListModels.get(position).getTime_starting().toString());
         holder.listCreatorUserName.setText(eventsListModels.get(position).getCreator_username());
     }
 
@@ -52,7 +59,11 @@ public class EventsListAdapter extends RecyclerView.Adapter<EventsListAdapter.Ev
         }
     }
 
-    public class EventViewHolder extends RecyclerView.ViewHolder {
+    public interface OnEventListItemClicked {
+        void onItemClicked(int position);
+    }
+
+    public class EventViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         private TextView listName;
         private TextView listDesc;
@@ -61,6 +72,7 @@ public class EventsListAdapter extends RecyclerView.Adapter<EventsListAdapter.Ev
         private TextView listCreatorUserName;
         private TextView listTimeCreated;
         private TextView listTimeStarting;
+        private Button listGotoEvent;
 
         public EventViewHolder(@NonNull View itemView) {
 
@@ -74,6 +86,14 @@ public class EventsListAdapter extends RecyclerView.Adapter<EventsListAdapter.Ev
             listCreatorUserName = itemView.findViewById(R.id.list_creator_username);
             listTimeCreated = itemView.findViewById(R.id.list_time_created);
             listTimeStarting = itemView.findViewById(R.id.list_time_starting);
+            listGotoEvent = itemView.findViewById(R.id.list_goto_event);
+
+            listGotoEvent.setOnClickListener(this);
+        }
+
+        @Override
+        public void onClick(View v) {
+            onEventListItemClicked.onItemClicked(getAdapterPosition());
         }
     }
 }

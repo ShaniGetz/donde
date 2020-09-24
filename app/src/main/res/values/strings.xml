@@ -10,7 +10,7 @@
     <string name="register">Register</string>
     <string name="no_events_found">no events found!</string>
     <string name="add_event">add event</string>
-<!--    <string name="default_web_client_id" translatable="false">142291395026-hi7avmeru1tr24uf5ja7gmmmvvm0n4bv.apps.googleusercontent.com</string>-->
+    <!--    <string name="default_web_client_id" translatable="false">142291395026-hi7avmeru1tr24uf5ja7gmmmvvm0n4bv.apps.googleusercontent.com</string>-->
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
