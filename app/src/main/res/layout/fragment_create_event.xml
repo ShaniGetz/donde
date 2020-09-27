@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".CreateEventFragment">
+    tools:context=".archive.CreateEventFragment">
 
 
     <TextView
@@ -27,7 +27,7 @@
 
         android:hint="event name"
 
-        app:layout_constraintBottom_toTopOf="@+id/edit_location_name"
+        app:layout_constraintBottom_toTopOf="@+id/create_editText_location_name"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView" />
@@ -37,13 +37,13 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:hint="longtitude"
-        app:layout_constraintEnd_toStartOf="@id/edit_location_lat"
-        app:layout_constraintBottom_toTopOf="@id/button_create_event"
+        app:layout_constraintEnd_toStartOf="@id/create_editText_latitude"
+        app:layout_constraintBottom_toTopOf="@id/create_button_create"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/edit_location_name" />
+        app:layout_constraintTop_toBottomOf="@id/create_editText_location_name" />
 
     <EditText
-        android:id="@+id/edit_location_lat"
+        android:id="@+id/create_editText_latitude"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:hint="latitude"
@@ -52,7 +52,7 @@
         app:layout_constraintTop_toTopOf="@id/edit_location_long" />
 
     <EditText
-        android:id="@+id/edit_location_name"
+        android:id="@+id/create_editText_location_name"
         android:layout_width="wrap_content"
 
         android:layout_height="wrap_content"
@@ -63,7 +63,7 @@
         app:layout_constraintTop_toBottomOf="@id/edit_event_name" />
 
     <Button
-        android:id="@+id/button_create_event"
+        android:id="@+id/create_button_create"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="CREATE EVENT"

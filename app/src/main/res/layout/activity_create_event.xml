@@ -4,15 +4,25 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".archive.RegisterFragment">
+    tools:context=".activities.CreateEventActivity">
+
+    <ProgressBar
+        android:id="@+id/create_progressBar"
+        android:layout_width="wrap_content"
+        android:visibility="invisible"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="64dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
-        android:id="@+id/textView2"
+        android:id="@+id/textView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
-        android:text="Register"
+        android:text="Create Event"
         android:textColor="#000000"
         android:textSize="50sp"
         android:textStyle="bold"
@@ -20,57 +30,55 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <EditText
-        android:id="@+id/editText_name"
+        android:id="@+id/create_editText_event_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="64dp"
-        android:hint="name"
-        app:layout_constraintBottom_toTopOf="@id/register_editText_email"
+
+        android:hint="event name"
+
+        app:layout_constraintBottom_toTopOf="@+id/create_editText_location_name"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-
-        app:layout_constraintTop_toBottomOf="@id/textView2" />
+        app:layout_constraintTop_toBottomOf="@+id/textView" />
 
     <EditText
-        android:id="@+id/register_editText_email"
+        android:id="@+id/create_editText_longitude"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:hint="email"
-        app:layout_constraintBottom_toTopOf="@id/login_editText_password"
-        app:layout_constraintEnd_toEndOf="parent"
+        android:hint="longtitude"
+        app:layout_constraintBottom_toTopOf="@id/create_button_create"
+        app:layout_constraintEnd_toStartOf="@id/create_editText_latitude"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/editText_name" />
+        app:layout_constraintTop_toBottomOf="@id/create_editText_location_name" />
 
     <EditText
-        android:id="@+id/login_editText_password"
+        android:id="@+id/create_editText_latitude"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:hint="password"
-        app:layout_constraintBottom_toTopOf="@id/register_button_register"
+        android:hint="latitude"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/create_editText_longitude"
+        app:layout_constraintTop_toTopOf="@id/create_editText_longitude" />
+
+    <EditText
+        android:id="@+id/create_editText_location_name"
+        android:layout_width="wrap_content"
+
+        android:layout_height="wrap_content"
+        android:hint="location name"
+        app:layout_constraintBottom_toTopOf="@id/create_editText_longitude"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/register_editText_email" />
+        app:layout_constraintTop_toBottomOf="@id/create_editText_event_name" />
 
     <Button
-        android:id="@+id/register_button_register"
+        android:id="@+id/create_button_create"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="64dp"
-        android:text="REGISTER"
-        app:layout_constraintBottom_toTopOf="@id/register_button_goto_login"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/login_editText_password" />
-
-    <Button
-        android:id="@+id/register_button_goto_login"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Back to Login"
+        android:text="CREATE EVENT"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/register_button_register" />
-
+        app:layout_constraintTop_toBottomOf="@+id/create_editText_longitude" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

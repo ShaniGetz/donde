@@ -7,21 +7,75 @@
 
     <fragment
         android:id="@+id/eventsFragment"
-        android:name="com.example.donde.EventsFragment"
+        android:name="com.example.donde.archive.EventsFragment"
         android:label="fragment_events"
-        tools:layout="@layout/fragment_events" >
+        tools:layout="@layout/fragment_events">
         <action
             android:id="@+id/action_eventsFragment_to_eventInfoFragment"
             app:destination="@id/eventInfoFragment" />
+        <action
+            android:id="@+id/action_eventsFragment_to_addEventFragment"
+            app:destination="@id/addEventFragment" />
     </fragment>
     <fragment
         android:id="@+id/eventInfoFragment"
-        android:name="com.example.donde.EventInfoFragment"
+        android:name="com.example.donde.archive.EventInfoFragment"
         android:label="fragment_event_info"
-        tools:layout="@layout/fragment_event_info" >
+        tools:layout="@layout/fragment_event_info">
         <argument
             android:name="position"
-            app:argType="integer"
-            android:defaultValue="0" />
+            android:defaultValue="0"
+            app:argType="integer" />
+        <action
+            android:id="@+id/action_eventInfoFragment_to_chatFragment"
+            app:destination="@id/chatFragment" />
+        <action
+            android:id="@+id/action_eventInfoFragment_to_mapFragment"
+            app:destination="@id/mapFragment" />
+        <action
+            android:id="@+id/action_eventInfoFragment_to_eventsFragment"
+            app:destination="@id/eventsFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/addEventFragment"
+        android:name="com.example.donde.archive.AddEventFragment"
+        android:label="fragment_add_event"
+        tools:layout="@layout/fragment_add_event">
+        <action
+            android:id="@+id/action_addEventFragment_to_eventsFragment"
+            app:destination="@id/eventsFragment" />
+        <action
+            android:id="@+id/action_addEventFragment_to_eventInfoFragment"
+            app:destination="@id/eventInfoFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/chatFragment"
+        android:name="com.example.donde.archive.ChatFragment"
+        android:label="fragment_chat"
+        tools:layout="@layout/fragment_chat">
+        <action
+            android:id="@+id/action_chatFragment_to_mapFragment"
+            app:destination="@id/mapFragment" />
+        <action
+            android:id="@+id/action_chatFragment_to_eventInfoFragment"
+            app:destination="@id/eventInfoFragment" />
+        <action
+            android:id="@+id/action_chatFragment_to_eventsFragment"
+            app:destination="@id/eventsFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/mapFragment"
+        android:name="com.example.donde.archive.MapFragment"
+        android:label="fragment_map"
+        tools:layout="@layout/fragment_map">
+        <action
+            android:id="@+id/action_mapFragment_to_eventInfoFragment"
+            app:destination="@id/eventInfoFragment" />
+        <action
+            android:id="@+id/action_mapFragment_to_chatFragment"
+            app:destination="@id/chatFragment" />
+        <action
+            android:id="@+id/action_mapFragment_to_eventsFragment"
+            app:destination="@id/eventsFragment" />
     </fragment>
 </navigation>

@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".EventInfoFragment">
+    tools:context=".archive.EventInfoFragment">
 
 
     <TextView
@@ -24,42 +24,68 @@
         android:id="@+id/info_event_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        app:layout_constraintBottom_toTopOf="@id/info_location_name"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/info_title"
-        app:layout_constraintBottom_toTopOf="@id/info_location_name"
 
         tools:text="Fake concert!! Wooho" />
 
     <TextView
-        android:layout_width="wrap_content"
-        tools:text="Fake description describing a descriptive description"
         android:id="@+id/info_description"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toTopOf="@id/info_location_name"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/info_event_name"
-        app:layout_constraintBottom_toTopOf="@id/info_location_name"
-        android:layout_height="wrap_content" />
+        tools:text="Fake description describing a descriptive description" />
 
     <TextView
-        android:layout_width="wrap_content"
         android:id="@+id/info_location_name"
-        tools:text="Fake Location"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/info_description"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         app:layout_constraintBottom_toTopOf="@id/info_creator_username"
-        android:layout_height="wrap_content" />
-
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/info_description"
+        tools:text="Fake Location" />
 
 
     <TextView
-        android:layout_width="wrap_content"
-        tools:text="Fake Creator username"
         android:id="@+id/info_creator_username"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/info_location_name"
+        tools:text="Fake Creator username" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:id="@+id/button_goto_all_events"
+        android:text="Go to All Events"
+        app:layout_constraintBottom_toTopOf="@id/button_goto_chat"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_height="wrap_content" />
+    <Button
+        android:id="@+id/button_goto_map"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Go to Map"
+        app:layout_constraintBottom_toBottomOf="parent"
+
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:id="@+id/button_goto_chat"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:text="Go to Chat"
+        app:layout_constraintBottom_toTopOf="@id/button_goto_map"
         android:layout_height="wrap_content" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
