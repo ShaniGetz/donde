@@ -1,23 +1,25 @@
 package com.example.donde.activities;
 
 import android.os.Bundle;
+import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.viewpager.widget.ViewPager;
 
 import com.example.donde.R;
-import com.example.donde.events_recycler_view.EventsListModel;
 import com.example.donde.events_recycler_view.EventsListViewModel;
 import com.example.donde.utils.ViewPagerAdapter;
 
-import java.util.List;
 
 public class EventActivity extends AppCompatActivity {
+    final int INFO_TAB = 0;
+    final int MAP_TAB = 1;
+    final int CHAT_TAB = 2;
+
     private TextView textViewInfoLabel;
     private TextView textViewMapLabel;
     private TextView textViewChatLabel;
@@ -92,7 +94,71 @@ public class EventActivity extends AppCompatActivity {
     }
 
     private void initializeListeners() {
+        textViewInfoLabel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                viewPager.setCurrentItem(INFO_TAB);
+            }
+        });
+        textViewMapLabel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                viewPager.setCurrentItem(MAP_TAB);
+            }
+        });
+        textViewChatLabel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                viewPager.setCurrentItem(CHAT_TAB);
+            }
+        });
 
+        viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+                changeTabs(position);
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+
+            }
+        });
     }
 
+    private void changeTabs(int position) {
+        TextView mainTab;
+        TextView subTab1, subTab2;
+        switch (position) {
+            case INFO_TAB:
+                mainTab = textViewInfoLabel;
+                subTab1 = textViewMapLabel;
+                subTab2 = textViewChatLabel;
+                break;
+            case MAP_TAB:
+                subTab1 = textViewInfoLabel;
+                mainTab = textViewMapLabel;
+                subTab2 = textViewChatLabel;
+                break;
+            case CHAT_TAB:
+                subTab1 = textViewInfoLabel;
+                subTab2 = textViewMapLabel;
+                mainTab = textViewChatLabel;
+                break;
+            default:
+                mainTab = null;
+                subTab1 = null;
+                subTab2 = null;
+
+
+        }
+        mainTab.setTextSize(20);
+        subTab1.setTextSize(15);
+        subTab2.setTextSize(15);
+    }
 }

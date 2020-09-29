@@ -20,6 +20,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Map"
+        app:layout_constraintBottom_toBottomOf="@id/event_textView_info_label"
         app:layout_constraintEnd_toStartOf="@id/event_textView_chat_label"
         app:layout_constraintStart_toEndOf="@+id/event_textView_info_label"
         app:layout_constraintTop_toTopOf="parent" />
@@ -27,8 +28,10 @@
     <TextView
         android:id="@+id/event_textView_chat_label"
         android:layout_width="wrap_content"
+
         android:layout_height="wrap_content"
         android:text="Chat"
+        app:layout_constraintBottom_toBottomOf="@id/event_textView_info_label"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@id/event_textView_map_label"
         app:layout_constraintTop_toTopOf="parent" />
@@ -38,9 +41,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="parent"
+
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@id/event_textView_map_label" />
+        app:layout_constraintTop_toTopOf="parent" />
     <!--    <TextView-->
     <!--        android:id="@+id/info_title"-->
     <!--        android:layout_width="wrap_content"-->
