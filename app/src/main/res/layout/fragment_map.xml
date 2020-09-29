@@ -20,7 +20,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <Button
-        android:id="@+id/button_goto_all_events"
+        android:id="@+id/event_button_goto_events"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Go to All Events"
@@ -29,7 +29,7 @@
         app:layout_constraintStart_toStartOf="parent" />
 
     <Button
-        android:id="@+id/button_goto_chat"
+        android:id="@+id/event_button_goto_chat"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Go to Chat"
@@ -44,7 +44,7 @@
         android:layout_height="wrap_content"
 
         android:text="Go to Event Info"
-        app:layout_constraintBottom_toTopOf="@id/button_goto_chat"
+        app:layout_constraintBottom_toTopOf="@id/event_button_goto_chat"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 

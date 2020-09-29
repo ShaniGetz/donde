@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/eventsFragment"
-        android:name="com.example.donde.archive.EventsFragment"
+        android:name="com.example.donde.fragments.EventsFragment"
         android:label="fragment_events"
         tools:layout="@layout/fragment_events">
         <action

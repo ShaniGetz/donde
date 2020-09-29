@@ -34,9 +34,9 @@ public class MapFragment extends Fragment {
         navController = Navigation.findNavController(view);
 
 
-        buttonGotoAllEvents = view.findViewById(R.id.button_goto_all_events);
+        buttonGotoAllEvents = view.findViewById(R.id.event_button_goto_events);
         buttonGotoEventInfo = view.findViewById(R.id.button_goto_info);
-        buttonGotoChat = view.findViewById(R.id.button_goto_chat);
+        buttonGotoChat = view.findViewById(R.id.event_button_goto_chat);
 
         buttonGotoAllEvents.setOnClickListener(new View.OnClickListener() {
             @Override

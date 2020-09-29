@@ -1,10 +1,12 @@
-package com.example.donde.archive;
+package com.example.donde.events_recycler_view;
 
 import android.util.Log;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
+
+import com.example.donde.utils.FirebaseRepository;
 
 import java.util.List;
 

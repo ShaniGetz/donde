@@ -14,4 +14,13 @@
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="ff_users_collection">Users</string>
+    <string name="ff_event_name">eventName</string>
+    <string name="ff_event_description">eventDescription</string>
+    <string name="ff_event_creator_uid">creatorUID</string>
+    <string name="ff_event_time_created">timeCreated</string>
+    <string name="ff_event_location_name">eventLocationName</string>
+    <string name="ff_event_location">eventLocation</string>
+    <string name="ff_event_start_time">timeStarting</string>
+    <string name="ff_event_invited_users">invitedUsers</string>
 </resources>

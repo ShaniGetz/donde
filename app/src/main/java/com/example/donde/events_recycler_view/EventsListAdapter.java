@@ -1,4 +1,4 @@
-package com.example.donde.archive;
+package com.example.donde.events_recycler_view;
 
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -43,11 +43,23 @@ public class EventsListAdapter extends RecyclerView.Adapter<EventsListAdapter.Ev
     public void onBindViewHolder(@NonNull EventViewHolder holder, int position) {
         Log.e("EventListAdapter", "in onBindViewHolder");
 
-        holder.listName.setText(eventsListModels.get(position).getName());
-        holder.listDesc.setText(eventsListModels.get(position).getDescription());
-        holder.listLocationName.setText(eventsListModels.get(position).getLocation_name());
-//        holder.listTimeStarting.setText(eventsListModels.get(position).getTime_starting().toString());
-        holder.listCreatorUserName.setText(eventsListModels.get(position).getCreator_username());
+        EventsListModel currentEvent = eventsListModels.get(position);
+
+        holder.listName.setText(currentEvent.getEventName());
+        holder.listDesc.setText(currentEvent.getEventDescription());
+        holder.listLocationName.setText(currentEvent.getEventLocationName());
+
+//        long milliseconds = currentEvent.getTime_starting().toDate().getTime();
+//        String sDateStarting = DateFormat.format("dd/MM/yyyy", new Date(milliseconds))
+//        holder.listTimeStarting.setText(currentEvent.getTime_starting().toDate().toString());
+
+
+
+//        String creator_id = currentEvent.getCreator_id();
+//        FirebaseFirestore firebaseFirestore = FirebaseFirestore.getInstance();
+//        firebaseFirestore.collection("Users").document(currentEvent.getCreator_id()).get;
+//        holder.listCreatorUserName.setText(currentEvent.getCreator_username());
+      holder.setCreatorName();
     }
 
     @Override
@@ -91,6 +103,10 @@ public class EventsListAdapter extends RecyclerView.Adapter<EventsListAdapter.Ev
             listGotoEvent = itemView.findViewById(R.id.list_goto_event);
 
             listGotoEvent.setOnClickListener(this);
+        }
+
+        private void setCreatorName() {
+
         }
 
         @Override

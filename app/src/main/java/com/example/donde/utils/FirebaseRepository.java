@@ -1,9 +1,12 @@
-package com.example.donde.archive;
+package com.example.donde.utils;
 
 import android.util.Log;
 
 import androidx.annotation.NonNull;
 
+import com.example.donde.R;
+import com.example.donde.activities.App;
+import com.example.donde.events_recycler_view.EventsListModel;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -26,12 +29,15 @@ public class FirebaseRepository {
 
     public void getEventsData() {
         Log.e("FirebaseRepository", "in getEventData");
-         FirebaseAuth mAuth = FirebaseAuth.getInstance();
+        FirebaseAuth mAuth = FirebaseAuth.getInstance();
 
-        String user_email = mAuth.getCurrentUser().getEmail();
-        Log.e ("Repo", user_email);
+//        String user_email = mAuth.getCurrentUser().getEmail();
+//        Log.e ("Repo", user_email);
 
-        Query query = eventsRef.whereArrayContains("invited_people", mAuth.getCurrentUser().getEmail());
+        Query query =
+                eventsRef.whereArrayContains(App.getRes().getString(R.string.ff_event_invited_users),
+                        mAuth.getCurrentUser().getUid());
+//        Query query = eventsRef.whereArrayContains("invitedUsers", "Ov8ktisRIQWi7JkT8w4BAg0hzWc2");
 
         query.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
 

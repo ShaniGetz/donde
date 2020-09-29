@@ -34,9 +34,9 @@ public class ChatFragment extends Fragment {
         navController = Navigation.findNavController(view);
 
 
-        buttonGotoAllEvents = view.findViewById(R.id.button_goto_all_events);
+        buttonGotoAllEvents = view.findViewById(R.id.event_button_goto_events);
         buttonGotoEventInfo = view.findViewById(R.id.button_goto_info);
-        buttonGotoMap = view.findViewById(R.id.button_goto_map);
+        buttonGotoMap = view.findViewById(R.id.event_button_goto_map);
 
         buttonGotoAllEvents.setOnClickListener(new View.OnClickListener() {
             @Override

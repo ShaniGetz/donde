@@ -38,7 +38,7 @@ public class AddEventFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         navController = Navigation.findNavController(view);
         buttonCreateEvent = view.findViewById(R.id.create_button_create);
-        buttonGotoAllEvents = view.findViewById(R.id.button_goto_all_events);
+        buttonGotoAllEvents = view.findViewById(R.id.event_button_goto_events);
 
 
         buttonCreateEvent.setOnClickListener(new View.OnClickListener() {

@@ -1,11 +1,13 @@
-package com.example.donde.archive;
+package com.example.donde.fragments;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -17,10 +19,15 @@ import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-//import com.example.donde.EventsFragmentDirections;
 import com.example.donde.R;
+import com.example.donde.activities.EventActivity;
+import com.example.donde.events_recycler_view.EventsListAdapter;
+import com.example.donde.events_recycler_view.EventsListModel;
+import com.example.donde.events_recycler_view.EventsListViewModel;
 
 import java.util.List;
+
+//import com.example.donde.EventsFragmentDirections;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -93,9 +100,14 @@ public class EventsFragment extends Fragment implements EventsListAdapter.OnEven
 
     @Override
     public void onItemClicked(int position) {
-        EventsFragmentDirections.ActionEventsFragmentToEventInfoFragment action =
-                EventsFragmentDirections.actionEventsFragmentToEventInfoFragment();
-        action.setPosition(position);
-        navController.navigate(action);
+        Intent eventIntent = new Intent(getActivity(), EventActivity.class);
+        eventIntent.putExtra("position", position);
+        startActivity(eventIntent);
+
+        //        EventsFragmentDirections.ActionEventsFragmentToEventInfoFragment action =
+//                EventsFragmentDirections.actionEventsFragmentToEventInfoFragment();
+//        action.setPosition(position);
+//
+//        navController.navigate(action);
     }
 }
