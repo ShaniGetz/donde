@@ -6,86 +6,94 @@
     android:layout_height="match_parent"
     tools:context=".fragments.EventInfoFragment">
 
-
-    <TextView
-        android:id="@+id/info_title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
-        android:text="Event Info"
-        android:textColor="#000000"
-        android:textSize="50sp"
-        android:textStyle="bold"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <TextView
-        android:id="@+id/event_textView_event_name"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:layout_constraintBottom_toTopOf="@id/event_textView_location_name"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/info_title"
-
-        tools:text="Fake concert!! Wooho" />
-
-    <TextView
-        android:id="@+id/event_textView_event_description"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:layout_constraintBottom_toTopOf="@id/event_textView_location_name"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/event_textView_event_name"
-        tools:text="Fake description describing a descriptive description" />
-
-    <TextView
-        android:id="@+id/event_textView_location_name"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:layout_constraintBottom_toTopOf="@id/event_textView_creator_name"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/event_textView_event_description"
-        tools:text="Fake Location" />
+    <FrameLayout
+        android:layout_margin="15dp"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" >
 
 
-    <TextView
-        android:id="@+id/event_textView_creator_name"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/event_textView_location_name"
-        tools:text="Fake Creator username" />
 
-    <Button
-        android:layout_width="wrap_content"
-        android:id="@+id/event_button_goto_events"
-        android:text="Go to All Events"
-        app:layout_constraintBottom_toTopOf="@id/event_button_goto_chat"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_height="wrap_content" />
-    <Button
-        android:id="@+id/event_button_goto_map"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Go to Map"
-        app:layout_constraintBottom_toBottomOf="parent"
+        <TextView
+            android:id="@+id/info_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            android:text="Event Info"
+            android:textColor="#000000"
+            android:textSize="50sp"
+            android:textStyle="bold"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        <TextView
+            android:id="@+id/event_textView_event_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toTopOf="@id/event_textView_location_name"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/info_title"
 
-    <Button
-        android:layout_width="wrap_content"
-        android:id="@+id/event_button_goto_chat"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:text="Go to Chat"
-        app:layout_constraintBottom_toTopOf="@id/event_button_goto_map"
-        android:layout_height="wrap_content" />
+            tools:text="Fake concert!! Wooho" />
+
+        <TextView
+            android:id="@+id/event_textView_event_description"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toTopOf="@id/event_textView_location_name"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/event_textView_event_name"
+            tools:text="Fake description describing a descriptive description" />
+
+        <TextView
+            android:id="@+id/event_textView_location_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toTopOf="@id/event_textView_creator_name"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/event_textView_event_description"
+            tools:text="Fake Location" />
+
+
+        <TextView
+            android:id="@+id/event_textView_creator_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/event_textView_location_name"
+            tools:text="Fake Creator username" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:id="@+id/event_button_goto_events"
+            android:text="Go to All Events"
+            app:layout_constraintBottom_toTopOf="@id/event_button_goto_chat"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_height="wrap_content" />
+        <Button
+            android:id="@+id/event_button_goto_map"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Go to Map"
+            app:layout_constraintBottom_toBottomOf="parent"
+
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:id="@+id/event_button_goto_chat"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:text="Go to Chat"
+            app:layout_constraintBottom_toTopOf="@id/event_button_goto_map"
+            android:layout_height="wrap_content" />
+    </FrameLayout>
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

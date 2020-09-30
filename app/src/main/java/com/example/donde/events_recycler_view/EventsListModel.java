@@ -1,12 +1,13 @@
 package com.example.donde.events_recycler_view;
 
+import com.example.donde.utils.EventID;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentId;
 import com.google.firebase.firestore.GeoPoint;
 
 import java.util.ArrayList;
 
-public class EventsListModel {
+public class EventsListModel extends EventID {
     @DocumentId
     private String eventID;
     private String creatorUID;

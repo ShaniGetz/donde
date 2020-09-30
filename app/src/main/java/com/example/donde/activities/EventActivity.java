@@ -3,7 +3,6 @@ package com.example.donde.activities;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -32,10 +31,10 @@ public class EventActivity extends AppCompatActivity {
     private ViewPager viewPager;
     private ViewPagerAdapter viewPagerAdapter;
 
-    private int position;
+    private String eventID;
 
     private EventsListViewModel eventsListViewModel;
-
+//    private int position;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -44,7 +43,6 @@ public class EventActivity extends AppCompatActivity {
         initializeFields();
         initializeListeners();
     }
-    //    private int position;
 //    private NavController navController;
 //    private EventsListViewModel eventsListViewModel;
 
@@ -62,10 +60,11 @@ public class EventActivity extends AppCompatActivity {
         textViewMapLabel = findViewById(R.id.event_textView_map_label);
         textViewChatLabel = findViewById(R.id.event_textView_chat_label);
         viewPager = findViewById(R.id.event_viewPager);
-        viewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager());
+        eventID = getIntent().getStringExtra("eventID");
+        viewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager(), eventID);
         viewPager.setAdapter(viewPagerAdapter);
-        position = getIntent().getIntExtra("position", -1);
-        Toast.makeText(EventActivity.this, "position: " + position, Toast.LENGTH_SHORT).show();
+        // meaning all 3 screens will always be loaded
+        viewPager.setOffscreenPageLimit(2);
 
 
         eventsListViewModel = new ViewModelProvider(this).get(EventsListViewModel.class);

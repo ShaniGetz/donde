@@ -48,18 +48,17 @@ public class EventsListAdapter extends RecyclerView.Adapter<EventsListAdapter.Ev
         holder.listName.setText(currentEvent.getEventName());
         holder.listDesc.setText(currentEvent.getEventDescription());
         holder.listLocationName.setText(currentEvent.getEventLocationName());
-
+        holder.setEventID(currentEvent.getEventID());
 //        long milliseconds = currentEvent.getTime_starting().toDate().getTime();
 //        String sDateStarting = DateFormat.format("dd/MM/yyyy", new Date(milliseconds))
 //        holder.listTimeStarting.setText(currentEvent.getTime_starting().toDate().toString());
-
 
 
 //        String creator_id = currentEvent.getCreator_id();
 //        FirebaseFirestore firebaseFirestore = FirebaseFirestore.getInstance();
 //        firebaseFirestore.collection("Users").document(currentEvent.getCreator_id()).get;
 //        holder.listCreatorUserName.setText(currentEvent.getCreator_username());
-      holder.setCreatorName();
+        holder.setCreatorName();
     }
 
     @Override
@@ -74,7 +73,7 @@ public class EventsListAdapter extends RecyclerView.Adapter<EventsListAdapter.Ev
     }
 
     public interface OnEventListItemClicked {
-        void onItemClicked(int position);
+        void onItemClicked(String eventID);
     }
 
     public class EventViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
@@ -87,6 +86,8 @@ public class EventsListAdapter extends RecyclerView.Adapter<EventsListAdapter.Ev
         private TextView listTimeCreated;
         private TextView listTimeStarting;
         private Button listGotoEvent;
+
+        private String eventID;
 
         public EventViewHolder(@NonNull View itemView) {
 
@@ -105,13 +106,19 @@ public class EventsListAdapter extends RecyclerView.Adapter<EventsListAdapter.Ev
             listGotoEvent.setOnClickListener(this);
         }
 
+        public void setEventID(String eventID) {
+            this.eventID = eventID;
+        }
+
         private void setCreatorName() {
 
         }
 
         @Override
         public void onClick(View v) {
-            onEventListItemClicked.onItemClicked(getAdapterPosition());
+//            Log.e("Onclick adapter", "Event id: " + eventID);
+//            onEventListItemClicked.onItemClicked(getAdapterPosition());
+            onEventListItemClicked.onItemClicked(eventID);
         }
     }
 }
