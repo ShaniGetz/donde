@@ -4,15 +4,20 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 
 import com.example.donde.R;
+import com.example.donde.events_recycler_view.EventsListModel;
 import com.example.donde.events_recycler_view.EventsListViewModel;
+
+import java.util.List;
 
 //import com.example.donde.EventInfoFragmentArgs;
 
@@ -24,34 +29,59 @@ public class EventInfoFragment extends Fragment {
     private NavController navController;
     private EventsListViewModel eventsListViewModel;
 
-    private TextView infoEventName;
-    private TextView infoDescription;
-    private TextView infoLocationName;
-    private TextView infoCreatorUsername;
+    private TextView textViewEventName;
+    private TextView textViewEventDescription;
+    private TextView textViewLocationName;
+//    private TextView infoCreatorUsername;
+//
+//    private Button buttonGotoAllEvents;
+//    private Button buttonGotoChat;
+//    private Button buttonGotoMap;
 
-    private Button buttonGotoAllEvents;
-    private Button buttonGotoChat;
-    private Button buttonGotoMap;
+    private String eventID;
+    private String eventName;
+    private TextView textViewTitle;
+
 
     public EventInfoFragment() {
         // Required empty public constructor
     }
 
+    private void initializeFields(View view) {
+        eventID = getArguments().getString(getString(R.string.arg_event_id));
+        position = getArguments().getInt(getString(R.string.arg_position));
+//        Toast.makeText(getContext(),"Err "+position, Toast.LENGTH_SHORT).show();
+//        Toast.makeText(getContext(),"Err "+eventID, Toast.LENGTH_SHORT).show();
+//        eventName = getArguments().getString(getString(R.string.arg_event_name));
+
+//        textViewTitle = view.findViewById(R.id.info_textView_title);
+//        textViewTitle.setText(eventID);
+        textViewEventName = view.findViewById(R.id.info_textView_event_name);
+        textViewEventDescription = view.findViewById(R.id.info_textView_event_description);
+        textViewLocationName = view.findViewById(R.id.info_textView_location_name);
+
+
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
 
-        String eventID = getArguments().getString("eventID");
-        Toast.makeText(getActivity().getApplicationContext(), "eventID: " + eventID,
-                Toast.LENGTH_SHORT).show();
 
         return inflater.inflate(R.layout.fragment_event_info, container, false);
 
+
     }
 
-//    @Override
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        initializeFields(view);
+    }
+
+
+    //    @Override
 //    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
 //        super.onViewCreated(view, savedInstanceState);
 ////        navController = Navigation.findNavController(view);
@@ -86,18 +116,21 @@ public class EventInfoFragment extends Fragment {
 //        });
 //    }
 //
-//    @Override
-//    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-//        super.onActivityCreated(savedInstanceState);
-//        eventsListViewModel = new ViewModelProvider(getActivity()).get(EventsListViewModel.class);
-//        eventsListViewModel.getEventsListModelData().observe(getViewLifecycleOwner(), new Observer<List<EventsListModel>>() {
-//            @Override
-//            public void onChanged(List<EventsListModel> eventsListModels) {
-//                infoEventName.setText(eventsListModels.get(position).getEventName());
-//                infoDescription.setText(eventsListModels.get(position).getEventDescription());
-//                infoLocationName.setText(eventsListModels.get(position).getEventLocationName());
-////                infoCreatorUsername.setText(eventsListModels.get(position).getCreator_username());
-//            }
-//        });
-//    }
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+//        Toast.makeText(getContext(), "Err " + position, Toast.LENGTH_SHORT).show();
+
+        eventsListViewModel = new ViewModelProvider(getActivity()).get(EventsListViewModel.class);
+        eventsListViewModel.getEventsListModelData().observe(getViewLifecycleOwner(), new Observer<List<EventsListModel>>() {
+            @Override
+            public void onChanged(List<EventsListModel> eventsListModels) {
+                textViewTitle.setText(eventsListModels.get(position).getEventName());
+                textViewEventName.setText(eventsListModels.get(position).getEventName());
+                textViewEventDescription.setText(eventsListModels.get(position).getEventDescription());
+                textViewLocationName.setText(eventsListModels.get(position).getEventLocationName());
+//                infoCreatorUsername.setText(eventsListModels.get(position).getCreator_username());
+            }
+        });
+    }
 }

@@ -98,10 +98,11 @@ public class EventsFragment extends Fragment implements EventsListAdapter.OnEven
 
 
     @Override
-    public void onItemClicked(String eventID) {
+    public void onItemClicked(int position, String eventID) {
         Intent eventIntent = new Intent(getActivity(), EventActivity.class);
 
-        eventIntent.putExtra("eventID", eventID);
+        eventIntent.putExtra(getString(R.string.arg_position), position);
+        eventIntent.putExtra(getString(R.string.arg_event_id), eventID);
         startActivity(eventIntent);
 
         //        EventsFragmentDirections.ActionEventsFragmentToEventInfoFragment action =

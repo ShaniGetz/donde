@@ -3,6 +3,7 @@ package com.example.donde.activities;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -32,6 +33,7 @@ public class EventActivity extends AppCompatActivity {
     private ViewPagerAdapter viewPagerAdapter;
 
     private String eventID;
+    private int position;
 
     private EventsListViewModel eventsListViewModel;
 //    private int position;
@@ -60,8 +62,11 @@ public class EventActivity extends AppCompatActivity {
         textViewMapLabel = findViewById(R.id.event_textView_map_label);
         textViewChatLabel = findViewById(R.id.event_textView_chat_label);
         viewPager = findViewById(R.id.event_viewPager);
-        eventID = getIntent().getStringExtra("eventID");
-        viewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager(), eventID);
+        eventID = getIntent().getStringExtra(getString(R.string.arg_event_id));
+        position = getIntent().getIntExtra(getString(R.string.arg_position), -1);
+//        Toast.makeText(EventActivity.this, "Err " + eventID, Toast.LENGTH_SHORT).show();
+
+        viewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager(), eventID, position);
         viewPager.setAdapter(viewPagerAdapter);
         // meaning all 3 screens will always be loaded
         viewPager.setOffscreenPageLimit(2);
@@ -133,6 +138,7 @@ public class EventActivity extends AppCompatActivity {
     private void changeTabs(int position) {
         TextView mainTab;
         TextView subTab1, subTab2;
+
         switch (position) {
             case INFO_TAB:
                 mainTab = textViewInfoLabel;

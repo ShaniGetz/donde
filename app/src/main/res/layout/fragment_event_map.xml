@@ -7,7 +7,7 @@
     tools:context=".fragments.EventMapFragment">
 
     <TextView
-        android:id="@+id/info_title"
+        android:id="@+id/info_textView_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"

@@ -73,7 +73,7 @@ public class EventsListAdapter extends RecyclerView.Adapter<EventsListAdapter.Ev
     }
 
     public interface OnEventListItemClicked {
-        void onItemClicked(String eventID);
+        void onItemClicked(int position, String eventID);
     }
 
     public class EventViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
@@ -118,7 +118,7 @@ public class EventsListAdapter extends RecyclerView.Adapter<EventsListAdapter.Ev
         public void onClick(View v) {
 //            Log.e("Onclick adapter", "Event id: " + eventID);
 //            onEventListItemClicked.onItemClicked(getAdapterPosition());
-            onEventListItemClicked.onItemClicked(eventID);
+            onEventListItemClicked.onItemClicked(getAdapterPosition(), eventID);
         }
     }
 }

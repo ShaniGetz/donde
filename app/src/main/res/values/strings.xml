@@ -23,4 +23,9 @@
     <string name="ff_event_location">eventLocation</string>
     <string name="ff_event_start_time">timeStarting</string>
     <string name="ff_event_invited_users">invitedUsers</string>
+    <string name="ff_chat_sender_uid_key">senderUID</string>
+    <string name="ff_chat_message_content_key">messageContent</string>
+    <string name="arg_event_id">eventID</string>
+    <string name="arg_event_name">eventName</string>
+    <string name="arg_position">arg_position</string>
 </resources>
