@@ -28,4 +28,5 @@
     <string name="arg_event_id">eventID</string>
     <string name="arg_event_name">eventName</string>
     <string name="arg_position">arg_position</string>
+    <string name="ff_events_collection">Events</string>
 </resources>

@@ -6,13 +6,14 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import com.example.donde.models.EventModel;
 import com.example.donde.utils.FirebaseRepository;
 
 import java.util.List;
 
 public class EventsListViewModel extends ViewModel implements FirebaseRepository.OnFirestoreTaskComplete {
 
-    private MutableLiveData<List<EventsListModel>> eventsListModelData = new MutableLiveData<>();
+    private MutableLiveData<List<EventModel>> eventsListModelData = new MutableLiveData<>();
     private FirebaseRepository firebaseRepository ;
 
 
@@ -22,14 +23,14 @@ public class EventsListViewModel extends ViewModel implements FirebaseRepository
         firebaseRepository.getEventsData();
     }
 
-    public LiveData<List<EventsListModel>> getEventsListModelData() {
+    public LiveData<List<EventModel>> getEventsListModelData() {
         Log.e("EventsListViewModel", "in getEventsListModelData");
 
         return eventsListModelData;
     }
 
     @Override
-    public void eventsListDataAdded(List<EventsListModel> eventsListModelList) {
+    public void eventsListDataAdded(List<EventModel> eventsListModelList) {
         Log.e("EventsListViewModel", "in eventsListDataAdded");
 
         eventsListModelData.setValue(eventsListModelList);

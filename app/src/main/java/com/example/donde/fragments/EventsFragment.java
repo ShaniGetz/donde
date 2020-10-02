@@ -15,13 +15,14 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
+import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.donde.R;
 import com.example.donde.activities.EventActivity;
 import com.example.donde.events_recycler_view.EventsListAdapter;
-import com.example.donde.events_recycler_view.EventsListModel;
+import com.example.donde.models.EventModel;
 import com.example.donde.events_recycler_view.EventsListViewModel;
 
 import java.util.List;
@@ -68,6 +69,9 @@ public class EventsFragment extends Fragment implements EventsListAdapter.OnEven
         listView.setLayoutManager(new LinearLayoutManager(getContext()));
         listView.setHasFixedSize(true);
         listView.setAdapter(adapter);
+        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(listView.getContext(),
+                DividerItemDecoration.VERTICAL);
+        listView.addItemDecoration(dividerItemDecoration);
         navController = Navigation.findNavController(view);
 
         buttonCreateNewEvent = view.findViewById(R.id.create_button_create);
@@ -87,9 +91,9 @@ public class EventsFragment extends Fragment implements EventsListAdapter.OnEven
         super.onActivityCreated(savedInstanceState);
 
         eventsListViewModel = new ViewModelProvider(getActivity()).get(EventsListViewModel.class);
-        eventsListViewModel.getEventsListModelData().observe(getViewLifecycleOwner(), new Observer<List<EventsListModel>>() {
+        eventsListViewModel.getEventsListModelData().observe(getViewLifecycleOwner(), new Observer<List<EventModel>>() {
             @Override
-            public void onChanged(List<EventsListModel> eventsListModels) {
+            public void onChanged(List<EventModel> eventsListModels) {
                 adapter.setEventsListModels(eventsListModels);
                 adapter.notifyDataSetChanged();
             }

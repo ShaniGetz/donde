@@ -11,11 +11,12 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.donde.R;
+import com.example.donde.models.EventModel;
 
 import java.util.List;
 
 public class EventsListAdapter extends RecyclerView.Adapter<EventsListAdapter.EventViewHolder> {
-    private List<EventsListModel> eventsListModels;
+    private List<EventModel> eventsListModels;
     private OnEventListItemClicked onEventListItemClicked;
 
 
@@ -23,7 +24,7 @@ public class EventsListAdapter extends RecyclerView.Adapter<EventsListAdapter.Ev
         this.onEventListItemClicked = onEventListItemClicked;
     }
 
-    public void setEventsListModels(List<EventsListModel> eventsListModels) {
+    public void setEventsListModels(List<EventModel> eventsListModels) {
         Log.e("EventListAdapter", "in setEventListModels");
 
         this.eventsListModels = eventsListModels;
@@ -43,7 +44,7 @@ public class EventsListAdapter extends RecyclerView.Adapter<EventsListAdapter.Ev
     public void onBindViewHolder(@NonNull EventViewHolder holder, int position) {
         Log.e("EventListAdapter", "in onBindViewHolder");
 
-        EventsListModel currentEvent = eventsListModels.get(position);
+        EventModel currentEvent = eventsListModels.get(position);
 
         holder.listName.setText(currentEvent.getEventName());
         holder.listDesc.setText(currentEvent.getEventDescription());

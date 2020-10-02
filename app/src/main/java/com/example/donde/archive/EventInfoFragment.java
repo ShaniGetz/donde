@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -14,9 +15,15 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 
 import com.example.donde.R;
-import com.example.donde.events_recycler_view.EventsListModel;
 import com.example.donde.events_recycler_view.EventsListViewModel;
+import com.example.donde.models.EventModel;
+import com.example.donde.models.UserModel;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentChange;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 
+import java.util.ArrayList;
 import java.util.List;
 
 //import com.example.donde.EventInfoFragmentArgs;
@@ -42,7 +49,11 @@ public class EventInfoFragment extends Fragment {
     private String eventName;
     private TextView textViewTitle;
 
+    private FirebaseFirestore firebaseFirestore;
+    private List<UserModel> invitedUsers;
 
+
+    //
     public EventInfoFragment() {
         // Required empty public constructor
     }
@@ -54,13 +65,34 @@ public class EventInfoFragment extends Fragment {
 //        Toast.makeText(getContext(),"Err "+eventID, Toast.LENGTH_SHORT).show();
 //        eventName = getArguments().getString(getString(R.string.arg_event_name));
 
-//        textViewTitle = view.findViewById(R.id.info_textView_title);
+        textViewTitle = view.findViewById(R.id.info_textView_title);
 //        textViewTitle.setText(eventID);
         textViewEventName = view.findViewById(R.id.info_textView_event_name);
         textViewEventDescription = view.findViewById(R.id.info_textView_event_description);
         textViewLocationName = view.findViewById(R.id.info_textView_location_name);
 
+        firebaseFirestore = FirebaseFirestore.getInstance();
+        invitedUsers = new ArrayList<>();
 
+        populateInvitedUsersList();
+
+
+    }
+
+    private void populateInvitedUsersList() {
+        CollectionReference usersRef = firebaseFirestore.collection(getString(R.string.ff_users_collection));
+//        Query invitedUsersQuery = usersRef.whe()
+        firebaseFirestore.collection(getString(R.string.ff_users_collection)).addSnapshotListener((value, error) -> {
+            if (error != null) {
+                Toast.makeText(getContext(), "Error: " + error.getMessage(), Toast.LENGTH_SHORT).show();
+            } else {
+                for (DocumentChange doc : value.getDocumentChanges()) {
+                    if (doc.getType() == DocumentChange.Type.ADDED) {
+                        UserModel users = doc.getDocument().toObject(UserModel.class);
+                    }
+                }
+            }
+        });
     }
 
     @Override
@@ -122,9 +154,9 @@ public class EventInfoFragment extends Fragment {
 //        Toast.makeText(getContext(), "Err " + position, Toast.LENGTH_SHORT).show();
 
         eventsListViewModel = new ViewModelProvider(getActivity()).get(EventsListViewModel.class);
-        eventsListViewModel.getEventsListModelData().observe(getViewLifecycleOwner(), new Observer<List<EventsListModel>>() {
+        eventsListViewModel.getEventsListModelData().observe(getViewLifecycleOwner(), new Observer<List<EventModel>>() {
             @Override
-            public void onChanged(List<EventsListModel> eventsListModels) {
+            public void onChanged(List<EventModel> eventsListModels) {
                 textViewTitle.setText(eventsListModels.get(position).getEventName());
                 textViewEventName.setText(eventsListModels.get(position).getEventName());
                 textViewEventDescription.setText(eventsListModels.get(position).getEventDescription());

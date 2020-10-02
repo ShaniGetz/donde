@@ -62,38 +62,46 @@
         android:id="@+id/info_textView_creator_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        app:layout_constraintBottom_toTopOf="@id/info_recyclerView_invited_users"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/info_textView_location_name"
         tools:text="Fake Creator username" />
 
-<!--    <Button-->
-<!--        android:id="@+id/event_button_goto_events"-->
-<!--        android:layout_width="wrap_content"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:text="Go to All Events"-->
-<!--        app:layout_constraintBottom_toTopOf="@id/event_button_goto_chat"-->
-<!--        app:layout_constraintEnd_toEndOf="parent"-->
-<!--        app:layout_constraintStart_toStartOf="parent" />-->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/info_recyclerView_invited_users"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/info_textView_creator_name" />
+    <!--    <Button-->
+    <!--        android:id="@+id/event_button_goto_events"-->
+    <!--        android:layout_width="wrap_content"-->
+    <!--        android:layout_height="wrap_content"-->
+    <!--        android:text="Go to All Events"-->
+    <!--        app:layout_constraintBottom_toTopOf="@id/event_button_goto_chat"-->
+    <!--        app:layout_constraintEnd_toEndOf="parent"-->
+    <!--        app:layout_constraintStart_toStartOf="parent" />-->
 
-<!--    <Button-->
-<!--        android:id="@+id/event_button_goto_map"-->
-<!--        android:layout_width="wrap_content"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:text="Go to Map"-->
-<!--        app:layout_constraintBottom_toBottomOf="parent"-->
+    <!--    <Button-->
+    <!--        android:id="@+id/event_button_goto_map"-->
+    <!--        android:layout_width="wrap_content"-->
+    <!--        android:layout_height="wrap_content"-->
+    <!--        android:text="Go to Map"-->
+    <!--        app:layout_constraintBottom_toBottomOf="parent"-->
 
-<!--        app:layout_constraintEnd_toEndOf="parent"-->
-<!--        app:layout_constraintStart_toStartOf="parent" />-->
+    <!--        app:layout_constraintEnd_toEndOf="parent"-->
+    <!--        app:layout_constraintStart_toStartOf="parent" />-->
 
-<!--    <Button-->
-<!--        android:id="@+id/event_button_goto_chat"-->
-<!--        android:layout_width="wrap_content"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:text="Go to Chat"-->
-<!--        app:layout_constraintBottom_toTopOf="@id/event_button_goto_map"-->
-<!--        app:layout_constraintEnd_toEndOf="parent"-->
-<!--        app:layout_constraintStart_toStartOf="parent" />-->
+    <!--    <Button-->
+    <!--        android:id="@+id/event_button_goto_chat"-->
+    <!--        android:layout_width="wrap_content"-->
+    <!--        android:layout_height="wrap_content"-->
+    <!--        android:text="Go to Chat"-->
+    <!--        app:layout_constraintBottom_toTopOf="@id/event_button_goto_map"-->
+    <!--        app:layout_constraintEnd_toEndOf="parent"-->
+    <!--        app:layout_constraintStart_toStartOf="parent" />-->
     <!--    </FrameLayout>-->
 
 

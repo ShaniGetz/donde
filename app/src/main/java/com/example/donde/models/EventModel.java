@@ -1,4 +1,4 @@
-package com.example.donde.events_recycler_view;
+package com.example.donde.models;
 
 import com.example.donde.utils.EventID;
 import com.google.firebase.Timestamp;
@@ -7,7 +7,7 @@ import com.google.firebase.firestore.GeoPoint;
 
 import java.util.ArrayList;
 
-public class EventsListModel extends EventID {
+public class EventModel extends EventID {
     @DocumentId
     private String eventID;
     private String creatorUID;
@@ -18,14 +18,14 @@ public class EventsListModel extends EventID {
     private GeoPoint eventLocation;
     private ArrayList<String> invitedUsers;
 
-    public EventsListModel() {
+    public EventModel() {
 
     }
 
-    public EventsListModel(String eventID, String eventName, String eventDescription,
-                           String creator_id, String eventLocationName,
-                           Timestamp timeCreated,
-                           Timestamp timeStarting, GeoPoint location, ArrayList<String> invited_people) {
+    public EventModel(String eventID, String eventName, String eventDescription,
+                      String creator_id, String eventLocationName,
+                      Timestamp timeCreated,
+                      Timestamp timeStarting, GeoPoint location, ArrayList<String> invited_people) {
         this.eventID = eventID;
         this.eventName = eventName;
         this.eventDescription = eventDescription;
