@@ -44,6 +44,8 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Tile;
+import com.google.android.gms.maps.model.TileOverlay;
+import com.google.android.gms.maps.model.TileOverlayOptions;
 import com.google.android.gms.maps.model.TileProvider;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -307,8 +309,8 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
                     }
                     Address address = addressList.get(0);
                     LatLng latling = new LatLng(address.getLatitude(), address.getLongitude());
-//                    TileOverlay offlineTileOverlay = mGoogleMap.addTileOverlay(new TileOverlayOptions()
-//                            .tileProvider(new OfflineTileProvider()));
+                    TileOverlay offlineTileOverlay = mGoogleMap.addTileOverlay(new TileOverlayOptions()
+                            .tileProvider(new OfflineTileProvider()));
                     mGoogleMap.addMarker(new MarkerOptions().position(latling).title(location));
                     mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latling, 15));
                 }
@@ -549,7 +551,9 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
             try {
                 byte[] data;
                 //
-                File file = new File(TILES_DIR, x + "_" + y + ".png");
+//                File file = new File(TILES_DIR, x + "_" + y + ".png");
+                File file = new File(TILES_DIR, "firstmap.png");
+
                 Log.d("TAG", TILES_DIR);
                 if (file.exists()) {
                     data = readTile(new FileInputStream(file), BUFFER_SIZE_FILE);

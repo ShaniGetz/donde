@@ -23,6 +23,7 @@ import androidx.fragment.app.Fragment;
 import com.example.donde.ClusterMarker;
 import com.example.donde.MyClusterManagerRenderer;
 import com.example.donde.R;
+import com.example.donde.utils.CustomMapTileProvider;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
@@ -35,6 +36,7 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.TileOverlayOptions;
 import com.google.maps.android.clustering.ClusterManager;
 
 import java.util.ArrayList;
@@ -122,12 +124,17 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback {
 
 
         mGoogleMap = googleMap;
-        googleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+        String tilesDir = getContext().getFilesDir().toString();
 
-        mLocationRequest = new LocationRequest();
-        mLocationRequest.setInterval(120000); // two minute interval
-        mLocationRequest.setFastestInterval(120000);
-        mLocationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
+        mGoogleMap.addTileOverlay(new TileOverlayOptions().tileProvider(new CustomMapTileProvider(tilesDir)));
+
+
+//        googleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+
+//        mLocationRequest = new LocationRequest();
+//        mLocationRequest.setInterval(120000); // two minute interval
+//        mLocationRequest.setFastestInterval(120000);
+//        mLocationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
 
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (ContextCompat.checkSelfPermission(getContext(),

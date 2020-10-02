@@ -40,10 +40,10 @@ public class FirebaseRepository {
 //        String user_email = mAuth.getCurrentUser().getEmail();
 //        Log.e ("Repo", user_email);
 
-//        Query query =
-//                eventsRef.whereArrayContains(App.getRes().getString(R.string.ff_event_invited_users),
-//                        firebaseAuth.getCurrentUser().getUid());
-        Query query = eventsRef;
+        Query query =
+                eventsRef.whereArrayContains(App.getRes().getString(R.string.ff_event_invited_users),
+                        firebaseAuth.getCurrentUser().getUid());
+//        Query query = eventsRef;
 
         query.get().addOnCompleteListener(task -> {
             Log.e("FirebaseRepository", "in onComplete");
