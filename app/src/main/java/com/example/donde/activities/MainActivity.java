@@ -73,11 +73,31 @@ public class MainActivity extends AppCompatActivity {
 
         super.onStart();
 
-        // if current user is null, we want to log in
+//      if current user is null, we want to log in
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if (currentUser == null) {
             gotoToLogin();
         }
+//
+//
+//        FirebaseAuth mAuth = FirebaseAuth.getInstance();
+//        FirebaseUser myUser = mAuth.getCurrentUser(); // ==null if no one is logged in
+//        String myUserId = myUser.getUid();
+//        Toast.makeText(this, "My ID is: " + myUserId, Toast.LENGTH_SHORT).show();
+//
+//
+//        FirebaseFirestore mFirestore = FirebaseFirestore.getInstance();
+//        CollectionReference usersReference = mFirestore.collection("Users");
+//        usersReference.document(myUserId).get().addOnCompleteListener(
+//                new OnCompleteListener<DocumentSnapshot>() {
+//                    @Override
+//                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+//                        String userName = task.getResult().get("name").toString();
+//                        Toast.makeText(MainActivity.this, "The current user name is: " + userName,
+//                                Toast.LENGTH_SHORT).show();
+//                    }
+//                }
+//        );
 
     }
 

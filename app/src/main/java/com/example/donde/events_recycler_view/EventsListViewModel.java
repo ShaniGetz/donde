@@ -14,12 +14,12 @@ import java.util.List;
 public class EventsListViewModel extends ViewModel implements FirebaseRepository.OnFirestoreTaskComplete {
 
     private MutableLiveData<List<EventModel>> eventsListModelData = new MutableLiveData<>();
-    private FirebaseRepository firebaseRepository ;
+    private FirebaseRepository firebaseRepository;
 
 
     public EventsListViewModel() {
         Log.e("EventsListViewModel", "in EventsListViewModel");
-        firebaseRepository= new FirebaseRepository(this);
+        firebaseRepository = new FirebaseRepository(this);
         firebaseRepository.getEventsData();
     }
 
