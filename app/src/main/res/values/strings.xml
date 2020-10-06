@@ -17,11 +17,11 @@
     <string name="ff_users_collection">Users</string>
     <string name="ff_event_name">eventName</string>
     <string name="ff_event_description">eventDescription</string>
-    <string name="ff_event_creator_uid">creatorUID</string>
-    <string name="ff_event_time_created">timeCreated</string>
+    <string name="ff_event_creator_uid">eventCreatorUID</string>
+    <string name="ff_event_time_created">eventTimeCreated</string>
     <string name="ff_event_location_name">eventLocationName</string>
     <string name="ff_event_location">eventLocation</string>
-    <string name="ff_event_start_time">timeStarting</string>
+    <string name="ff_event_start_time">eventTimeStarting</string>
     <string name="ff_event_invited_users">invitedUsers</string>
     <string name="ff_chat_sender_uid_key">senderUID</string>
     <string name="ff_chat_message_content_key">messageContent</string>

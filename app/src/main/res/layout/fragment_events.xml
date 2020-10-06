@@ -21,7 +21,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/list_view"
+        android:id="@+id/events_recyclerView_events"
         android:layout_width="360dp"
         android:layout_height="470dp"
         app:layout_constraintBottom_toBottomOf="parent"

@@ -238,7 +238,7 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
     private void initializeFields() {
         editTextEventName = findViewById(R.id.create_editText_event_name);
         editTextEventDescription = findViewById(R.id.create_editText_event_description);
-        editTextLocationName = findViewById(R.id.create_editText_location_name);
+//        editTextLocationName = findViewById(R.id.create_editText_location_name);
 //        editTextLongitude = findViewById(R.id.create_editText_longitude);
 //        editTextLatitude = findViewById(R.id.create_editText_latitude);
         buttonCreateEvent = findViewById(R.id.create_button_create);

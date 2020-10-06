@@ -3,7 +3,6 @@ package com.example.donde.activities;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -11,7 +10,7 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.viewpager.widget.ViewPager;
 
 import com.example.donde.R;
-import com.example.donde.events_recycler_view.EventsListViewModel;
+import com.example.donde.recycle_views.events_recycler_view.EventsListViewModel;
 import com.example.donde.utils.ViewPagerAdapter;
 
 

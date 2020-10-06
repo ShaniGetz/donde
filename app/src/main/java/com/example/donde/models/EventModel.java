@@ -1,50 +1,42 @@
 package com.example.donde.models;
 
-import com.example.donde.utils.EventID;
-import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentId;
 import com.google.firebase.firestore.GeoPoint;
+import com.google.firebase.firestore.ServerTimestamp;
 
-import java.util.ArrayList;
+import java.util.Date;
 
-public class EventModel extends EventID {
+public class EventModel {
     @DocumentId
     private String eventID;
-    private String creatorUID;
-    private String eventName, eventDescription, eventLocationName;
-    //    private long longtitude, latitude;
-    private Timestamp timeCreated;
-    private Timestamp timeStarting;
+    private String eventCreatorUID;
+    private String eventName;
+    private String eventDescription;
+    private String eventLocationName;
+    @ServerTimestamp
+    private Date eventTimeCreated;
+    @ServerTimestamp
+    private Date eventTimeStarting;
     private GeoPoint eventLocation;
-    private ArrayList<String> invitedUsers;
+    private String eventCreatorName;
+
+    public EventModel(String eventID, String eventCreatorUID, String eventName, String eventDescription, String eventLocationName, Date eventTimeCreated, Date eventTimeStarting, GeoPoint eventLocation, String eventCreatorName) {
+        this.eventID = eventID;
+        this.eventCreatorUID = eventCreatorUID;
+        this.eventName = eventName;
+        this.eventDescription = eventDescription;
+        this.eventLocationName = eventLocationName;
+        this.eventTimeCreated = eventTimeCreated;
+        this.eventTimeStarting = eventTimeStarting;
+        this.eventLocation = eventLocation;
+        this.eventCreatorName = eventCreatorName;
+    }
+
 
     public EventModel() {
 
     }
 
-    public EventModel(String eventID, String eventName, String eventDescription,
-                      String creator_id, String eventLocationName,
-                      Timestamp timeCreated,
-                      Timestamp timeStarting, GeoPoint location, ArrayList<String> invited_people) {
-        this.eventID = eventID;
-        this.eventName = eventName;
-        this.eventDescription = eventDescription;
-        this.creatorUID = creator_id;
-//        this.creator_username = creator_username;
-        this.eventLocationName = eventLocationName;
-        this.timeCreated = timeCreated;
-        this.timeStarting = timeStarting;
-        this.eventLocation = location;
-        this.invitedUsers = invited_people;
-    }
-
-    public String getCreatorUID() {
-        return creatorUID;
-    }
-
-    public void setCreatorUID(String creatorUID) {
-        this.creatorUID = creatorUID;
-    }
 
     public String getEventID() {
         return eventID;
@@ -52,6 +44,14 @@ public class EventModel extends EventID {
 
     public void setEventID(String eventID) {
         this.eventID = eventID;
+    }
+
+    public String getEventCreatorUID() {
+        return eventCreatorUID;
+    }
+
+    public void setEventCreatorUID(String eventCreatorUID) {
+        this.eventCreatorUID = eventCreatorUID;
     }
 
     public String getEventName() {
@@ -70,14 +70,6 @@ public class EventModel extends EventID {
         this.eventDescription = eventDescription;
     }
 
-//    public String getCreator_username() {
-//        return creator_username;
-//    }
-
-//    public void setCreator_username(String creator_username) {
-//        this.creator_username = creator_username;
-//    }
-
     public String getEventLocationName() {
         return eventLocationName;
     }
@@ -86,20 +78,20 @@ public class EventModel extends EventID {
         this.eventLocationName = eventLocationName;
     }
 
-    public Timestamp getTimeCreated() {
-        return timeCreated;
+    public Date getEventTimeCreated() {
+        return eventTimeCreated;
     }
 
-    public void setTimeCreated(Timestamp timeCreated) {
-        this.timeCreated = timeCreated;
+    public void setEventTimeCreated(Date eventTimeCreated) {
+        this.eventTimeCreated = eventTimeCreated;
     }
 
-    public Timestamp getTimeStarting() {
-        return timeStarting;
+    public Date getEventTimeStarting() {
+        return eventTimeStarting;
     }
 
-    public void setTimeStarting(Timestamp timeStarting) {
-        this.timeStarting = timeStarting;
+    public void setEventTimeStarting(Date eventTimeStarting) {
+        this.eventTimeStarting = eventTimeStarting;
     }
 
     public GeoPoint getEventLocation() {
@@ -110,11 +102,11 @@ public class EventModel extends EventID {
         this.eventLocation = eventLocation;
     }
 
-    public ArrayList<String> getInvitedUsers() {
-        return invitedUsers;
+    public String getEventCreatorName() {
+        return eventCreatorName;
     }
 
-    public void setInvitedUsers(ArrayList<String> invitedUsers) {
-        this.invitedUsers = invitedUsers;
+    public void setEventCreatorName(String eventCreatorName) {
+        this.eventCreatorName = eventCreatorName;
     }
 }

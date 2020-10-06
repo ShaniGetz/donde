@@ -1,4 +1,4 @@
-package com.example.donde.events_recycler_view;
+package com.example.donde.recycle_views.events_recycler_view;
 
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -49,8 +49,8 @@ public class EventsListAdapter extends RecyclerView.Adapter<EventsListAdapter.Ev
         holder.listName.setText("Name: " + currentEvent.getEventName());
         holder.listDesc.setText("Description:\n" + currentEvent.getEventDescription());
         holder.listLocationName.setText("Location name: " + currentEvent.getEventLocationName());
-        holder.listTimeStarting.setText("Time starting: "+currentEvent.getTimeStarting());
-        holder.listCreatorUserName.setText("Creator username: "+currentEvent.getCreatorUID());
+        holder.listTimeStarting.setText("Time starting: "+currentEvent.getEventTimeStarting());
+        holder.listCreatorUserName.setText("Creator username: "+currentEvent.getEventCreatorUID());
         holder.setEventID(currentEvent.getEventID());
 //        long milliseconds = currentEvent.getTime_starting().toDate().getTime();
 //        String sDateStarting = DateFormat.format("dd/MM/yyyy", new Date(milliseconds))
@@ -97,13 +97,13 @@ public class EventsListAdapter extends RecyclerView.Adapter<EventsListAdapter.Ev
             super(itemView);
             Log.e("EventListAdapter", "in EventViewHolder");
 
-            listName = itemView.findViewById(R.id.list_name);
-            listDesc = itemView.findViewById(R.id.list_desc);
-            listLocationName = itemView.findViewById(R.id.list_location_name);
-            listLocation = itemView.findViewById(R.id.list_location);
-            listCreatorUserName = itemView.findViewById(R.id.list_creator_username);
-            listTimeCreated = itemView.findViewById(R.id.list_time_created);
-            listTimeStarting = itemView.findViewById(R.id.list_time_starting);
+            listName = itemView.findViewById(R.id.event_item_textView_event_name);
+            listDesc = itemView.findViewById(R.id.event_item_textView_event_description);
+            listLocationName = itemView.findViewById(R.id.event_item_textView_event_location_name);
+//            listLocation = itemView.findViewById(R.id.list_location);
+            listCreatorUserName = itemView.findViewById(R.id.event_item_textView_event_creator_name);
+//            listTimeCreated = itemView.findViewById(R.id.list_time_created);
+            listTimeStarting = itemView.findViewById(R.id.event_item_textView_event_time_starting);
             listGotoEvent = itemView.findViewById(R.id.list_goto_event);
 
             listGotoEvent.setOnClickListener(this);

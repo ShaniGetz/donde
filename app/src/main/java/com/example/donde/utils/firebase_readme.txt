@@ -12,13 +12,16 @@ Updates (old to new):
 'EventInvitedUsers' sub-collection inside an event document)
 
 
+*Firebase Authentication*
 
-*Firestore*
+-   -
+
+*Firebase Firestore*
 
 -   Events   [Collection]
 -   -   eventName           [String]
 -   -   eventDescription    [String]
--   -   eventCreatorID      [String]
+-   -   eventCreatorUID      [String]
 -   -   eventCreatorName    [String]
 -   -   eventTimeCreated    [Timestamp]
 -   -   eventTimeStarting   [Timestamp]
@@ -31,7 +34,13 @@ Updates (old to new):
 
 -   Users   [Collection]
 -   -   userName            [String]
+-   -   userID              [String]        //references user ID as it appears in Firebase Authentication
 -   -   userEmail           [String]
+-   -   userProfilePicURL   [String]        //URL for the profile pic inside Firebase Storage
+-   -   UserInteractedUsers [Collection]    //users that the user interacted with
+-   -   -   userInteractedUserID    [String]    //references the userID field as it appears in Users
+-   -   -   userInteractedUserName  [String]
+-   -   -   userInteractedUserEmail [String]
 -   -   UserInvitedEvents   [Collection]
 -   -   -   userInvitedEventID              [String]    //references event document ID in Events collection
 -   -   -   userInvitedEventName            [String]

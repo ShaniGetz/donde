@@ -1,4 +1,4 @@
-package com.example.donde.events_recycler_view;
+package com.example.donde.recycle_views.events_recycler_view;
 
 import android.util.Log;
 

@@ -13,28 +13,25 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProvider;
-import androidx.navigation.NavController;
-import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.donde.R;
 import com.example.donde.activities.EventActivity;
-import com.example.donde.events_recycler_view.EventsListAdapter;
-import com.example.donde.events_recycler_view.EventsListViewModel;
 import com.example.donde.models.EventModel;
-
-import java.util.List;
-
-
+import com.example.donde.recycle_views.events_recycler_view.EventsListAdapter;
+import com.example.donde.recycle_views.events_recycler_view.EventsListViewModel;
+import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
+import com.firebase.ui.firestore.FirestoreRecyclerOptions;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 
 
 /**
@@ -42,13 +39,16 @@ import java.util.List;
  */
 public class EventsFragment extends Fragment implements EventsListAdapter.OnEventListItemClicked {
 
-    private RecyclerView listView;
+    private FirebaseFirestore firebaseFirestore;
+    private RecyclerView recyclerViewEventsList;
+    private FirestoreRecyclerAdapter eventsRecyclerAdapter;
+
     private EventsListViewModel eventsListViewModel;
-    private NavController navController;
 
-    private EventsListAdapter adapter;
+//    private NavController navController;
+//    private EventsListAdapter adapter;
+//    private Button buttonCreateNewEvent;
 
-    private Button buttonCreateNewEvent;
 
     public EventsFragment() {
         Log.e("EventsFragment", "Constructor");
@@ -56,6 +56,30 @@ public class EventsFragment extends Fragment implements EventsListAdapter.OnEven
         // Required empty public constructor
     }
 
+    private void initializeFields(View view) {
+        recyclerViewEventsList = view.findViewById(R.id.events_recyclerView_events);
+        firebaseFirestore = FirebaseFirestore.getInstance();
+
+//        recyclerViewEventsList = view.findViewById(R.id.events_recyclerView_events);
+//        adapter = new EventsListAdapter(this);
+//
+//        recyclerViewEventsList.setLayoutManager(new LinearLayoutManager(getContext()));
+//        recyclerViewEventsList.setHasFixedSize(true);
+//        recyclerViewEventsList.setAdapter(adapter);
+//        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(recyclerViewEventsList.getContext(),
+//                DividerItemDecoration.VERTICAL);
+//        recyclerViewEventsList.addItemDecoration(dividerItemDecoration);
+//        navController = Navigation.findNavController(view);
+//
+//        buttonCreateNewEvent = view.findViewById(R.id.create_button_create);
+//        buttonCreateNewEvent.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                navController.navigate(R.id.action_eventsFragment_to_addEventFragment);
+//            }
+//        });
+
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -71,43 +95,85 @@ public class EventsFragment extends Fragment implements EventsListAdapter.OnEven
         Log.e("EventsFragment", "in onViewCreated");
 
         super.onViewCreated(view, savedInstanceState);
-        listView = view.findViewById(R.id.list_view);
-        adapter = new EventsListAdapter(this);
+        initializeFields(view);
+        initializeEventsList();
 
-        listView.setLayoutManager(new LinearLayoutManager(getContext()));
-        listView.setHasFixedSize(true);
-        listView.setAdapter(adapter);
-        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(listView.getContext(),
-                DividerItemDecoration.VERTICAL);
-        listView.addItemDecoration(dividerItemDecoration);
-        navController = Navigation.findNavController(view);
 
-        buttonCreateNewEvent = view.findViewById(R.id.create_button_create);
-        buttonCreateNewEvent.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                navController.navigate(R.id.action_eventsFragment_to_addEventFragment);
-            }
-        });
+    }
 
+    private void initializeEventsList() {
+        // query firestore for events
+//        Query eventsQuery =
+//                firebaseFirestore.collection(getString(R.string.ff_events_collection)).orderBy(getString(R.string.ff_event_start_time));
+        Query eventsQuery = firebaseFirestore.collection(getString(R.string.ff_events_collection));
+        // recycler view inflater
+        FirestoreRecyclerOptions<EventModel> evenstOptions =
+                new FirestoreRecyclerOptions.Builder<EventModel>().setQuery(eventsQuery,
+                        EventModel.class).build();
+        eventsRecyclerAdapter =
+                new FirestoreRecyclerAdapter<EventModel, EventsViewHolder>(evenstOptions) {
+
+                    @Override
+                    protected void onBindViewHolder(@NonNull EventsViewHolder holder, int position, @NonNull EventModel model) {
+                        holder.textViewEventName.setText(String.format("Event name: %s", model.getEventName()));
+                        holder.textViewEventDescription.setText(String.format("Event " +
+                                "Description:\n%s", model.getEventDescription()));
+                        holder.textViewEventCreatorName.setText(String.format("Creator name: %s",
+                                model.getEventCreatorName()));
+                        holder.textViewEventLocationName.setText(String.format("Location " +
+                                "name: %s", model.getEventLocationName()));
+                        holder.textViewEventTimeStarting.setText(String.format("Time " +
+                                "starting: %s", model.getEventTimeStarting()));
+                    }
+
+
+                    @NonNull
+                    @Override
+                    public EventsViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+                        View view =
+                                LayoutInflater.from(parent.getContext()).inflate(R.layout.single_event_item, parent, false);
+                        return new EventsViewHolder(view);
+                    }
+
+
+                };
+
+        recyclerViewEventsList.setHasFixedSize(true);
+        recyclerViewEventsList.setLayoutManager(new LinearLayoutManager(getContext()));
+        DividerItemDecoration dividerItemDecoration =
+                new DividerItemDecoration(recyclerViewEventsList.getContext(),
+                        DividerItemDecoration.VERTICAL);
+        recyclerViewEventsList.addItemDecoration(dividerItemDecoration);
+        recyclerViewEventsList.setAdapter(eventsRecyclerAdapter);
     }
 
     @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        Log.e("EventsFragment", "in onActivityCreated");
-
-        super.onActivityCreated(savedInstanceState);
-
-        eventsListViewModel = new ViewModelProvider(getActivity()).get(EventsListViewModel.class);
-        eventsListViewModel.getEventsListModelData().observe(getViewLifecycleOwner(), new Observer<List<EventModel>>() {
-            @Override
-            public void onChanged(List<EventModel> eventsListModels) {
-                adapter.setEventsListModels(eventsListModels);
-                adapter.notifyDataSetChanged();
-            }
-        });
+    public void onStart() {
+        super.onStart();
+        eventsRecyclerAdapter.startListening();
     }
 
+    @Override
+    public void onStop() {
+        super.onStop();
+        eventsRecyclerAdapter.stopListening();
+    }
+
+//    @Override
+//    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+//        Log.e("EventsFragment", "in onActivityCreated");
+//
+//        super.onActivityCreated(savedInstanceState);
+//
+////        eventsListViewModel = new ViewModelProvider(getActivity()).get(EventsListViewModel.class);
+////        eventsListViewModel.getEventsListModelData().observe(getViewLifecycleOwner(), new Observer<List<EventModel>>() {
+////            @Override
+////            public void onChanged(List<EventModel> eventsListModels) {
+////                adapter.setEventsListModels(eventsListModels);
+////                adapter.notifyDataSetChanged();
+////            }
+////        });
+//    }
 
     @Override
     public void onItemClicked(int position, String eventID) {
@@ -123,4 +189,25 @@ public class EventsFragment extends Fragment implements EventsListAdapter.OnEven
 //
 //        navController.navigate(action);
     }
+
+    class EventsViewHolder extends RecyclerView.ViewHolder {
+
+        private TextView textViewEventName;
+        private TextView textViewEventDescription;
+        private TextView textViewEventTimeStarting;
+        private TextView textViewEventCreatorName;
+        private TextView textViewEventLocationName;
+        private CheckBox checkBoxEventIsGoing;
+
+        public EventsViewHolder(@NonNull View itemView) {
+            super(itemView);
+            textViewEventName = itemView.findViewById(R.id.event_item_textView_event_name);
+            textViewEventDescription = itemView.findViewById(R.id.event_item_textView_event_description);
+            textViewEventTimeStarting = itemView.findViewById(R.id.event_item_textView_event_time_starting);
+            textViewEventCreatorName = itemView.findViewById(R.id.event_item_textView_event_creator_name);
+            textViewEventLocationName = itemView.findViewById(R.id.event_item_textView_event_location_name);
+            checkBoxEventIsGoing = itemView.findViewById(R.id.event_item_checkBox_is_going);
+        }
+    }
+
 }

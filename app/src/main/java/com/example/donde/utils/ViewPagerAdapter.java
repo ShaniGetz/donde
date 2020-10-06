@@ -9,8 +9,9 @@ import androidx.fragment.app.FragmentPagerAdapter;
 
 import com.example.donde.R;
 import com.example.donde.activities.App;
-import com.example.donde.archive.EventInfoFragment;
+//import com.example.donde.archive.EventInfoFragment;
 import com.example.donde.fragments.EventChatFragment;
+import com.example.donde.fragments.EventInfoFragment;
 import com.example.donde.fragments.EventMapFragment;
 
 public class ViewPagerAdapter extends FragmentPagerAdapter {
