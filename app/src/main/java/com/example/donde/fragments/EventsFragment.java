@@ -1,3 +1,10 @@
+/*
+ * Who last worked here?
+ * alon 06/10/20_15:20
+ *
+ * (Add new name and date above this line)
+ */
+
 package com.example.donde.fragments;
 
 import android.content.Intent;
@@ -22,12 +29,13 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.donde.R;
 import com.example.donde.activities.EventActivity;
 import com.example.donde.events_recycler_view.EventsListAdapter;
-import com.example.donde.models.EventModel;
 import com.example.donde.events_recycler_view.EventsListViewModel;
+import com.example.donde.models.EventModel;
 
 import java.util.List;
 
-//import com.example.donde.EventsFragmentDirections;
+
+
 
 /**
  * A simple {@link Fragment} subclass.
