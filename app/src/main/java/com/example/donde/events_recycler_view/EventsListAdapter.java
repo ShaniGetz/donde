@@ -46,9 +46,11 @@ public class EventsListAdapter extends RecyclerView.Adapter<EventsListAdapter.Ev
 
         EventModel currentEvent = eventsListModels.get(position);
 
-        holder.listName.setText(currentEvent.getEventName());
-        holder.listDesc.setText(currentEvent.getEventDescription());
-        holder.listLocationName.setText(currentEvent.getEventLocationName());
+        holder.listName.setText("Name: " + currentEvent.getEventName());
+        holder.listDesc.setText("Description:\n" + currentEvent.getEventDescription());
+        holder.listLocationName.setText("Location name: " + currentEvent.getEventLocationName());
+        holder.listTimeStarting.setText("Time starting: "+currentEvent.getTimeStarting());
+        holder.listCreatorUserName.setText("Creator username: "+currentEvent.getCreatorUID());
         holder.setEventID(currentEvent.getEventID());
 //        long milliseconds = currentEvent.getTime_starting().toDate().getTime();
 //        String sDateStarting = DateFormat.format("dd/MM/yyyy", new Date(milliseconds))
