@@ -27,7 +27,7 @@ import androidx.fragment.app.Fragment;
 import com.example.donde.ClusterMarker;
 import com.example.donde.MyClusterManagerRenderer;
 import com.example.donde.R;
-import com.example.donde.utils.CustomMapTileProvider;
+import com.example.donde.utils.map_utils.CustomMapTileProvider;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;

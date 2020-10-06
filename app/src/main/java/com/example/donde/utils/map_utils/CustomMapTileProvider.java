@@ -1,13 +1,11 @@
-package com.example.donde.utils;
+package com.example.donde.utils.map_utils;
 
 import com.google.android.gms.maps.model.Tile;
 import com.google.android.gms.maps.model.TileProvider;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 
 public class CustomMapTileProvider implements TileProvider {
     private static final int TILE_WIDTH = 256;

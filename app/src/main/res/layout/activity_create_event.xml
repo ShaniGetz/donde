@@ -36,7 +36,7 @@
 
         android:hint="event name"
 
-        app:layout_constraintBottom_toTopOf="@+id/editText_event_description"
+        app:layout_constraintBottom_toTopOf="@+id/create_editText_event_description"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView" />
@@ -85,17 +85,18 @@
         android:id="@+id/create_searchView_location_search"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toTopOf="@id/create_mapView"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/create_editText_event_description" />
+
+    <!--TODO: make map height reactive (not a fixed height)-->
 
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/create_mapView"
         android:name="com.google.android.gms.maps.SupportMapFragment"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:padding="32dp"
+        android:layout_height="250dp"
         app:layout_constraintBottom_toTopOf="@id/create_editText_event_day"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

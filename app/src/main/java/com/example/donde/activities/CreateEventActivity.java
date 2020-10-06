@@ -2,15 +2,12 @@ package com.example.donde.activities;
 
 import android.Manifest;
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Looper;
@@ -30,6 +27,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import com.example.donde.R;
+import com.example.donde.utils.map_utils.CustomMapTileProvider;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
@@ -43,10 +41,8 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.maps.model.Tile;
 import com.google.android.gms.maps.model.TileOverlay;
 import com.google.android.gms.maps.model.TileOverlayOptions;
-import com.google.android.gms.maps.model.TileProvider;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
@@ -56,15 +52,7 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
 
-import java.io.BufferedOutputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -81,36 +69,9 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
     Marker mCurrLocationMarker;
     FusedLocationProviderClient mFusedLocationClient;
     SearchView searchView;
-    LocationCallback mLocationCallback = new LocationCallback() {
-        @Override
-        public void onLocationResult(LocationResult locationResult) {
-            List<Location> locationList = locationResult.getLocations();
-            if (locationList.size() > 0) {
-                //The last location in the list is the newest
-                Location location = locationList.get(locationList.size() - 1);
-                Log.i("MapsActivity", "Location: " + location.getLatitude() + " " + location.getLongitude());
-                mLastLocation = location;
-                if (mCurrLocationMarker != null) {
-                    mCurrLocationMarker.remove();
-                }
 
-                //Place current location marker
-                LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
-                MarkerOptions markerOptions = new MarkerOptions();
-                markerOptions.position(latLng);
-                markerOptions.title("Current Position");
 
-//                markerOptions.icon(bitmapDescriptorFromVector(getApplicationContext(), R.drawable.shani_getz));
-
-//                markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.shani_getz));
-
-                markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA));
-                mCurrLocationMarker = mGoogleMap.addMarker(markerOptions);
-                //move map camera
-                mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 11));
-            }
-        }
-    };
+    LocationCallback mLocationCallback;
     private EditText editTextEventName;
     private EditText editTextEventDescription;
     private EditText editTextLocationName;
@@ -130,6 +91,17 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
     private FirebaseAuth firebaseAuth;
     private FirebaseFirestore firebaseFirestore;
     private SearchView searchViewLocationSearch;
+
+
+    // Fields for storing data to push to FirebaseFirestore (ff)
+    private String ffEventName;
+    private String ffEventDescription;
+    private String ffEventLocationName;
+    private GeoPoint ffEventLocation;
+    private String ffEventCreatorUID;
+    private String ffEventCreatorName;
+    private Timestamp ffEventTimeCreated;
+    private Timestamp ffEventTimeStarting;
 
     void checkForPermissions() {
         // Here, thisActivity is the current activity
@@ -263,6 +235,37 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
                 (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.create_mapView);
 
         mapFrag.getMapAsync(this);
+
+        mLocationCallback = new LocationCallback() {
+            @Override
+            public void onLocationResult(LocationResult locationResult) {
+                List<Location> locationList = locationResult.getLocations();
+                if (locationList.size() > 0) {
+                    //The last location in the list is the newest
+                    Location location = locationList.get(locationList.size() - 1);
+                    Log.i("MapsActivity", "Location: " + location.getLatitude() + " " + location.getLongitude());
+                    mLastLocation = location;
+                    if (mCurrLocationMarker != null) {
+                        mCurrLocationMarker.remove();
+                    }
+
+                    //Place current location marker
+                    LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+                    MarkerOptions markerOptions = new MarkerOptions();
+                    markerOptions.position(latLng);
+                    markerOptions.title("Current Position");
+
+//                markerOptions.icon(bitmapDescriptorFromVector(getApplicationContext(), R.drawable.shani_getz));
+
+//                markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.shani_getz));
+
+                    markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA));
+                    mCurrLocationMarker = mGoogleMap.addMarker(markerOptions);
+                    //move map camera
+                    mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 11));
+                }
+            }
+        };
     }
 
     private Timestamp getEventStartTime() {
@@ -309,10 +312,14 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
                     }
                     Address address = addressList.get(0);
                     LatLng latling = new LatLng(address.getLatitude(), address.getLongitude());
-                    TileOverlay offlineTileOverlay = mGoogleMap.addTileOverlay(new TileOverlayOptions()
-                            .tileProvider(new OfflineTileProvider()));
+//                    TileOverlay offlineTileOverlay = mGoogleMap.addTileOverlay(new TileOverlayOptions()
+//                            .tileProvider(new OfflineTileProvider()));
+                    TileOverlay onlineTileOverlay =
+                            mGoogleMap.addTileOverlay(new TileOverlayOptions()
+                                    .tileProvider(new CustomMapTileProvider(getFilesDir().getAbsolutePath())));
                     mGoogleMap.addMarker(new MarkerOptions().position(latling).title(location));
                     mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latling, 15));
+                    setEventLocation(latling.latitude, latling.longitude);
                 }
                 return false;
             }
@@ -323,6 +330,7 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
             }
         });
     }
+
 
     private void initializeListeners() {
         initializeSearchQuery();
@@ -536,70 +544,39 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
         }
     }
 
-    private class OfflineTileProvider implements TileProvider {
-        private static final int TILE_WIDTH = 256;
-        private static final int TILE_HEIGHT = 256;
-        private static final int BUFFER_SIZE_FILE = 16384;
-        private static final int BUFFER_SIZE_NETWORK = 8192;
-        private final String TILES_DIR = getApplicationContext().getFilesDir().toString();
-        private ConnectivityManager connectivityManager;
-
-        @Override
-        public Tile getTile(int x, int y, int z) {
-
-            Log.d("TAG", "OfflineTileProvider.getTile(" + x + ", " + y + ", " + z + ")");
-            try {
-                byte[] data;
-                //
-//                File file = new File(TILES_DIR, x + "_" + y + ".png");
-                File file = new File(TILES_DIR, "firstmap.png");
-
-                Log.d("TAG", TILES_DIR);
-                if (file.exists()) {
-                    data = readTile(new FileInputStream(file), BUFFER_SIZE_FILE);
-                } else {
-                    if (connectivityManager == null) {
-                        connectivityManager = (ConnectivityManager) getSystemService(
-                                Context.CONNECTIVITY_SERVICE);
-                    }
-                    NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
-                    if (activeNetworkInfo == null || !activeNetworkInfo.isConnected()) {
-                        Log.w("TAG", "No network");
-                        return NO_TILE;
-                    }
-
-                    Log.d("TAG", "Downloading tile");
-                    data = readTile(new URL("https://a.tile.openstreetmap.org/" +
-                                    z + "/" + x + "/" + y + ".png").openStream(),
-                            BUFFER_SIZE_NETWORK);
-
-                    try (OutputStream out = new BufferedOutputStream(new FileOutputStream(file))) {
-                        out.write(data);
-                    }
-                }
-                return new Tile(TILE_WIDTH, TILE_HEIGHT, data);
-            } catch (Exception ex) {
-                Log.e("TAG", "Error loading tile", ex);
-                return NO_TILE;
-            }
-        }
-
-        private byte[] readTile(InputStream in, int bufferSize) throws IOException {
-            ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-            try {
-                int i;
-                byte[] data = new byte[bufferSize];
-
-                while ((i = in.read(data, 0, bufferSize)) != -1) {
-                    buffer.write(data, 0, i);
-                }
-                buffer.flush();
-
-                return buffer.toByteArray();
-            } finally {
-                in.close();
-                buffer.close();
-            }
+    /*
+ Return true iff location is valid
+  */
+    private boolean setEventLocation(double latitude, double longitude) {
+        boolean validLatitude = (latitude >= -90) && (latitude <= 90);
+        boolean validLongitude = (longitude >= -180) && (longitude <= 180);
+        if (validLatitude && validLongitude) {
+            this.ffEventLocation = new GeoPoint(latitude, longitude);
+            return true;
+        } else {
+            return false;
         }
     }
+
+    private boolean setEventName(String eventName) {
+        boolean nameNotEmpty = !TextUtils.isEmpty(eventName);
+        if (nameNotEmpty) {
+            this.ffEventName = eventName;
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    private boolean setEventLocationName(String eventLocationName) {
+        boolean nameNotEmpty = !TextUtils.isEmpty(eventLocationName);
+        if (nameNotEmpty) {
+            this.ffEventLocationName = eventLocationName;
+            return true;
+        } else {
+            return false;
+        }
+    }
+
 }
+
