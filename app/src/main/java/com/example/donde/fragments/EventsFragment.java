@@ -63,25 +63,6 @@ public class EventsFragment extends Fragment implements EventsListAdapter.OnEven
         recyclerViewEventsList = view.findViewById(R.id.events_recyclerView_events);
         firebaseFirestore = FirebaseFirestore.getInstance();
 
-//        recyclerViewEventsList = view.findViewById(R.id.events_recyclerView_events);
-//        adapter = new EventsListAdapter(this);
-//
-//        recyclerViewEventsList.setLayoutManager(new LinearLayoutManager(getContext()));
-//        recyclerViewEventsList.setHasFixedSize(true);
-//        recyclerViewEventsList.setAdapter(adapter);
-//        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(recyclerViewEventsList.getContext(),
-//                DividerItemDecoration.VERTICAL);
-//        recyclerViewEventsList.addItemDecoration(dividerItemDecoration);
-//        navController = Navigation.findNavController(view);
-//
-//        buttonCreateNewEvent = view.findViewById(R.id.create_button_create);
-//        buttonCreateNewEvent.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                navController.navigate(R.id.action_eventsFragment_to_addEventFragment);
-//            }
-//        });
-
     }
 
     @Override

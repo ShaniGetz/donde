@@ -4,6 +4,7 @@ import com.google.firebase.firestore.DocumentId;
 import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.ServerTimestamp;
 
+import java.util.ArrayList;
 import java.util.Date;
 
 public class EventModel {
@@ -19,6 +20,7 @@ public class EventModel {
     private Date eventTimeStarting;
     private String eventCreatorUID;
     private String eventCreatorName;
+//    private ArrayList<UserModel> eventInvitedUsers;
 
     public EventModel(String eventID, String eventCreatorUID, String eventName, String eventDescription, String eventLocationName, Date eventTimeCreated, Date eventTimeStarting, GeoPoint eventLocation, String eventCreatorName) {
         this.eventID = eventID;
@@ -32,11 +34,17 @@ public class EventModel {
         this.eventCreatorName = eventCreatorName;
     }
 
-
     public EventModel() {
 
     }
 
+//    public ArrayList<UserModel> getEventInvitedUsers() {
+//        return eventInvitedUsers;
+//    }
+//
+//    public void setEventInvitedUsers(ArrayList<UserModel> eventInvitedUsers) {
+//        this.eventInvitedUsers = eventInvitedUsers;
+//    }
 
     public String getEventID() {
         return eventID;
