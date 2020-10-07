@@ -26,9 +26,7 @@ import androidx.fragment.app.Fragment;
 
 import com.example.donde.R;
 import com.example.donde.utils.map_utils.ClusterMarker;
-import com.example.donde.utils.map_utils.CustomMapTileProvider;
 import com.example.donde.utils.map_utils.MyClusterManagerRenderer;
-import com.example.donde.utils.map_utils.OfflineTileProvider;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
@@ -40,8 +38,6 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.maps.model.TileOverlayOptions;
 import com.google.maps.android.clustering.ClusterManager;
 
 import java.util.ArrayList;
@@ -64,7 +60,6 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback {
 
                 @Override
                 public void onLocationResult(LocationResult locationResult) {
-                    Toast.makeText(getContext(), "onLocationResult", Toast.LENGTH_SHORT).show();
                     List<Location> locationList = locationResult.getLocations();
                     if (locationList.size() > 0) {
                         //The last location in the list is the newest

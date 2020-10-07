@@ -623,8 +623,8 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
                 @Override
                 public void onComplete(@NonNull Task<QuerySnapshot> task) {
                     if (task.isSuccessful()) {
-                        if (task.getResult().size() < 1) {
-                            Toast.makeText(CreateEventActivity.this, String.format("Error: No " +
+                        if (task.getResult().size() ==1) {
+                            Toast.makeText(CreateEventActivity.this, String.format("Success: " +
                                             "user with email %s", userEmail),
                                     Toast.LENGTH_SHORT).show();
                             DocumentSnapshot invitedUserDoc = task.getResult().getDocuments().get(0);
@@ -635,18 +635,19 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
                                     invitedUserEmail, invitedUserName));
 
                         } else {
-                            Toast.makeText(CreateEventActivity.this, String.format("Error getting " +
-                                            "user: %s", task.getException().getMessage()),
-                                    Toast.LENGTH_SHORT).show();
+                            Log.e("CreateActivity", String.format("Error getting " + "user: %s",
+                                    userEmail));
                         }
                         progressBar.setVisibility(View.INVISIBLE);
 
                     }
-                });
-            }
-            return true;
+                }
+            });
         }
+        return true;
 
 
     }
+}
 
+// TODO: don't allow inviting same person twice (or self)

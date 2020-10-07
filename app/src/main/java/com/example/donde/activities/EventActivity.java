@@ -61,6 +61,10 @@ public class EventActivity extends AppCompatActivity {
     public EventModel getEvent() {
         return event;
     }
+
+    public String getEventID() {
+        return eventID;
+    }
     private void initializeFields() {
         textViewInfoLabel = findViewById(R.id.event_textView_info_label);
         textViewMapLabel = findViewById(R.id.event_textView_map_label);

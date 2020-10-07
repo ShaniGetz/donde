@@ -46,12 +46,6 @@ public class EventsFragment extends Fragment implements EventsListAdapter.OnEven
     private RecyclerView recyclerViewEventsList;
     private FirestoreRecyclerAdapter eventsRecyclerAdapter;
 
-    private EventsListViewModel eventsListViewModel;
-
-//    private NavController navController;
-//    private EventsListAdapter adapter;
-//    private Button buttonCreateNewEvent;
-
 
     public EventsFragment() {
         Log.e("EventsFragment", "Constructor");
@@ -89,15 +83,16 @@ public class EventsFragment extends Fragment implements EventsListAdapter.OnEven
         // query firestore for events
 //        Query eventsQuery =
 //                firebaseFirestore.collection(getString(R.string.ff_events_collection)).orderBy(getString(R.string.ff_event_start_time));
+        // TODO: only show events user is invited to
         Query eventsQuery =
                 firebaseFirestore.collection(getString(R.string.ff_events_collection)).orderBy(
                         getString(R.string.ff_events_eventTimeStarting));
         // recycler view inflater
-        FirestoreRecyclerOptions<EventModel> evenstOptions =
+        FirestoreRecyclerOptions<EventModel> eventOptions =
                 new FirestoreRecyclerOptions.Builder<EventModel>().setQuery(eventsQuery,
                         EventModel.class).build();
         eventsRecyclerAdapter =
-                new FirestoreRecyclerAdapter<EventModel, EventsViewHolder>(evenstOptions) {
+                new FirestoreRecyclerAdapter<EventModel, EventsViewHolder>(eventOptions) {
 
                     @Override
                     protected void onBindViewHolder(@NonNull EventsViewHolder holder, int position, @NonNull EventModel model) {
@@ -159,21 +154,6 @@ public class EventsFragment extends Fragment implements EventsListAdapter.OnEven
         eventsRecyclerAdapter.stopListening();
     }
 
-//    @Override
-//    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-//        Log.e("EventsFragment", "in onActivityCreated");
-//
-//        super.onActivityCreated(savedInstanceState);
-//
-////        eventsListViewModel = new ViewModelProvider(getActivity()).get(EventsListViewModel.class);
-////        eventsListViewModel.getEventsListModelData().observe(getViewLifecycleOwner(), new Observer<List<EventModel>>() {
-////            @Override
-////            public void onChanged(List<EventModel> eventsListModels) {
-////                adapter.setEventsListModels(eventsListModels);
-////                adapter.notifyDataSetChanged();
-////            }
-////        });
-//    }
 
     @Override
     public void onItemClicked(int position, String eventID) {
