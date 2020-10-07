@@ -1,11 +1,11 @@
-package com.example.donde.utils;
+package com.example.donde.models;
 
-public class InvitedUser {
+public class InvitedUserModel {
     public String eventInvitedUserID;
     public String eventInvitedUserEmail;
     public String eventInvitedUserName;
 
-    public InvitedUser(String eventInvitedUserID, String eventInvitedUserEmail, String eventInvitedUserName) {
+    public InvitedUserModel(String eventInvitedUserID, String eventInvitedUserEmail, String eventInvitedUserName) {
         this.eventInvitedUserID = eventInvitedUserID;
         this.eventInvitedUserEmail = eventInvitedUserEmail;
         this.eventInvitedUserName = eventInvitedUserName;

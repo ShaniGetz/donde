@@ -29,7 +29,7 @@ import androidx.core.content.ContextCompat;
 import com.example.donde.BuildConfig;
 import com.example.donde.R;
 import com.example.donde.models.EventModel;
-import com.example.donde.utils.InvitedUser;
+import com.example.donde.models.InvitedUserModel;
 import com.example.donde.utils.map_utils.CustomMapTileProvider;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
@@ -114,7 +114,7 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
     private Date ffEventTimeCreated;
     private Date ffEventTimeStarting;
 
-    private List<InvitedUser> ffInvitedUsers;
+    private List<InvitedUserModel> ffInvitedUserModels;
 
 
     void checkForPermissions() {
@@ -532,13 +532,13 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
                     // add invited users
                     CollectionReference invitedUsersRef =
                             documentReference.collection(getString(R.string.ff_events_eventInvitedUsers));
-                    for (InvitedUser invitedUser : ffInvitedUsers) {
-                        invitedUsersRef.add(invitedUser).addOnFailureListener(new OnFailureListener() {
+                    for (InvitedUserModel invitedUserModel : ffInvitedUserModels) {
+                        invitedUsersRef.add(invitedUserModel).addOnFailureListener(new OnFailureListener() {
                             @Override
                             public void onFailure(@NonNull Exception e) {
                                 Toast.makeText(CreateEventActivity.this, String.format("Error " +
                                                 "adding invited user %s: %s",
-                                        invitedUser.getEventInvitedUserEmail(), e.getMessage()),
+                                        invitedUserModel.getEventInvitedUserEmail(), e.getMessage()),
                                         Toast.LENGTH_SHORT).show();
                             }
                         });
@@ -727,11 +727,11 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
                                     Toast.LENGTH_SHORT).show();
                         }
                         DocumentSnapshot creatorDocument = task.getResult().getDocuments().get(0);
-                        ffInvitedUsers = new ArrayList<>();
+                        ffInvitedUserModels = new ArrayList<>();
                         String invitedUserID = creatorDocument.getId();
                         String invitedUserEmail = userEmail;
                         String invitedUserName = creatorDocument.getString(getString(R.string.ff_users_userName));
-                        ffInvitedUsers.add(new InvitedUser(invitedUserID, invitedUserEmail, invitedUserName));
+                        ffInvitedUserModels.add(new InvitedUserModel(invitedUserID, invitedUserEmail, invitedUserName));
 
                     } else {
                         Toast.makeText(CreateEventActivity.this, String.format("Error getting " +

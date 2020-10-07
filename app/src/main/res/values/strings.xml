@@ -34,4 +34,5 @@
     <string name="ff_users_userEmail">userEmail</string>
     <string name="ff_events_eventInvitedUsers">EventInvitedUsers</string>
     <string name="ff_events_eventTimeStarting">eventTimeStarting</string>
+    <string name="arg_event_model">arg_event_model</string>
 </resources>

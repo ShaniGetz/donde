@@ -16,6 +16,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -33,6 +34,7 @@ import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
+import com.google.gson.Gson;
 
 
 /**
@@ -133,7 +135,11 @@ public class EventsFragment extends Fragment implements EventsListAdapter.OnEven
                                 Intent eventIntent = new Intent(getActivity(), EventActivity.class);
 
                                 eventIntent.putExtra(getString(R.string.arg_position), position);
-//                                eventIntent.putExtra(getString(R.string.arg_event_id), eventID);
+                                // gson helps pass objects
+                                Gson gson = new Gson();
+                                String eventJson = gson.toJson(model);
+                                eventIntent.putExtra(getString(R.string.arg_event_model), eventJson);
+                                eventIntent.putExtra(getString(R.string.arg_event_id), model.getEventID());
                                 startActivity(eventIntent);
                             }
                         });
@@ -190,6 +196,7 @@ public class EventsFragment extends Fragment implements EventsListAdapter.OnEven
 
     @Override
     public void onItemClicked(int position, String eventID) {
+        Toast.makeText(getContext(), "clickity", Toast.LENGTH_SHORT).show();
         Intent eventIntent = new Intent(getActivity(), EventActivity.class);
 
         eventIntent.putExtra(getString(R.string.arg_position), position);

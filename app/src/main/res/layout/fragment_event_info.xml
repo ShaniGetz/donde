@@ -62,11 +62,31 @@
         android:id="@+id/info_textView_creator_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintBottom_toTopOf="@id/info_recyclerView_invited_users"
+        app:layout_constraintBottom_toTopOf="@id/info_textView_time_starting"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/info_textView_location_name"
         tools:text="Fake Creator username" />
+
+    <TextView
+        android:id="@+id/info_textView_time_starting"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toTopOf="@id/info_textView_time_created"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/info_textView_creator_name"
+        tools:text="Aug 10" />
+
+    <TextView
+        android:id="@+id/info_textView_time_created"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toTopOf="@id/info_recyclerView_invited_users"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/info_textView_time_starting"
+        tools:text="Aug 5" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/info_recyclerView_invited_users"
@@ -76,6 +96,8 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/info_textView_creator_name" />
+
+
     <!--    <Button-->
     <!--        android:id="@+id/event_button_goto_events"-->
     <!--        android:layout_width="wrap_content"-->
