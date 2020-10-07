@@ -26,7 +26,9 @@ import androidx.fragment.app.Fragment;
 
 import com.example.donde.R;
 import com.example.donde.utils.map_utils.ClusterMarker;
+import com.example.donde.utils.map_utils.CustomMapTileProvider;
 import com.example.donde.utils.map_utils.MyClusterManagerRenderer;
+import com.example.donde.utils.map_utils.OfflineTileProvider;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
@@ -39,6 +41,7 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.TileOverlayOptions;
 import com.google.maps.android.clustering.ClusterManager;
 
 import java.util.ArrayList;
@@ -127,9 +130,9 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback {
 
 
         mGoogleMap = googleMap;
-        String tilesDir = getContext().getFilesDir().toString();
+//        String tilesDir = getContext().getFilesDir().toString();
 
-//        mGoogleMap.addTileOverlay(new TileOverlayOptions().tileProvider(new CustomMapTileProvider(tilesDir)));
+//        mGoogleMap.addTileOverlay(new TileOverlayOptions().tileProvider(new OfflineTileProvider(getContext())));
 
 
         mGoogleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
