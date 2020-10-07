@@ -37,6 +37,8 @@ Updates (old to new):
 -   -   userID              [String]        //references user ID as it appears in Firebase Authentication
 -   -   userEmail           [String]
 -   -   userProfilePicURL   [String]        //URL for the profile pic inside Firebase Storage
+-   -   userCurLocation     [Geopoint]
+-   -   userStatus          [String]
 -   -   UserInteractedUsers [Collection]    //users that the user interacted with
 -   -   -   userInteractedUserID    [String]    //references the userID field as it appears in Users
 -   -   -   userInteractedUserName  [String]
