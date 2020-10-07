@@ -29,4 +29,8 @@
     <string name="arg_event_name">eventName</string>
     <string name="arg_position">arg_position</string>
     <string name="ff_events_collection">Events</string>
+    <string name="ff_users_userName">userName</string>
+    <string name="ff_users_userID">userID</string>
+    <string name="ff_users_userEmail">userEmail</string>
+    <string name="ff_events_eventInvitedUsers">EventInvitedUsers</string>
 </resources>

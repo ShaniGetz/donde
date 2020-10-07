@@ -26,7 +26,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import com.example.donde.BuildConfig;
 import com.example.donde.R;
+import com.example.donde.models.EventModel;
+import com.example.donde.utils.InvitedUser;
 import com.example.donde.utils.map_utils.CustomMapTileProvider;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
@@ -45,20 +48,25 @@ import com.google.android.gms.maps.model.TileOverlay;
 import com.google.android.gms.maps.model.TileOverlayOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class CreateEventActivity extends AppCompatActivity implements OnMapReadyCallback {
     public static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
@@ -88,9 +96,12 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
     private Button buttonCreateEvent;
     private Button buttonDebugAutofill;
     private ProgressBar progressBar;
-    private FirebaseAuth firebaseAuth;
     private FirebaseFirestore firebaseFirestore;
     private SearchView searchViewLocationSearch;
+
+    // Authentication
+    private FirebaseAuth firebaseAuth;
+    private FirebaseUser firebaseUser;
 
 
     // Fields for storing data to push to FirebaseFirestore (ff)
@@ -100,8 +111,11 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
     private GeoPoint ffEventLocation;
     private String ffEventCreatorUID;
     private String ffEventCreatorName;
-    private Timestamp ffEventTimeCreated;
-    private Timestamp ffEventTimeStarting;
+    private Date ffEventTimeCreated;
+    private Date ffEventTimeStarting;
+
+    private List<InvitedUser> ffInvitedUsers;
+
 
     void checkForPermissions() {
         // Here, thisActivity is the current activity
@@ -228,6 +242,10 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
         searchViewLocationSearch = findViewById(R.id.create_searchView_location_search);
 
         firebaseAuth = FirebaseAuth.getInstance();
+        firebaseUser = firebaseAuth.getCurrentUser();
+        if (BuildConfig.DEBUG && !(firebaseUser != null)) {
+            throw new AssertionError("No user is logged in");
+        }
         firebaseFirestore = FirebaseFirestore.getInstance();
 
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
@@ -279,20 +297,19 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
         return startTime;
     }
 
-    private List<String> getEventInvitedUserIDs() {
-        String invitedEmail0 = firebaseAuth.getCurrentUser().getUid();
-        String invitedEmail1 = editTextInvitedUser1.getText().toString();
-        String invitedEmail2 = editTextInvitedUser2.getText().toString();
-        String invitedEmail3 = editTextInvitedUser3.getText().toString();
-
-//        FirebaseFirestore.getInstance().collection(getString(R.string.ff_users_collection)).get().addOnCompleteListener();
-        List<String> invitedUserEmails = Arrays.asList(invitedEmail0, invitedEmail1,
-                invitedEmail2, invitedEmail3);
-
-        List<String> invitedUserIDs = new ArrayList<>();
-        return invitedUserIDs;
-    }
-
+//    private List<String> getEventInvitedUserIDs() {
+//        String invitedEmail0 = firebaseAuth.getCurrentUser().getUid();
+//        String invitedEmail1 = editTextInvitedUser1.getText().toString();
+//        String invitedEmail2 = editTextInvitedUser2.getText().toString();
+//        String invitedEmail3 = editTextInvitedUser3.getText().toString();
+//
+////        FirebaseFirestore.getInstance().collection(getString(R.string.ff_users_collection)).get().addOnCompleteListener();
+//        List<String> invitedUserEmails = Arrays.asList(invitedEmail0, invitedEmail1,
+//                invitedEmail2, invitedEmail3);
+//
+//        List<String> invitedUserIDs = new ArrayList<>();
+//        return invitedUserIDs;
+//    }
 
     private void initializeSearchQuery() {
 //        GoogleMap mGoogleMap =
@@ -331,7 +348,6 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
         });
     }
 
-
     private void initializeListeners() {
         initializeSearchQuery();
 
@@ -340,143 +356,103 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
             editTextEventName.setText("A Debug Event Name");
             editTextEventDescription.setText("A debug description for an event. This text is kind of long but" +
                     " also not too long.");
-            editTextLocationName.setText("Mt. Debug");
-            editTextLongitude.setText("31.780189");
-            editTextLatitude.setText("35.207668");
+            searchViewLocationSearch.setQuery("Ein Bokek", true);
             editTextEventDay.setText("16");
             editTextEventMonth.setText("10");
             editTextEventYear.setText("2020");
             editTextEventHour.setText("20");
             editTextEventMinute.setText("30");
-            editTextInvitedUser1.setText("alon@gmail.com");
-            editTextInvitedUser2.setText("shani@gmail.com");
-            editTextInvitedUser3.setText("batshi@gmail.com");
+            editTextInvitedUser1.setText("debug1@gmail.com");
+            editTextInvitedUser2.setText("debug2@gmail.com");
+            editTextInvitedUser3.setText("debug3@gmail.com");
         });
 
-        buttonCreateEvent.setOnClickListener(v -> {
+        initializeCreateEventListener();
+//        buttonCreateEvent.setOnClickListener(v -> {
+//
+//
+//            String sEventName = editTextEventName.getText().toString();
+//            String sEventDescription = editTextEventDescription.getText().toString();
+//            String sEventLocationName = editTextLocationName.getText().toString();
+//
+//            double sLongitude = Double.parseDouble(editTextLongitude.getText().toString());
+//            double sLatitude = Double.parseDouble(editTextLatitude.getText().toString());
+//            GeoPoint eventLocation = new GeoPoint(sLatitude, sLongitude);
+//
+//
+//            Timestamp eventStartTime = getEventStartTime();
+//
+//            String currentUserID = firebaseAuth.getCurrentUser().getUid();
+//
+//            List<String> sInvitedUserIDs = Arrays.asList(currentUserID);
+//            Timestamp stamp = Timestamp.now();
+//            Timestamp timeCreated = Timestamp.now();
+//
+//            if (isEventFieldsValid(sEventName, sEventLocationName, sLongitude, sLatitude)) {
+//                progressBar.setVisibility(View.VISIBLE);
+//
+//                Map<String, Object> newEventMap = new HashMap<>();
+//                newEventMap.put(getString(R.string.ff_event_name), sEventName);
+//                newEventMap.put(getString(R.string.ff_event_description), sEventDescription);
+//                newEventMap.put(getString(R.string.ff_event_creator_uid), currentUserID);
+//                newEventMap.put(getString(R.string.ff_event_time_created), timeCreated);
+//                newEventMap.put(getString(R.string.ff_event_location_name), sEventLocationName);
+//                newEventMap.put(getString(R.string.ff_event_location), eventLocation);
+//                newEventMap.put(getString(R.string.ff_event_start_time), eventStartTime);
+//                newEventMap.put(getString(R.string.ff_event_invited_users), sInvitedUserIDs);
+//
+//                firebaseFirestore.collection(getString(R.string.ff_events_collection)).add(newEventMap).addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
+//                    @Override
+//                    public void onComplete(@NonNull Task<DocumentReference> task) {
+//                        progressBar.setVisibility(View.INVISIBLE);
+//                    }
+//                })
+//                        .addOnSuccessListener(documentReference -> {
+//                            Toast.makeText(CreateEventActivity.this, "Event created " +
+//                                    "successfully", Toast.LENGTH_LONG).show();
+//                            gotoEvents();
+//
+//                        })
+//                        .addOnFailureListener(new OnFailureListener() {
+//                            @Override
+//                            public void onFailure(@NonNull Exception e) {
+//
+//                                Toast.makeText(CreateEventActivity.this, "Error while trying " +
+//                                                "to create event",
+//                                        Toast.LENGTH_LONG).show();
+//                            }
+//                        });
+//
+//            } else {
+//                Toast.makeText(CreateEventActivity.this, "Some fields are missing",
+//                        Toast.LENGTH_LONG).show();
+//
+//            }
+//
+//        });
+    }
 
-
-            String sEventName = editTextEventName.getText().toString();
-            String sEventDescription = editTextEventDescription.getText().toString();
-            String sEventLocationName = editTextLocationName.getText().toString();
-
-            double sLongitude = Double.parseDouble(editTextLongitude.getText().toString());
-            double sLatitude = Double.parseDouble(editTextLatitude.getText().toString());
-            GeoPoint eventLocation = new GeoPoint(sLatitude, sLongitude);
-
-
-            Timestamp eventStartTime = getEventStartTime();
-
-            String currentUserID = firebaseAuth.getCurrentUser().getUid();
-
-            List<String> sInvitedUserIDs = Arrays.asList(currentUserID);
-            Timestamp stamp = Timestamp.now();
-            Timestamp timeCreated = Timestamp.now();
-
-            if (isEventFieldsValid(sEventName, sEventLocationName, sLongitude, sLatitude)) {
-                progressBar.setVisibility(View.VISIBLE);
-
-                Map<String, Object> newEventMap = new HashMap<>();
-                newEventMap.put(getString(R.string.ff_event_name), sEventName);
-                newEventMap.put(getString(R.string.ff_event_description), sEventDescription);
-                newEventMap.put(getString(R.string.ff_event_creator_uid), currentUserID);
-                newEventMap.put(getString(R.string.ff_event_time_created), timeCreated);
-                newEventMap.put(getString(R.string.ff_event_location_name), sEventLocationName);
-                newEventMap.put(getString(R.string.ff_event_location), eventLocation);
-                newEventMap.put(getString(R.string.ff_event_start_time), eventStartTime);
-                newEventMap.put(getString(R.string.ff_event_invited_users), sInvitedUserIDs);
-
-                firebaseFirestore.collection(getString(R.string.ff_events_collection)).add(newEventMap).addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
-                    @Override
-                    public void onComplete(@NonNull Task<DocumentReference> task) {
-                        progressBar.setVisibility(View.INVISIBLE);
-                    }
-                })
-                        .addOnSuccessListener(documentReference -> {
-                            Toast.makeText(CreateEventActivity.this, "Event created " +
-                                    "successfully", Toast.LENGTH_LONG).show();
-                            gotoEvents();
-
-                        })
-                        .addOnFailureListener(new OnFailureListener() {
-                            @Override
-                            public void onFailure(@NonNull Exception e) {
-
-                                Toast.makeText(CreateEventActivity.this, "Error while trying " +
-                                                "to create event",
-                                        Toast.LENGTH_LONG).show();
-                            }
-                        });
-
-            } else {
-                Toast.makeText(CreateEventActivity.this, "Some fields are missing",
-                        Toast.LENGTH_LONG).show();
-
+    private void initializeCreateEventListener() {
+        buttonCreateEvent.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                createEvent();
             }
-
         });
     }
 
-    private String getEventName() throws Exception {
-        String sEditTextEventName = editTextEventName.getText().toString();
-        if (TextUtils.isEmpty(sEditTextEventName)) {
-            throw new Exception("event cannot be empty");
-        } else {
-            return sEditTextEventName;
-        }
-
-    }
-
-//    private Map<String, Object> getCreatedEventMap() {
+//    private String getEventName() throws Exception {
+//        String sEditTextEventName = editTextEventName.getText().toString();
+//        if (TextUtils.isEmpty(sEditTextEventName)) {
+//            throw new Exception("event cannot be empty");
+//        } else {
+//            return sEditTextEventName;
+//        }
 //
-//        // get event name, description
-//        String sEventName = editTextEventName.getText().toString();
-//        String sEventDescription = editTextEventDescription.getText().toString();
-//
-//        // get event location details
-//        String sEventLocationName = editTextLocationName.getText().toString();
-//        double sLongitude = Double.parseDouble(editTextLongitude.getText().toString());
-//        double sLatitude = Double.parseDouble(editTextLatitude.getText().toString());
-//        GeoPoint eventLocation = new GeoPoint(sLatitude, sLongitude);
-//
-//        // get event starting time
-//        int sEventDay = Integer.parseInt(editTextEventDay.getText().toString());
-//        int sEventMonth = Integer.parseInt(editTextEventMonth.getText().toString());
-//        int sEventYear = Integer.parseInt(editTextEventYear.getText().toString());
-//        Timestamp startDate = new Timestamp(new Date(sEventYear, sEventMonth, sEventDay));
-//
-//        // add creator UID
-//        String sCreatorUID = firebaseAuth.getCurrentUser().getUid();
-//
-//        // add invited users UIDs
-//        List<String> sInvitedUIDs = new ArrayList<>();
-//        sInvitedUIDs.add
-//        addInvitedUsersToList(sInvitedUserIDs);
-//
-//        Timestamp timeCreated = Timestamp.now();
-//
-//
-//        Map<String, Object> createdEventMap = new HashMap<>();
-//        createdEventMap.put(getString(R.string.ff_event_name), sEventName);
-//        createdEventMap.put(getString(R.string.ff_event_description), sEventDescription);
-//        createdEventMap.put(getString(R.string.ff_event_creator_uid), sCreatorUID);
-//        createdEventMap.put(getString(R.string.ff_event_time_created), timeCreated);
-//        createdEventMap.put(getString(R.string.ff_event_location_name), sEventLocationName);
-//        createdEventMap.put(getString(R.string.ff_event_location), eventLocation);
-//        createdEventMap.put(getString(R.string.ff_event_start_time), startDate);
-//        createdEventMap.put(getString(R.string.ff_event_invited_users), sInvitedUserIDs);
-//        return createdEventMap;
 //    }
 
-
-    /*
-    returns list of invited users IDs
-     */
-//    private ArrayList<String> getInvitedUsers() {
-//        String sInvitedUser0 = currentUserID;
-//        String sInvitedUser1 = editTextInvitedUser1.getText().toString());
-//        String sInvitedUser2 = editTextInvitedUser2.getText().toString());
-
+//    private String getEventLocationName() {
+//
 //    }
 
     private void gotoEvents() {
@@ -487,10 +463,6 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
 
     }
 
-//    private String getEventLocationName() {
-//
-//    }
-
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -499,20 +471,16 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
         initializeListeners();
     }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-    }
 
-    private boolean isEventFieldsValid(String eventName, String locationName, double longitude,
-                                       double latitude) {
-        boolean isEventNameValid = !TextUtils.isEmpty(eventName);
-        boolean isLocationNameValid = !TextUtils.isEmpty(locationName);
-        boolean isLongitudeValid = true;
-        boolean isLatitudeValid = true;
-
-        return isEventNameValid && isLocationNameValid && isLatitudeValid && isLongitudeValid;
-    }
+//    private boolean isEventFieldsValid(String eventName, String locationName, double longitude,
+//                                       double latitude) {
+//        boolean isEventNameValid = !TextUtils.isEmpty(eventName);
+//        boolean isLocationNameValid = !TextUtils.isEmpty(locationName);
+//        boolean isLongitudeValid = true;
+//        boolean isLatitudeValid = true;
+//
+//        return isEventNameValid && isLocationNameValid && isLatitudeValid && isLongitudeValid;
+//    }
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
@@ -544,6 +512,101 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
         }
     }
 
+    private void createEvent() {
+        boolean didSetFields = retrieveAndSetEventFields();
+        if (didSetFields) {
+            progressBar.setVisibility(View.VISIBLE);
+            EventModel createdEvent = new EventModel();
+            createdEvent.setEventName(ffEventName);
+            createdEvent.setEventDescription(ffEventDescription);
+            createdEvent.setEventLocationName(ffEventLocationName);
+            createdEvent.setEventLocation(ffEventLocation);
+            createdEvent.setEventTimeCreated(ffEventTimeCreated);
+            createdEvent.setEventTimeStarting(ffEventTimeStarting);
+            createdEvent.setEventCreatorUID(ffEventCreatorUID);
+            createdEvent.setEventCreatorName(ffEventCreatorName);
+
+            firebaseFirestore.collection(getString(R.string.ff_events_collection)).add(createdEvent).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                @Override
+                public void onSuccess(DocumentReference documentReference) {
+                    // add invited users
+                    CollectionReference invitedUsersRef =
+                            documentReference.collection(getString(R.string.ff_events_eventInvitedUsers));
+                    for (InvitedUser invitedUser : ffInvitedUsers) {
+                        invitedUsersRef.add(invitedUser).addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Toast.makeText(CreateEventActivity.this, String.format("Error " +
+                                                "adding invited user %s: %s",
+                                        invitedUser.getEventInvitedUserEmail(), e.getMessage()),
+                                        Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                    }
+
+                    Toast.makeText(CreateEventActivity.this, "Event created successfully",
+                            Toast.LENGTH_SHORT).show();
+                    gotoEvents();
+
+                }
+
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    Toast.makeText(CreateEventActivity.this,
+                            "Error while creating event: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            });
+
+            progressBar.setVisibility(View.INVISIBLE);
+        }
+    }
+
+
+    private boolean retrieveAndSetEventFields() {
+        String toastErrorMessage = "";
+
+
+        if (!setEventName(editTextEventName.getText().toString())) {
+            toastErrorMessage = "Fix event name";
+        } else if (!setEventDescription(editTextEventDescription.getText().toString())) {
+            toastErrorMessage = "Fix event description";
+        } else if (!setEventLocationName(searchViewLocationSearch.getQuery().toString())) {
+            toastErrorMessage = "Fix event location name";
+            // ffEventLocation should be full since it is retrieved from the search query
+        } else if (this.ffEventLocation == null) {
+            toastErrorMessage = "Fix event location";
+        } else if (!setEventCreatorUID()) {
+            toastErrorMessage = "Error getting creator UID";
+            // TODO: Creator name is null
+        } else if (!setEventCreatorName()) {
+            toastErrorMessage = "Error getting creator name";
+        } else if (!setEventTimeCreated()) {
+            toastErrorMessage = "Error setting creation time";
+            // TODO: Time starting not working (giving weird times)
+        } else if (!setEventTimeStarting(
+                Integer.parseInt(editTextEventDay.getText().toString()),
+                Integer.parseInt(editTextEventMonth.getText().toString()),
+                Integer.parseInt(editTextEventYear.getText().toString()),
+                Integer.parseInt(editTextEventHour.getText().toString()),
+                Integer.parseInt(editTextEventMinute.getText().toString()))) {
+            toastErrorMessage = "Fix time starting";
+        } else if (!setInvitedUsers(new ArrayList<>(Arrays.asList(
+                editTextInvitedUser1.getText().toString(),
+                editTextInvitedUser2.getText().toString(),
+                editTextInvitedUser3.getText().toString())))) {
+
+            toastErrorMessage = "Error inviting guests";
+        }
+        if (!TextUtils.isEmpty(toastErrorMessage)) {
+            Toast.makeText(this, toastErrorMessage, Toast.LENGTH_SHORT).show();
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+
     /*
  Return true iff location is valid
   */
@@ -568,6 +631,16 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
         }
     }
 
+    private boolean setEventDescription(String eventDescription) {
+        boolean descriptionNotEmpty = !TextUtils.isEmpty(eventDescription);
+        if (descriptionNotEmpty) {
+            this.ffEventDescription = eventDescription;
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     private boolean setEventLocationName(String eventLocationName) {
         boolean nameNotEmpty = !TextUtils.isEmpty(eventLocationName);
         if (nameNotEmpty) {
@@ -577,6 +650,101 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
             return false;
         }
     }
+
+    private boolean setEventCreatorUID() {
+        this.ffEventCreatorUID = firebaseUser.getUid();
+        return true;
+    }
+
+    private boolean setEventCreatorName() {
+        String creatorUID = this.firebaseUser.getUid();
+        CollectionReference usersCollectionRef =
+                firebaseFirestore.collection(getString(R.string.ff_users_collection));
+        Query creatorUserQuery =
+                usersCollectionRef.whereEqualTo(getString(R.string.ff_users_userID), creatorUID);
+        this.progressBar.setVisibility(View.VISIBLE);
+        creatorUserQuery.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()) {
+                    if (BuildConfig.DEBUG && task.getResult().size() != 1) {
+                        throw new AssertionError("Either no or more than one user with given UID " +
+                                "exists.");
+                    }
+                    DocumentSnapshot creatorDocument = task.getResult().getDocuments().get(0);
+                    ffEventCreatorName = creatorDocument.getString(getString(R.string.ff_users_userName));
+                } else {
+                    Toast.makeText(CreateEventActivity.this, String.format("Error getting creator" +
+                                    " user name: %s", task.getException().getMessage()),
+                            Toast.LENGTH_SHORT).show();
+                }
+                progressBar.setVisibility(View.INVISIBLE);
+
+            }
+        });
+
+
+        return true;
+    }
+
+    private boolean setEventTimeCreated() {
+        this.ffEventTimeCreated = Timestamp.now().toDate();
+        return true;
+    }
+
+    private boolean setEventTimeStarting(int day, int month, int year, int hour, int minute) {
+        Calendar cal = Calendar.getInstance();
+        Date startDate = new Date(year, month, day, hour, minute);
+        cal.setLenient(false);
+        cal.setTime(startDate);
+        try {
+            cal.getTime();
+            this.ffEventTimeStarting = startDate;
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    private boolean setInvitedUsers(ArrayList<String> userEmails) {
+
+        CollectionReference usersRef = firebaseFirestore.collection(getString(R.string.ff_users_collection));
+        // add self to invitees
+        userEmails.add(firebaseUser.getEmail());
+        for (String userEmail : userEmails) {
+            Query userByEmailQuery = usersRef.whereEqualTo(getString(R.string.ff_users_userEmail)
+                    , userEmail);
+
+            progressBar.setVisibility(View.VISIBLE);
+            userByEmailQuery.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                    if (task.isSuccessful()) {
+                        if (task.getResult().size() < 1) {
+                            Toast.makeText(CreateEventActivity.this, String.format("Error: No " +
+                                            "user with email %s", userEmail),
+                                    Toast.LENGTH_SHORT).show();
+                        }
+                        DocumentSnapshot creatorDocument = task.getResult().getDocuments().get(0);
+                        ffInvitedUsers = new ArrayList<>();
+                        String invitedUserID = creatorDocument.getId();
+                        String invitedUserEmail = userEmail;
+                        String invitedUserName = creatorDocument.getString(getString(R.string.ff_users_userName));
+                        ffInvitedUsers.add(new InvitedUser(invitedUserID, invitedUserEmail, invitedUserName));
+
+                    } else {
+                        Toast.makeText(CreateEventActivity.this, String.format("Error getting " +
+                                        "user: %s", task.getException().getMessage()),
+                                Toast.LENGTH_SHORT).show();
+                    }
+                    progressBar.setVisibility(View.INVISIBLE);
+
+                }
+            });
+        }
+        return true;
+    }
+
 
 }
 

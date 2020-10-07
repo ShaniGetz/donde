@@ -9,15 +9,15 @@ import java.util.Date;
 public class EventModel {
     @DocumentId
     private String eventID;
-    private String eventCreatorUID;
     private String eventName;
     private String eventDescription;
     private String eventLocationName;
+    private GeoPoint eventLocation;
     @ServerTimestamp
     private Date eventTimeCreated;
     @ServerTimestamp
     private Date eventTimeStarting;
-    private GeoPoint eventLocation;
+    private String eventCreatorUID;
     private String eventCreatorName;
 
     public EventModel(String eventID, String eventCreatorUID, String eventName, String eventDescription, String eventLocationName, Date eventTimeCreated, Date eventTimeStarting, GeoPoint eventLocation, String eventCreatorName) {
