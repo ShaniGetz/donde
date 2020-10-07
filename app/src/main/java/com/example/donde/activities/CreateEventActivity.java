@@ -652,10 +652,11 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
     }
 
     private boolean setEventCreatorUID() {
-        this.ffEventCreatorUID = firebaseUser.getUid();
+        this.ffEventCreatorUID = this.firebaseUser.getUid();
         return true;
     }
 
+    // TODO: creator name not working
     private boolean setEventCreatorName() {
         String creatorUID = this.firebaseUser.getUid();
         CollectionReference usersCollectionRef =

@@ -1,4 +1,4 @@
-package com.example.donde;
+package com.example.donde.utils.map_utils;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.maps.android.clustering.ClusterItem;
 

@@ -24,7 +24,7 @@ Updates (old to new):
 -   -   eventCreatorUID      [String]
 -   -   eventCreatorName    [String]
 -   -   eventTimeCreated    [Timestamp]
--   -   eventTimeStarting   [Timestamp]
+-   -   eventTimeStarting   [Timefstamp]
 -   -   eventLocationName   [String]
 -   -   eventLocation       [Geopoint]
 -   -   EventInvitedUsers   [Collection]

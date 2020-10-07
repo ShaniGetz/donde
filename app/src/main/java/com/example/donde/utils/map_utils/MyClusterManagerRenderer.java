@@ -1,10 +1,11 @@
-package com.example.donde;
+package com.example.donde.utils.map_utils;
 
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
+import com.example.donde.R;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.Marker;
