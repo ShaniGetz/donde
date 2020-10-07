@@ -24,10 +24,9 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
+import com.example.donde.R;
 import com.example.donde.utils.map_utils.ClusterMarker;
 import com.example.donde.utils.map_utils.MyClusterManagerRenderer;
-import com.example.donde.R;
-import com.example.donde.utils.map_utils.CustomMapTileProvider;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
@@ -40,7 +39,6 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.maps.model.TileOverlayOptions;
 import com.google.maps.android.clustering.ClusterManager;
 
 import java.util.ArrayList;
@@ -63,6 +61,7 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback {
 
                 @Override
                 public void onLocationResult(LocationResult locationResult) {
+                    Toast.makeText(getContext(), "onLocationResult", Toast.LENGTH_SHORT).show();
                     List<Location> locationList = locationResult.getLocations();
                     if (locationList.size() > 0) {
                         //The last location in the list is the newest
@@ -122,23 +121,22 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback {
     @Override
     public void onMapReady(GoogleMap googleMap) {
 
-        LatLng sydney = new LatLng(-34, 151);
-        googleMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
-        googleMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
+//        LatLng sydney = new LatLng(-34, 151);
+//        googleMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
+//        googleMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
 
 
         mGoogleMap = googleMap;
         String tilesDir = getContext().getFilesDir().toString();
 
-        mGoogleMap.addTileOverlay(new TileOverlayOptions().tileProvider(new CustomMapTileProvider(tilesDir)));
+//        mGoogleMap.addTileOverlay(new TileOverlayOptions().tileProvider(new CustomMapTileProvider(tilesDir)));
 
 
-//        googleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-
-//        mLocationRequest = new LocationRequest();
-//        mLocationRequest.setInterval(120000); // two minute interval
-//        mLocationRequest.setFastestInterval(120000);
-//        mLocationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
+        mGoogleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+        mLocationRequest = new LocationRequest();
+        mLocationRequest.setInterval(20);
+        mLocationRequest.setFastestInterval(20);
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
 
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (ContextCompat.checkSelfPermission(getContext(),

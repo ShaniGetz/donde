@@ -65,7 +65,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Are you going?"
-        app:layout_constraintBottom_toBottomOf="@id/list_goto_event"
+        app:layout_constraintBottom_toBottomOf="@id/event_item_button_goto_event"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/event_item_textView_event_time_starting" />
 
@@ -80,7 +80,7 @@
         app:layout_constraintTop_toTopOf="@id/event_item_textView_are_you_going" />
 
     <Button
-        android:id="@+id/list_goto_event"
+        android:id="@+id/event_item_button_goto_event"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="GO TO EVENT"

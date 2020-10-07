@@ -13,6 +13,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.TextView;
 
@@ -105,7 +106,9 @@ public class EventsFragment extends Fragment implements EventsListAdapter.OnEven
         // query firestore for events
 //        Query eventsQuery =
 //                firebaseFirestore.collection(getString(R.string.ff_events_collection)).orderBy(getString(R.string.ff_event_start_time));
-        Query eventsQuery = firebaseFirestore.collection(getString(R.string.ff_events_collection));
+        Query eventsQuery =
+                firebaseFirestore.collection(getString(R.string.ff_events_collection)).orderBy(
+                        getString(R.string.ff_events_eventTimeStarting));
         // recycler view inflater
         FirestoreRecyclerOptions<EventModel> evenstOptions =
                 new FirestoreRecyclerOptions.Builder<EventModel>().setQuery(eventsQuery,
@@ -124,6 +127,16 @@ public class EventsFragment extends Fragment implements EventsListAdapter.OnEven
                                 "name: %s", model.getEventLocationName()));
                         holder.textViewEventTimeStarting.setText(String.format("Time " +
                                 "starting: %s", model.getEventTimeStarting()));
+                        holder.buttonGotoEvent.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                Intent eventIntent = new Intent(getActivity(), EventActivity.class);
+
+                                eventIntent.putExtra(getString(R.string.arg_position), position);
+//                                eventIntent.putExtra(getString(R.string.arg_event_id), eventID);
+                                startActivity(eventIntent);
+                            }
+                        });
                     }
 
 
@@ -198,6 +211,7 @@ public class EventsFragment extends Fragment implements EventsListAdapter.OnEven
         private TextView textViewEventCreatorName;
         private TextView textViewEventLocationName;
         private CheckBox checkBoxEventIsGoing;
+        private Button buttonGotoEvent;
 
         public EventsViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -207,6 +221,7 @@ public class EventsFragment extends Fragment implements EventsListAdapter.OnEven
             textViewEventCreatorName = itemView.findViewById(R.id.event_item_textView_event_creator_name);
             textViewEventLocationName = itemView.findViewById(R.id.event_item_textView_event_location_name);
             checkBoxEventIsGoing = itemView.findViewById(R.id.event_item_checkBox_is_going);
+            buttonGotoEvent = itemView.findViewById(R.id.event_item_button_goto_event);
         }
     }
 

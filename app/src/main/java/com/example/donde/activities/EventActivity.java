@@ -61,7 +61,7 @@ public class EventActivity extends AppCompatActivity {
         textViewMapLabel = findViewById(R.id.event_textView_map_label);
         textViewChatLabel = findViewById(R.id.event_textView_chat_label);
         viewPager = findViewById(R.id.event_viewPager);
-        eventID = getIntent().getStringExtra(getString(R.string.arg_event_id));
+//        eventID = getIntent().getStringExtra(getString(R.string.arg_event_id));
         position = getIntent().getIntExtra(getString(R.string.arg_position), -1);
 //        Toast.makeText(EventActivity.this, "Err " + eventID, Toast.LENGTH_SHORT).show();
 

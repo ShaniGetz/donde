@@ -104,7 +104,7 @@ public class EventsListAdapter extends RecyclerView.Adapter<EventsListAdapter.Ev
             listCreatorUserName = itemView.findViewById(R.id.event_item_textView_event_creator_name);
 //            listTimeCreated = itemView.findViewById(R.id.list_time_created);
             listTimeStarting = itemView.findViewById(R.id.event_item_textView_event_time_starting);
-            listGotoEvent = itemView.findViewById(R.id.list_goto_event);
+            listGotoEvent = itemView.findViewById(R.id.event_item_button_goto_event);
 
             listGotoEvent.setOnClickListener(this);
         }
