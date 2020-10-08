@@ -5,6 +5,7 @@ last edited by alon on 06/10/20
 package com.example.donde.fragments;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.location.Location;
@@ -23,10 +24,12 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
 
 import com.example.donde.R;
 import com.example.donde.utils.map_utils.ClusterMarker;
 import com.example.donde.utils.map_utils.MyClusterManagerRenderer;
+import com.example.donde.utils.map_utils.StatusDialog;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
@@ -43,7 +46,7 @@ import com.google.maps.android.clustering.ClusterManager;
 import java.util.ArrayList;
 import java.util.List;
 
-public class EventMapFragment extends Fragment implements OnMapReadyCallback {
+public class EventMapFragment extends Fragment implements OnMapReadyCallback, StatusDialog.StatusDialogListener {
     public static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
     LocationRequest mLocationRequest;
     GoogleMap mGoogleMap;
@@ -51,6 +54,8 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback {
     //    LocationCallback mLocationCallback;
     Location mLastLocation;
     Marker mCurrLocationMarker;
+    String status;
+    private FragmentActivity myContext;
     private ClusterManager mClusterManager;
     private MyClusterManagerRenderer mClusterManagerRenderer;
     private ArrayList<ClusterMarker> mClusterMarkers = new ArrayList<>();
@@ -213,6 +218,23 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback {
             mClusterManager.addItem(newClusterMarker);
             mClusterMarkers.add(newClusterMarker);
 
+//            mClusterManager.setOnClusterItemClickListener(
+//                    new ClusterManager.OnClusterItemClickListener<ClusterMarker>() {
+//                        @Override public boolean onClusterItemClick(ClusterMarker clusterItem) {
+//                            if (clusterItem.getTitle().equals("shani getz")){
+//                                openDialog();
+//                                clusterItem.setSnippet(status);
+////                                clusterItem.setTitle(clusterItem.getTitle()+'\n'+status);
+//                            }
+//                            else{
+//                                return false;
+//                            }
+//                            // if true, click handling stops here and do not show info view, do not move camera
+//                            // you can avoid this by calling:
+//                            return false;
+//                        }
+//                    });
+
             ClusterMarker alonClusterMarker = new ClusterMarker(new LatLng(32.0, 34.0),
                     "alon", "This is your friend", R.drawable.avatar);
             mClusterManager.addItem(alonClusterMarker);
@@ -220,6 +242,22 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback {
 
             mClusterManager.cluster();
         }
+    }
+
+    public void openDialog(){
+        StatusDialog statusDialog = new StatusDialog();
+        statusDialog.show(myContext.getSupportFragmentManager(), "status dialog");
+    }
+
+    @Override
+    public void applyText(String status) {
+        this.status = status;
+    }
+
+    @Override
+    public void onAttach(Activity activity) {
+        myContext=(FragmentActivity) activity;
+        super.onAttach(activity);
     }
 
     private void checkLocationPermission() {
