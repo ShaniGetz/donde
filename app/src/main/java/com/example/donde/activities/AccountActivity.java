@@ -19,7 +19,6 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
@@ -105,9 +104,9 @@ public class AccountActivity extends Activity {
                     userMap.put(getString(R.string.ff_users_userID), userID);
                     userMap.put(getString(R.string.ff_users_userEmail), userEmail);
                     userMap.put(getString(R.string.ff_users_userName), sUserName);
-                    firebaseFirestore.collection(getString(R.string.ff_users_collection)).add(userMap).addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
+                    firebaseFirestore.collection(getString(R.string.ff_users_collection)).document(userID).set(userMap).addOnCompleteListener(new OnCompleteListener<Void>() {
                         @Override
-                        public void onComplete(@NonNull Task<DocumentReference> task) {
+                        public void onComplete(@NonNull Task<Void> task) {
                             // account save successful
                             if (task.isSuccessful()) {
 

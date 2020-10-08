@@ -27,14 +27,22 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.donde.R;
 import com.example.donde.activities.EventActivity;
+import com.example.donde.activities.MainActivity;
 import com.example.donde.models.EventModel;
 import com.example.donde.recycle_views.events_recycler_view.EventsListAdapter;
-import com.example.donde.recycle_views.events_recycler_view.EventsListViewModel;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldPath;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.gson.Gson;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -45,7 +53,7 @@ public class EventsFragment extends Fragment implements EventsListAdapter.OnEven
     private FirebaseFirestore firebaseFirestore;
     private RecyclerView recyclerViewEventsList;
     private FirestoreRecyclerAdapter eventsRecyclerAdapter;
-
+    private List<String> userInvitedEventIDs = new ArrayList<>();
 
     public EventsFragment() {
         Log.e("EventsFragment", "Constructor");
@@ -84,74 +92,93 @@ public class EventsFragment extends Fragment implements EventsListAdapter.OnEven
 //        Query eventsQuery =
 //                firebaseFirestore.collection(getString(R.string.ff_events_collection)).orderBy(getString(R.string.ff_event_start_time));
         // TODO: only show events user is invited to
-        Query eventsQuery =
-                firebaseFirestore.collection(getString(R.string.ff_events_collection)).orderBy(
-                        getString(R.string.ff_events_eventTimeStarting));
-        // recycler view inflater
-        FirestoreRecyclerOptions<EventModel> eventOptions =
-                new FirestoreRecyclerOptions.Builder<EventModel>().setQuery(eventsQuery,
-                        EventModel.class).build();
-        eventsRecyclerAdapter =
-                new FirestoreRecyclerAdapter<EventModel, EventsViewHolder>(eventOptions) {
 
-                    @Override
-                    protected void onBindViewHolder(@NonNull EventsViewHolder holder, int position, @NonNull EventModel model) {
-                        holder.textViewEventName.setText(String.format("Event name: %s", model.getEventName()));
-                        holder.textViewEventDescription.setText(String.format("Event " +
-                                "Description:\n%s", model.getEventDescription()));
-                        holder.textViewEventCreatorName.setText(String.format("Creator name: %s",
-                                model.getEventCreatorName()));
-                        holder.textViewEventLocationName.setText(String.format("Location " +
-                                "name: %s", model.getEventLocationName()));
-                        holder.textViewEventTimeStarting.setText(String.format("Time " +
-                                "starting: %s", model.getEventTimeStarting()));
-                        holder.buttonGotoEvent.setOnClickListener(new View.OnClickListener() {
+//        List<String> userInvitedEventIDs;
+        String userID = ((MainActivity) getActivity()).getFirebaseAuth().getCurrentUser().getUid();
+        DocumentReference userDocumentRef =
+                firebaseFirestore.collection(getString(R.string.ff_users_collection)).document(userID);
+        userDocumentRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+            @Override
+            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                userInvitedEventIDs = (List<String>) documentSnapshot.get(getString(R.string.ff_users_userInvitedEventIDs));
+                Toast.makeText(getContext(), String.format("Array size= %s",
+                        userInvitedEventIDs == null ? 0 : userInvitedEventIDs.size()),
+                        Toast.LENGTH_SHORT).show();
+
+
+                Query eventsQuery =
+                        firebaseFirestore.collection(getString(R.string.ff_events_collection)).whereIn(FieldPath.documentId(),userInvitedEventIDs).orderBy(
+                                getString(R.string.ff_events_eventTimeStarting));
+                // recycler view inflater
+                FirestoreRecyclerOptions<EventModel> eventOptions =
+                        new FirestoreRecyclerOptions.Builder<EventModel>().setQuery(eventsQuery,
+                                EventModel.class).build();
+                eventsRecyclerAdapter =
+                        new FirestoreRecyclerAdapter<EventModel, EventsViewHolder>(eventOptions) {
+
                             @Override
-                            public void onClick(View v) {
-                                Intent eventIntent = new Intent(getActivity(), EventActivity.class);
+                            protected void onBindViewHolder(@NonNull EventsViewHolder holder, int position, @NonNull EventModel model) {
+                                holder.textViewEventName.setText(String.format("Event name: %s", model.getEventName()));
+                                holder.textViewEventDescription.setText(String.format("Event " +
+                                        "Description:\n%s", model.getEventDescription()));
+                                holder.textViewEventCreatorName.setText(String.format("Creator name: %s",
+                                        model.getEventCreatorName()));
+                                holder.textViewEventLocationName.setText(String.format("Location " +
+                                        "name: %s", model.getEventLocationName()));
+                                holder.textViewEventTimeStarting.setText(String.format("Time " +
+                                        "starting: %s", model.getEventTimeStarting()));
+                                holder.buttonGotoEvent.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        Intent eventIntent = new Intent(getActivity(), EventActivity.class);
 
-                                eventIntent.putExtra(getString(R.string.arg_position), position);
-                                // gson helps pass objects
-                                Gson gson = new Gson();
-                                String eventJson = gson.toJson(model);
-                                eventIntent.putExtra(getString(R.string.arg_event_model), eventJson);
-                                eventIntent.putExtra(getString(R.string.arg_event_id), model.getEventID());
-                                startActivity(eventIntent);
+                                        eventIntent.putExtra(getString(R.string.arg_position), position);
+                                        // gson helps pass objects
+                                        Gson gson = new Gson();
+                                        String eventJson = gson.toJson(model);
+                                        eventIntent.putExtra(getString(R.string.arg_event_model), eventJson);
+                                        eventIntent.putExtra(getString(R.string.arg_event_id), model.getEventID());
+                                        startActivity(eventIntent);
+                                    }
+                                });
                             }
-                        });
-                    }
 
 
-                    @NonNull
-                    @Override
-                    public EventsViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-                        View view =
-                                LayoutInflater.from(parent.getContext()).inflate(R.layout.single_event_item, parent, false);
-                        return new EventsViewHolder(view);
-                    }
+                            @NonNull
+                            @Override
+                            public EventsViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+                                View view =
+                                        LayoutInflater.from(parent.getContext()).inflate(R.layout.single_event_item, parent, false);
+                                return new EventsViewHolder(view);
+                            }
 
 
-                };
+                        };
 
-        recyclerViewEventsList.setHasFixedSize(true);
-        recyclerViewEventsList.setLayoutManager(new LinearLayoutManager(getContext()));
-        DividerItemDecoration dividerItemDecoration =
-                new DividerItemDecoration(recyclerViewEventsList.getContext(),
-                        DividerItemDecoration.VERTICAL);
-        recyclerViewEventsList.addItemDecoration(dividerItemDecoration);
-        recyclerViewEventsList.setAdapter(eventsRecyclerAdapter);
+                recyclerViewEventsList.setHasFixedSize(true);
+                recyclerViewEventsList.setLayoutManager(new LinearLayoutManager(getContext()));
+                DividerItemDecoration dividerItemDecoration =
+                        new DividerItemDecoration(recyclerViewEventsList.getContext(),
+                                DividerItemDecoration.VERTICAL);
+                recyclerViewEventsList.addItemDecoration(dividerItemDecoration);
+                recyclerViewEventsList.setAdapter(eventsRecyclerAdapter);
+                eventsRecyclerAdapter.startListening();
+            }
+        });
+
+
     }
 
     @Override
     public void onStart() {
         super.onStart();
-        eventsRecyclerAdapter.startListening();
+//        eventsRecyclerAdapter.startListening();
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        eventsRecyclerAdapter.stopListening();
+//        eventsRecyclerAdapter.stopListening();
     }
 
 

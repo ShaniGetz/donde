@@ -18,6 +18,10 @@ public class MainActivity extends AppCompatActivity {
     private FloatingActionButton fabCreateEvent;
     private FirebaseAuth mAuth;
 
+
+    public FirebaseAuth getFirebaseAuth() {
+        return mAuth;
+    }
     private void initializeFields() {
         mAuth = FirebaseAuth.getInstance();
         fabCreateEvent = findViewById(R.id.main_create_fab);
@@ -78,26 +82,6 @@ public class MainActivity extends AppCompatActivity {
         if (currentUser == null) {
             gotoToLogin();
         }
-//
-//
-//        FirebaseAuth mAuth = FirebaseAuth.getInstance();
-//        FirebaseUser myUser = mAuth.getCurrentUser(); // ==null if no one is logged in
-//        String myUserId = myUser.getUid();
-//        Toast.makeText(this, "My ID is: " + myUserId, Toast.LENGTH_SHORT).show();
-//
-//
-//        FirebaseFirestore mFirestore = FirebaseFirestore.getInstance();
-//        CollectionReference usersReference = mFirestore.collection("Users");
-//        usersReference.document(myUserId).get().addOnCompleteListener(
-//                new OnCompleteListener<DocumentSnapshot>() {
-//                    @Override
-//                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-//                        String userName = task.getResult().get("name").toString();
-//                        Toast.makeText(MainActivity.this, "The current user name is: " + userName,
-//                                Toast.LENGTH_SHORT).show();
-//                    }
-//                }
-//        );
 
     }
 

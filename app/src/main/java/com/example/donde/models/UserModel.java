@@ -2,13 +2,27 @@ package com.example.donde.models;
 
 import com.google.android.gms.maps.model.LatLng;
 
+import java.lang.reflect.Array;
+
 public class UserModel {
     String userID;
     String userName;
     String userProfilePicURL;
     LatLng userCurLocation;
     String userStatus;
+    Array userInvitedEventsIDs;
 
+    public void setUserID(String userID) {
+        this.userID = userID;
+    }
+
+    public Array getUserInvitedEventsIDs() {
+        return userInvitedEventsIDs;
+    }
+
+    public void setUserInvitedEventsIDs(Array userInvitedEventsIDs) {
+        this.userInvitedEventsIDs = userInvitedEventsIDs;
+    }
 
     public UserModel() {
     }

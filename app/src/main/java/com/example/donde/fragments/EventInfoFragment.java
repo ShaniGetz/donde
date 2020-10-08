@@ -144,3 +144,5 @@ public class EventInfoFragment extends Fragment {
         }
     }
 }
+
+// TODO: show snippet of map of event in info page

@@ -27,19 +27,21 @@ Updates (old to new):
 -   -   eventTimeStarting   [Timefstamp]
 -   -   eventLocationName   [String]
 -   -   eventLocation       [Geopoint]
--   -   EventInvitedUsers   [Collection]
+-   -   EventInvitedUsers   [Collection]        //document ID corresponds to userID
 -   -   -   eventInvitedUserID      [String]    //references user document ID in Users collection
 -   -   -   eventInvitedUserEmail   [String]
 -   -   -   eventInvitedUserName    [String]
 -   -   -   eventInvitedUserIsGoing
 
--   Users   [Collection]
+-   Users   [Collection]                    //corresponds to userID
 -   -   userName            [String]
 -   -   userID              [String]        //references user ID as it appears in Firebase Authentication
 -   -   userEmail           [String]
 -   -   userProfilePicURL   [String]        //URL for the profile pic inside Firebase Storage
 -   -   userCurLocation     [Geopoint]
 -   -   userStatus          [String]
+-   -   userInvitedEventIDs [Array<String>]
+-   -   DEPRECATED:
 -   -   UserInteractedUsers [Collection]    //users that the user interacted with
 -   -   -   userInteractedUserID    [String]    //references the userID field as it appears in Users
 -   -   -   userInteractedUserName  [String]

@@ -56,6 +56,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.Query;
@@ -115,6 +116,7 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
     private Date ffEventTimeStarting;
 
     private List<InvitedUserModel> ffInvitedUserModels;
+    private CollectionReference usersCollectionRef;
 
 
     void checkForPermissions() {
@@ -244,6 +246,8 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
             throw new AssertionError("No user is logged in");
         }
         firebaseFirestore = FirebaseFirestore.getInstance();
+        usersCollectionRef = firebaseFirestore.collection(getString(R.string.ff_users_collection));
+
 
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         mapFrag =
@@ -294,7 +298,7 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
                 String location = searchViewLocationSearch.getQuery().toString();
                 Toast.makeText(CreateEventActivity.this, "Search query is: " + location,
                         Toast.LENGTH_SHORT).show();
-                List<Address> addressList = null;
+                List<Address> addressList = new ArrayList<>();
                 if (location != null || !location.equals("")) {
                     Geocoder geocoder = new Geocoder(CreateEventActivity.this);
                     try {
@@ -347,9 +351,9 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
             editTextEventYear.setText("2020");
             editTextEventHour.setText("20");
             editTextEventMinute.setText("30");
-            editTextInvitedUser1.setText("debug1@gmail.com");
-            editTextInvitedUser2.setText("debug2@gmail.com");
-            editTextInvitedUser3.setText("debug3@gmail.com");
+            editTextInvitedUser1.setText("shani@gmail.com");
+            editTextInvitedUser2.setText("batsheva@gmail.com");
+            editTextInvitedUser3.setText("alon@gmail.com");
         });
     }
 
@@ -427,26 +431,11 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
                     CollectionReference invitedUsersRef =
                             documentReference.collection(getString(R.string.ff_events_eventInvitedUsers));
                     for (InvitedUserModel invitedUserModel : ffInvitedUserModels) {
-                        invitedUsersRef.add(invitedUserModel).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                            @Override
-                            public void onSuccess(DocumentReference documentReference) {
-                                Log.d("CreateEventActivity",
-                                        "adding " + invitedUserModel.getEventInvitedUserEmail());
-                            }
-                        }).addOnFailureListener(new OnFailureListener() {
-                            @Override
-                            public void onFailure(@NonNull Exception e) {
-                                Log.d("CreateEventActivity",
-                                        "failed " + invitedUserModel.getEventInvitedUserEmail());
 
-                                Toast.makeText(CreateEventActivity.this, String.format("Error " +
-                                                "adding invited user %s: %s",
-                                        invitedUserModel.getEventInvitedUserEmail(), e.getMessage()),
-                                        Toast.LENGTH_SHORT).show();
-                            }
-                        });
+                        addInvitedUserToEvent(documentReference, invitedUsersRef, invitedUserModel);
                     }
-
+                    Toast.makeText(CreateEventActivity.this, "Event created successfully",
+                            Toast.LENGTH_SHORT).show();
                     gotoEvents();
 
                 }
@@ -460,9 +449,43 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
             });
 
             progressBar.setVisibility(View.INVISIBLE);
+        } else {
+            Toast.makeText(this, "Event could not be created", Toast.LENGTH_SHORT).show();
         }
     }
 
+    private void addInvitedUserToEvent(DocumentReference documentReference, CollectionReference invitedUsersRef, InvitedUserModel invitedUserModel) {
+        invitedUsersRef.document(invitedUserModel.getEventInvitedUserID()).set(invitedUserModel).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                Log.d("CreateEventActivity",
+                        "adding " + invitedUserModel.getEventInvitedUserEmail());
+                addEventToInvitedUser(invitedUserModel.getEventInvitedUserID(),
+                        documentReference.getId());
+
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.d("CreateEventActivity",
+                        "failed " + invitedUserModel.getEventInvitedUserEmail());
+
+                Toast.makeText(CreateEventActivity.this, String.format("Error " +
+                                "adding invited user %s: with error: %s",
+                        invitedUserModel.getEventInvitedUserEmail(), e.getMessage()),
+                        Toast.LENGTH_SHORT).show();
+                documentReference.delete(); // if adding users failed, delete
+                return;
+                // document
+            }
+        });
+    }
+
+    private void addEventToInvitedUser(String invitedUserId, String eventId) {
+
+        usersCollectionRef.document(invitedUserId).update("userInvitedEventIDs",
+                FieldValue.arrayUnion(eventId));
+    }
 
     private boolean retrieveAndSetEventFields() {
         String toastErrorMessage = "";
@@ -472,6 +495,13 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
             toastErrorMessage = "Fix event name";
         } else if (!setEventCreatorName()) {
             toastErrorMessage = "Error getting creator name";
+
+        } else if (!setInvitedUsers(new ArrayList<>(Arrays.asList(
+                editTextInvitedUser1.getText().toString(),
+                editTextInvitedUser2.getText().toString(),
+                editTextInvitedUser3.getText().toString())))) {
+
+            toastErrorMessage = "Error inviting guests";
         } else if (!setEventDescription(editTextEventDescription.getText().toString())) {
             toastErrorMessage = "Fix event description";
         } else if (!setEventLocationName(searchViewLocationSearch.getQuery().toString())) {
@@ -491,12 +521,6 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
                 Integer.parseInt(editTextEventHour.getText().toString()),
                 Integer.parseInt(editTextEventMinute.getText().toString()))) {
             toastErrorMessage = "Fix time starting";
-        } else if (!setInvitedUsers(new ArrayList<>(Arrays.asList(
-                editTextInvitedUser1.getText().toString(),
-                editTextInvitedUser2.getText().toString(),
-                editTextInvitedUser3.getText().toString())))) {
-
-            toastErrorMessage = "Error inviting guests";
         }
         if (!TextUtils.isEmpty(toastErrorMessage)) {
             Toast.makeText(this, toastErrorMessage, Toast.LENGTH_SHORT).show();
@@ -558,8 +582,6 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
 
     private boolean setEventCreatorName() {
         String creatorUID = this.firebaseUser.getUid();
-        CollectionReference usersCollectionRef =
-                firebaseFirestore.collection(getString(R.string.ff_users_collection));
         Query creatorUserQuery =
                 usersCollectionRef.whereEqualTo(getString(R.string.ff_users_userID), creatorUID);
         this.progressBar.setVisibility(View.VISIBLE);
@@ -616,6 +638,9 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
         // add self to invitees
         userEmails.add(firebaseUser.getEmail());
         for (String userEmail : userEmails) {
+            if (TextUtils.isEmpty(userEmail)) {
+                continue;
+            }
             Query userByEmailQuery = usersRef.whereEqualTo(getString(R.string.ff_users_userEmail), userEmail);
 
             progressBar.setVisibility(View.VISIBLE);
@@ -623,23 +648,30 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
                 @Override
                 public void onComplete(@NonNull Task<QuerySnapshot> task) {
                     if (task.isSuccessful()) {
-                        if (task.getResult().size() ==1) {
-                            Toast.makeText(CreateEventActivity.this, String.format("Success: " +
-                                            "user with email %s", userEmail),
-                                    Toast.LENGTH_SHORT).show();
+                        if (task.getResult().size() == 1) {
                             DocumentSnapshot invitedUserDoc = task.getResult().getDocuments().get(0);
                             String invitedUserID = invitedUserDoc.getId();
                             String invitedUserEmail = invitedUserDoc.getString(getString(R.string.ff_users_userEmail));
                             String invitedUserName = invitedUserDoc.getString(getString(R.string.ff_users_userName));
+                            Log.d("CreateEvent", String.format("adding user to ffInvited: %s", invitedUserEmail));
                             ffInvitedUserModels.add(new InvitedUserModel(invitedUserID,
                                     invitedUserEmail, invitedUserName));
 
-                        } else {
-                            Log.e("CreateActivity", String.format("Error getting " + "user: %s",
-                                    userEmail));
+                        } else if (task.getResult().size() == 0) {
+                            Toast.makeText(CreateEventActivity.this, String.format("No user found" +
+                                            " with email %s", userEmail),
+                                    Toast.LENGTH_SHORT).show();
+                        } else if (task.getResult().size() > 1) {
+                            Toast.makeText(CreateEventActivity.this, String.format("Found more " +
+                                            "than one user with email %s", userEmail),
+                                    Toast.LENGTH_SHORT).show();
                         }
                         progressBar.setVisibility(View.INVISIBLE);
 
+                    } else {
+                        Toast.makeText(CreateEventActivity.this, String.format("Error processing " +
+                                        "email %s, error: %s", userEmail, task.getException().getMessage()),
+                                Toast.LENGTH_SHORT).show();
                     }
                 }
             });

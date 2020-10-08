@@ -36,4 +36,5 @@
     <string name="ff_events_eventTimeStarting">eventTimeStarting</string>
     <string name="arg_event_model">arg_event_model</string>
     <string name="ff_eventInvitedUsers_collection">EventInvitedUsers</string>
+    <string name="ff_users_userInvitedEventIDs">userInvitedEventIDs</string>
 </resources>
