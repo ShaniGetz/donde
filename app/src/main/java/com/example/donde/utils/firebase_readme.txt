@@ -27,13 +27,13 @@ Updates (old to new):
 -   -   eventTimeStarting   [Timefstamp]
 -   -   eventLocationName   [String]
 -   -   eventLocation       [Geopoint]
--   -   EventInvitedUsers   [Collection]        //document ID corresponds to userID
--   -   -   eventInvitedUserID              [String]    //references user document ID in Users collection
--   -   -   eventInvitedUserStatus          [String]
--   -   -   eventInvitedUserCurrentLocation [Geopoint]
--   -   -   eventInvitedUserProfilePicURL   [String]
--   -   -   eventInvitedUserName            [String]
--   -   -   eventInvitedUserIsGoing         [boolean]
+-   -   InvitedInEventUsers [Collection]        //document ID corresponds to userID
+-   -   -   invitedInEventUserID              [String]    //references user document ID in Users collection
+-   -   -   invitedInEventUserStatus          [String]
+-   -   -   invitedInEventUserCurrentLocation [Geopoint]
+-   -   -   invitedInEventUserProfilePicURL   [String]
+-   -   -   invitedInEventUserName            [String]
+-   -   -   invitedInEventUserIsGoing         [boolean]
 
 -   Users   [Collection]                    //corresponds to userID
 -   -   userName            [String]
@@ -41,11 +41,13 @@ Updates (old to new):
 -   -   userEmail           [String]
 -   -   userProfilePicURL   [String]        //URL for the profile pic inside Firebase Storage
 -   -   userInvitedEventIDs [Array<String>]
--   -   UserInvitedEvents   [Collection]
--   -   -   userInvitedEventID              [String]    //references event document ID in Events collection
--   -   -   userInvitedEventName            [String]
--   -   -   userInvitedEventLocationName    [String]
--   -   -   userInvitedEventCreatorName     [String]
+-   -   InvitedInUserEvents   [Collection]
+-   -   -   invitedInUserEventID              [String]    //references event document ID in Events collection
+-   -   -   invitedInUserEventName            [String]
+-   -   -   invitedInUserEventLocationName    [String]
+-   -   -   invitedInUserEventCreatorName     [String]
+-   -   -   invitedInUserEventIsGoing         [boolean]
+-   -   -   invitedInUserEventTimeStarting    [Timestamp]
 -   -   DEPRECATED:
 -   -   UserInteractedUsers [Collection]    //users that the user interacted with
 -   -   -   userInteractedUserID    [String]    //references the userID field as it appears in Users

@@ -17,7 +17,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.donde.R;
 import com.example.donde.activities.EventActivity;
 import com.example.donde.models.EventModel;
-import com.example.donde.models.InvitedUserModel;
+import com.example.donde.models.InvitedInEventUserModel;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -93,14 +93,14 @@ public class EventInfoFragment extends Fragment {
 
         Query invitedUsersQuery =
                 firebaseFirestore.collection(getString(R.string.ff_events_collection)).document(this.eventId).collection(getString(R.string.ff_eventInvitedUsers_collection));
-        FirestoreRecyclerOptions<InvitedUserModel> invitedUsersOptions =
-                new FirestoreRecyclerOptions.Builder<InvitedUserModel>().setQuery(invitedUsersQuery, InvitedUserModel.class).build();
+        FirestoreRecyclerOptions<InvitedInEventUserModel> invitedUsersOptions =
+                new FirestoreRecyclerOptions.Builder<InvitedInEventUserModel>().setQuery(invitedUsersQuery, InvitedInEventUserModel.class).build();
         invitedUsersRecyclerAdapter =
-                new FirestoreRecyclerAdapter<InvitedUserModel, InvitedUsersViewHolder>(invitedUsersOptions) {
+                new FirestoreRecyclerAdapter<InvitedInEventUserModel, InvitedUsersViewHolder>(invitedUsersOptions) {
                     @Override
-                    protected void onBindViewHolder(@NonNull InvitedUsersViewHolder holder, int position, @NonNull InvitedUserModel model) {
-                        Log.e("EventInfoFragment", String.format("user name is %s", model.getEventInvitedUserName()));
-                        holder.textViewInvitedUserName.setText(model.getEventInvitedUserName());
+                    protected void onBindViewHolder(@NonNull InvitedUsersViewHolder holder, int position, @NonNull InvitedInEventUserModel model) {
+                        Log.e("EventInfoFragment", String.format("user name is %s", model.getInvitedUserInEventName()));
+                        holder.textViewInvitedUserName.setText(model.getInvitedUserInEventName());
                     }
 
 

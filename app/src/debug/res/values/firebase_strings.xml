@@ -1,0 +1,42 @@
+<resources>
+    <!--    Users collection-->
+    <string name="ff_Users">Users</string>
+    <string name="ff_Users_userName">userName </string>
+    <string name="ff_Users_userID">userID </string>
+    <string name="ff_Users_userEmail">userEmail </string>
+    <string name="ff_Users_userProfilePicURL">userProfilePicURL </string>
+    <string name="ff_Users_userInvitedEventIDs">userInvitedEventIDs </string>
+    <string name="ff_Users_InvitedInUserEvents">InvitedInUserEvents </string>
+    <!--    InvitedInUserEvents subcollection-->
+    <string name="ff_InvitedInUserEvents">InvitedInUserEvents</string>
+    <string name="ff_InvitedInUserEvents_invitedInUserEventID">invitedInUserEventID</string>
+    <string name="ff_InvitedInUserEvents_invitedInUserEventName">invitedInUserEventName</string>
+    <string name="ff_InvitedInUserEvents_invitedInUserEventLocationName">invitedInUserEventLocationName</string>
+    <string name="ff_InvitedInUserEvents_invitedInUserEventCreatorName">invitedInUserEventCreatorName</string>
+    <string name="ff_InvitedInUserEvents_invitedInUserEventIsGoing">invitedInUserEventIsGoing</string>
+    <string name="ff_InvitedInUserEvents_invitedInUserEventTimeStarting">invitedInUserEventTimeStarting</string>
+
+    <!--    Events collection-->
+    <string name="ff_Events">Events</string>
+    <string name="ff_Events_eventName">eventName </string>
+    <string name="ff_Events_eventDescription">eventDescription </string>
+    <string name="ff_Events_eventCreatorUID">eventCreatorUID </string>
+    <string name="ff_Events_eventCreatorName">eventCreatorName </string>
+    <string name="ff_Events_eventTimeCreated">eventTimeCreated </string>
+    <string name="ff_Events_eventTimeStarting">eventTimeStarting </string>
+    <string name="ff_Events_eventLocationName">eventLocationName </string>
+    <string name="ff_Events_eventLocation">eventLocation </string>
+    <string name="ff_Events_InvitedInEventUsers">InvitedInEventUsers </string>
+    <!--InvitedInEventUsers subcollection-->
+    <string name="ff_InvitedInEventUsers">InvitedInEventUsers</string>
+    <string name="ff_InvitedInEventUsers_invitedInUserEventID">invitedInUserEventID</string>
+    <string name="ff_InvitedInEventUsers_invitedInUserEventName">invitedInUserEventName</string>
+    <string name="ff_InvitedInEventUsers_invitedInUserEventLocationName">
+        invitedInUserEventLocationName</string>
+    <string name="ff_InvitedInEventUsers_invitedInUserEventCreatorName">invitedInUserEventCreatorName</string>
+    <string name="ff_InvitedInEventUsers_invitedInUserEventIsGoing">invitedInUserEventIsGoing</string>
+    <string name="ff_InvitedInEventUsers_invitedInUserEventTimeStarting">
+        invitedInUserEventTimeStarting</string>
+
+
+</resources>

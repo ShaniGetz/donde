@@ -12,7 +12,7 @@ import androidx.viewpager.widget.ViewPager;
 
 import com.example.donde.R;
 import com.example.donde.models.EventModel;
-import com.example.donde.models.InvitedUserModel;
+import com.example.donde.models.InvitedInEventUserModel;
 import com.example.donde.recycle_views.events_recycler_view.EventsListViewModel;
 import com.example.donde.utils.ViewPagerAdapter;
 import com.example.donde.utils.map_utils.StatusDialog;
@@ -47,15 +47,15 @@ public class EventActivity extends AppCompatActivity implements StatusDialog.Sta
     private EventModel event;
     //    private int position;
     private EventsListViewModel eventsListViewModel;
-    private ArrayList<InvitedUserModel> invitedUsersList;
+    private ArrayList<InvitedInEventUserModel> invitedUsersList;
     private String TAG = "EventActivity";
-    private List<InvitedUserModel> invitedUserModelList = new ArrayList<>();
+    private List<InvitedInEventUserModel> invitedUserInEventModelList = new ArrayList<>();
 
     public static String getStatus() {
         return status;
     }
 
-    public ArrayList<InvitedUserModel> getInvitedUsersList() {
+    public ArrayList<InvitedInEventUserModel> getInvitedUsersList() {
         return invitedUsersList;
     }
 
@@ -76,10 +76,10 @@ public class EventActivity extends AppCompatActivity implements StatusDialog.Sta
                 for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
                     Log.d(TAG, String.format("Adding query snapshot name: %s",
                             documentSnapshot.get(getString(R.string.ff_InvitedUsers_eventInvitedUserName))));
-                    invitedUserModelList.add(documentSnapshot.toObject(InvitedUserModel.class));
+                    invitedUserInEventModelList.add(documentSnapshot.toObject(InvitedInEventUserModel.class));
                 }
                 Log.d(TAG, String.format("Size of invited users list is: %s and first name is: %s"
-                        , invitedUserModelList.size(), invitedUserModelList.get(0).getEventInvitedUserName()));
+                        , invitedUserInEventModelList.size(), invitedUserInEventModelList.get(0).getInvitedUserInEventName()));
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override

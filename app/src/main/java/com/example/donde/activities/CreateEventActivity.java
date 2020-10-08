@@ -29,7 +29,8 @@ import androidx.core.content.ContextCompat;
 import com.example.donde.BuildConfig;
 import com.example.donde.R;
 import com.example.donde.models.EventModel;
-import com.example.donde.models.InvitedUserModel;
+import com.example.donde.models.InvitedInUserEventModel;
+import com.example.donde.models.InvitedInEventUserModel;
 import com.example.donde.utils.map_utils.CustomMapTileProvider;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
@@ -115,7 +116,7 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
     private Date ffEventTimeCreated;
     private Date ffEventTimeStarting;
 
-    private List<InvitedUserModel> ffInvitedUserModels;
+    private List<InvitedInEventUserModel> ffInvitedUserInEventModels;
     private CollectionReference usersCollectionRef;
 
 
@@ -409,20 +410,35 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
         }
     }
 
+    private EventModel createNewEventModel() {
+        EventModel createdEvent = new EventModel();
+        createdEvent.setEventName(ffEventName);
+        createdEvent.setEventDescription(ffEventDescription);
+        createdEvent.setEventLocationName(ffEventLocationName);
+        createdEvent.setEventLocation(ffEventLocation);
+        createdEvent.setEventTimeCreated(ffEventTimeCreated);
+        createdEvent.setEventTimeStarting(ffEventTimeStarting);
+        createdEvent.setEventCreatorUID(ffEventCreatorUID);
+        createdEvent.setEventCreatorName(ffEventCreatorName);
+        return createdEvent;
+    }
+
+    private InvitedInUserEventModel createNewInvitedEventInUserModel() {
+        InvitedInUserEventModel invitedEventInUserModel = new InvitedInUserEventModel();
+
+    }
+
     private void createEvent() {
         boolean didSetFields = retrieveAndSetEventFields();
         if (didSetFields) {
             progressBar.setVisibility(View.VISIBLE);
-            EventModel createdEvent = new EventModel();
-            createdEvent.setEventName(ffEventName);
-            createdEvent.setEventDescription(ffEventDescription);
-            createdEvent.setEventLocationName(ffEventLocationName);
-            createdEvent.setEventLocation(ffEventLocation);
-            createdEvent.setEventTimeCreated(ffEventTimeCreated);
-            createdEvent.setEventTimeStarting(ffEventTimeStarting);
-            createdEvent.setEventCreatorUID(ffEventCreatorUID);
-            Log.d("create", "just before adding, creator name is " + ffEventCreatorName);
-            createdEvent.setEventCreatorName(ffEventCreatorName);
+
+            EventModel createdEvent = createNewEventModel();
+            InvitedInUserEventModel createdInvitedEventInUserModel =
+                    createNewInvitedEventInUserModel ();
+
+
+
 
             firebaseFirestore.collection(getString(R.string.ff_events_collection)).add(createdEvent).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                 @Override
@@ -430,9 +446,9 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
                     // add invited users
                     CollectionReference invitedUsersRef =
                             documentReference.collection(getString(R.string.ff_events_eventInvitedUsers));
-                    for (InvitedUserModel invitedUserModel : ffInvitedUserModels) {
+                    for (InvitedInEventUserModel invitedUserInEventModel : ffInvitedUserInEventModels) {
 
-                        addInvitedUserToEvent(documentReference, invitedUsersRef, invitedUserModel);
+                        addInvitedUserToEvent(documentReference, invitedUsersRef, invitedUserInEventModel);
                     }
                     Toast.makeText(CreateEventActivity.this, "Event created successfully",
                             Toast.LENGTH_SHORT).show();
@@ -454,13 +470,13 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
         }
     }
 
-    private void addInvitedUserToEvent(DocumentReference documentReference, CollectionReference invitedUsersRef, InvitedUserModel invitedUserModel) {
-        invitedUsersRef.document(invitedUserModel.getEventInvitedUserID()).set(invitedUserModel).addOnSuccessListener(new OnSuccessListener<Void>() {
+    private void addInvitedUserToEvent(DocumentReference documentReference, CollectionReference invitedUsersRef, InvitedInEventUserModel invitedUserInEventModel) {
+        invitedUsersRef.document(invitedUserInEventModel.getInvitedUserInEventID()).set(invitedUserInEventModel).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
                 Log.d("CreateEventActivity",
-                        "adding " + invitedUserModel.getEventInvitedUserEmail());
-                addEventToInvitedUser(invitedUserModel.getEventInvitedUserID(),
+                        "adding " + invitedUserInEventModel.getInvitedUserInEventEmail());
+                addEventToInvitedUser(invitedUserInEventModel.getInvitedUserInEventID(),
                         documentReference.getId());
 
             }
@@ -468,11 +484,11 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
             @Override
             public void onFailure(@NonNull Exception e) {
                 Log.d("CreateEventActivity",
-                        "failed " + invitedUserModel.getEventInvitedUserEmail());
+                        "failed " + invitedUserInEventModel.getInvitedUserInEventEmail());
 
                 Toast.makeText(CreateEventActivity.this, String.format("Error " +
                                 "adding invited user %s: with error: %s",
-                        invitedUserModel.getEventInvitedUserEmail(), e.getMessage()),
+                        invitedUserInEventModel.getInvitedUserInEventEmail(), e.getMessage()),
                         Toast.LENGTH_SHORT).show();
                 documentReference.delete(); // if adding users failed, delete
                 return;
@@ -633,7 +649,7 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
 
     private boolean setInvitedUsers(ArrayList<String> userEmails) {
 
-        ffInvitedUserModels = new ArrayList<>();
+        ffInvitedUserInEventModels = new ArrayList<>();
         CollectionReference usersRef = firebaseFirestore.collection(getString(R.string.ff_users_collection));
         // add self to invitees
         userEmails.add(firebaseUser.getEmail());
@@ -657,7 +673,7 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
                             String invitedUserProfilePicURL = invitedUserDoc.getString(
                                     getString(R.string.ff_users_invitedUserProfilePicURL));
                             Log.d("CreateEvent", String.format("adding user to ffInvited: %s", invitedUserEmail));
-                            ffInvitedUserModels.add(new InvitedUserModel(invitedUserID,
+                            ffInvitedUserInEventModels.add(new InvitedInEventUserModel(invitedUserID,
                                     invitedUserName, invitedUserEmail, invitedUserProfilePicURL));
 
                         } else if (task.getResult().size() == 0) {
