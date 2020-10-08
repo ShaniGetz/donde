@@ -96,9 +96,9 @@ public class EventsFragment extends Fragment implements EventsListAdapter.OnEven
             @Override
             public void onSuccess(DocumentSnapshot documentSnapshot) {
                 userInvitedEventIDs = (List<String>) documentSnapshot.get(getString(R.string.ff_users_userInvitedEventIDs));
-                Toast.makeText(getContext(), String.format("Array size= %s",
-                        userInvitedEventIDs == null ? 0 : userInvitedEventIDs.size()),
-                        Toast.LENGTH_SHORT).show();
+//                Toast.makeText(getContext(), String.format("Array size= %s",
+//                        userInvitedEventIDs == null ? 0 : userInvitedEventIDs.size()),
+//                        Toast.LENGTH_SHORT).show();
 
 
                 Query eventsQuery =
