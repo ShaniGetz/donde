@@ -89,4 +89,14 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/event_item_textView_are_you_going" />
 
+    <Button
+        android:id="@+id/event_item_button_delete_event"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="DELETE EVENT"
+        app:layout_constraintBottom_toBottomOf="@id/event_item_button_goto_event"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/event_item_button_goto_event"
+        app:layout_constraintTop_toTopOf="@id/event_item_button_goto_event" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

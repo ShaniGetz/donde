@@ -29,14 +29,14 @@ import com.example.donde.R;
 import com.example.donde.activities.EventActivity;
 import com.example.donde.activities.MainActivity;
 import com.example.donde.models.EventModel;
-import com.example.donde.recycle_views.events_recycler_view.EventsListAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldPath;
-import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.gson.Gson;
@@ -48,12 +48,15 @@ import java.util.List;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class EventsFragment extends Fragment implements EventsListAdapter.OnEventListItemClicked {
+public class EventsFragment extends Fragment {
 
     private FirebaseFirestore firebaseFirestore;
+    private CollectionReference eventsCollectionRef;
     private RecyclerView recyclerViewEventsList;
     private FirestoreRecyclerAdapter eventsRecyclerAdapter;
     private List<String> userInvitedEventIDs = new ArrayList<>();
+
+    private final String TAG = "TagEventsFragment";
 
     public EventsFragment() {
         Log.e("EventsFragment", "Constructor");
@@ -64,6 +67,7 @@ public class EventsFragment extends Fragment implements EventsListAdapter.OnEven
     private void initializeFields(View view) {
         recyclerViewEventsList = view.findViewById(R.id.events_recyclerView_events);
         firebaseFirestore = FirebaseFirestore.getInstance();
+        eventsCollectionRef = firebaseFirestore.collection(getString(R.string.ff_events_collection));
 
     }
 
@@ -96,13 +100,11 @@ public class EventsFragment extends Fragment implements EventsListAdapter.OnEven
             @Override
             public void onSuccess(DocumentSnapshot documentSnapshot) {
                 userInvitedEventIDs = (List<String>) documentSnapshot.get(getString(R.string.ff_users_userInvitedEventIDs));
-//                Toast.makeText(getContext(), String.format("Array size= %s",
-//                        userInvitedEventIDs == null ? 0 : userInvitedEventIDs.size()),
-//                        Toast.LENGTH_SHORT).show();
+                Log.d(TAG, String.format("userInvitedEventIDs size is %s", userInvitedEventIDs.size()));
 
 
                 Query eventsQuery =
-                        firebaseFirestore.collection(getString(R.string.ff_events_collection)).whereIn(FieldPath.documentId(),userInvitedEventIDs).orderBy(
+                        eventsCollectionRef.whereIn(FieldPath.documentId(), userInvitedEventIDs).orderBy(
                                 getString(R.string.ff_events_eventTimeStarting));
                 // recycler view inflater
                 FirestoreRecyclerOptions<EventModel> eventOptions =
@@ -136,6 +138,25 @@ public class EventsFragment extends Fragment implements EventsListAdapter.OnEven
                                         startActivity(eventIntent);
                                     }
                                 });
+                                holder.buttonDeleteEvent.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        eventsCollectionRef.document(model.getEventID()).delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+                                            @Override
+                                            public void onSuccess(Void aVoid) {
+                                                Toast.makeText(getContext(), String.format("Event \"%s\" deleted successfully",
+                                                        model.getEventName()), Toast.LENGTH_SHORT).show();
+                                            }
+                                        }).addOnFailureListener(new OnFailureListener() {
+                                            @Override
+                                            public void onFailure(@NonNull Exception e) {
+                                                Toast.makeText(getContext(), String.format("Could" +
+                                                                " not delete event. Error: %s", e.getMessage()),
+                                                        Toast.LENGTH_SHORT).show();
+                                            }
+                                        });
+                                    }
+                                });
                             }
 
 
@@ -150,14 +171,14 @@ public class EventsFragment extends Fragment implements EventsListAdapter.OnEven
 
                         };
 
-                recyclerViewEventsList.setHasFixedSize(true);
+                eventsRecyclerAdapter.startListening();
+//                recyclerViewEventsList.setHasFixedSize(true);
                 recyclerViewEventsList.setLayoutManager(new LinearLayoutManager(getContext()));
                 DividerItemDecoration dividerItemDecoration =
                         new DividerItemDecoration(recyclerViewEventsList.getContext(),
                                 DividerItemDecoration.VERTICAL);
                 recyclerViewEventsList.addItemDecoration(dividerItemDecoration);
                 recyclerViewEventsList.setAdapter(eventsRecyclerAdapter);
-                eventsRecyclerAdapter.startListening();
             }
         });
 
@@ -167,31 +188,21 @@ public class EventsFragment extends Fragment implements EventsListAdapter.OnEven
     @Override
     public void onStart() {
         super.onStart();
-//        eventsRecyclerAdapter.startListening();
+        if (eventsRecyclerAdapter != null) {
+
+            eventsRecyclerAdapter.startListening();
+        }
     }
 
     @Override
     public void onStop() {
         super.onStop();
-//        eventsRecyclerAdapter.stopListening();
+        if (eventsRecyclerAdapter != null) {
+
+            eventsRecyclerAdapter.stopListening();
+        }
     }
 
-
-    @Override
-    public void onItemClicked(int position, String eventID) {
-        Toast.makeText(getContext(), "clickity", Toast.LENGTH_SHORT).show();
-        Intent eventIntent = new Intent(getActivity(), EventActivity.class);
-
-        eventIntent.putExtra(getString(R.string.arg_position), position);
-        eventIntent.putExtra(getString(R.string.arg_event_id), eventID);
-        startActivity(eventIntent);
-
-        //        EventsFragmentDirections.ActionEventsFragmentToEventInfoFragment action =
-//                EventsFragmentDirections.actionEventsFragmentToEventInfoFragment();
-//        action.setPosition(position);
-//
-//        navController.navigate(action);
-    }
 
     class EventsViewHolder extends RecyclerView.ViewHolder {
 
@@ -202,6 +213,7 @@ public class EventsFragment extends Fragment implements EventsListAdapter.OnEven
         private TextView textViewEventLocationName;
         private CheckBox checkBoxEventIsGoing;
         private Button buttonGotoEvent;
+        private Button buttonDeleteEvent;
 
         public EventsViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -212,6 +224,7 @@ public class EventsFragment extends Fragment implements EventsListAdapter.OnEven
             textViewEventLocationName = itemView.findViewById(R.id.event_item_textView_event_location_name);
             checkBoxEventIsGoing = itemView.findViewById(R.id.event_item_checkBox_is_going);
             buttonGotoEvent = itemView.findViewById(R.id.event_item_button_goto_event);
+            buttonDeleteEvent = itemView.findViewById(R.id.event_item_button_delete_event);
         }
     }
 

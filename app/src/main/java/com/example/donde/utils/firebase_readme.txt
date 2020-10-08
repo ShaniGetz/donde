@@ -41,13 +41,13 @@ Updates (old to new):
 -   -   userEmail           [String]
 -   -   userProfilePicURL   [String]        //URL for the profile pic inside Firebase Storage
 -   -   userInvitedEventIDs [Array<String>]
--   -   DEPRECATED:
--   -   UserInteractedUsers [Collection]    //users that the user interacted with
--   -   -   userInteractedUserID    [String]    //references the userID field as it appears in Users
--   -   -   userInteractedUserName  [String]
--   -   -   userInteractedUserEmail [String]
 -   -   UserInvitedEvents   [Collection]
 -   -   -   userInvitedEventID              [String]    //references event document ID in Events collection
 -   -   -   userInvitedEventName            [String]
 -   -   -   userInvitedEventLocationName    [String]
 -   -   -   userInvitedEventCreatorName     [String]
+-   -   DEPRECATED:
+-   -   UserInteractedUsers [Collection]    //users that the user interacted with
+-   -   -   userInteractedUserID    [String]    //references the userID field as it appears in Users
+-   -   -   userInteractedUserName  [String]
+-   -   -   userInteractedUserEmail [String]
