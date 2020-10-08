@@ -37,4 +37,6 @@
     <string name="arg_event_model">arg_event_model</string>
     <string name="ff_eventInvitedUsers_collection">EventInvitedUsers</string>
     <string name="ff_users_userInvitedEventIDs">userInvitedEventIDs</string>
+    <string name="ff_users_invitedUserProfilePicURL">invitedUserProfilePicURL</string>
+    <string name="ff_InvitedUsers_eventInvitedUserName">eventInvitedUserName</string>
 </resources>

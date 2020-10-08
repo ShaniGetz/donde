@@ -11,22 +11,20 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.viewpager.widget.ViewPager;
 
 import com.example.donde.R;
-import com.example.donde.fragments.EventInfoFragment;
 import com.example.donde.models.EventModel;
 import com.example.donde.models.InvitedUserModel;
-import com.example.donde.models.UserModel;
 import com.example.donde.recycle_views.events_recycler_view.EventsListViewModel;
 import com.example.donde.utils.ViewPagerAdapter;
 import com.example.donde.utils.map_utils.StatusDialog;
-import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
-import com.firebase.ui.firestore.FirestoreRecyclerOptions;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
+import java.util.List;
 
 
 public class EventActivity extends AppCompatActivity implements StatusDialog.StatusDialogListener {
@@ -34,28 +32,32 @@ public class EventActivity extends AppCompatActivity implements StatusDialog.Sta
     final int INFO_TAB = 0;
     final int MAP_TAB = 1;
     final int CHAT_TAB = 2;
-
+    FirebaseFirestore firebaseFirestore;
     private TextView textViewInfoLabel;
     private TextView textViewMapLabel;
     private TextView textViewChatLabel;
-
     private TextView infoEventName;
     private TextView infoDescription;
     private TextView infoLocationName;
     private TextView infoCreatorUsername;
-
     private ViewPager viewPager;
     private ViewPagerAdapter viewPagerAdapter;
-
     private String eventID;
     private int position;
     private EventModel event;
-
+    //    private int position;
     private EventsListViewModel eventsListViewModel;
-//    private int position;
+    private ArrayList<InvitedUserModel> invitedUsersList;
+    private String TAG = "EventActivity";
+    private List<InvitedUserModel> invitedUserModelList = new ArrayList<>();
 
-    FirebaseFirestore firebaseFirestore;
-    public ArrayList<UserModel> usersList;
+    public static String getStatus() {
+        return status;
+    }
+
+    public ArrayList<InvitedUserModel> getInvitedUsersList() {
+        return invitedUsersList;
+    }
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -63,20 +65,29 @@ public class EventActivity extends AppCompatActivity implements StatusDialog.Sta
         setContentView(R.layout.activity_event);
         initializeFields();
         initializeListeners();
-//        initializeUsersList();
+        initializeInvitedUsersList();
     }
 
-//    private NavController navController;
-//    private EventsListViewModel eventsListViewModel;
+    private void initializeInvitedUsersList() {
+        firebaseFirestore.collection(getString(R.string.ff_events_collection)).document(eventID).collection(getString(R.string.ff_eventInvitedUsers_collection)).get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+            @Override
+            public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
 
-//    private TextView textViewEventName;
-//    private TextView textViewDescription;
-//    private TextView textViewLocationName;
-//    private TextView textViewCreatorUsername;
-//
-//    private Button buttonGotoEvents;
-//    private Button buttonGotoChat;
-//    private Button buttonGotoMap;
+                for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
+                    Log.d(TAG, String.format("Adding query snapshot name: %s",
+                            documentSnapshot.get(getString(R.string.ff_InvitedUsers_eventInvitedUserName))));
+                    invitedUserModelList.add(documentSnapshot.toObject(InvitedUserModel.class));
+                }
+                Log.d(TAG, String.format("Size of invited users list is: %s and first name is: %s"
+                        , invitedUserModelList.size(), invitedUserModelList.get(0).getEventInvitedUserName()));
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.d(TAG, String.format("Failed getting list of users, error: %s", e.getMessage()));
+            }
+        });
+    }
 
     public EventModel getEvent() {
         return event;
@@ -85,6 +96,7 @@ public class EventActivity extends AppCompatActivity implements StatusDialog.Sta
     public String getEventID() {
         return eventID;
     }
+
     private void initializeFields() {
         textViewInfoLabel = findViewById(R.id.event_textView_info_label);
         textViewMapLabel = findViewById(R.id.event_textView_map_label);
@@ -92,6 +104,8 @@ public class EventActivity extends AppCompatActivity implements StatusDialog.Sta
         viewPager = findViewById(R.id.event_viewPager);
         eventID = getIntent().getStringExtra(getString(R.string.arg_event_id));
         position = getIntent().getIntExtra(getString(R.string.arg_position), -1);
+
+        firebaseFirestore = FirebaseFirestore.getInstance();
 
         // get event object from intent
         Gson gson = new Gson();
@@ -104,29 +118,6 @@ public class EventActivity extends AppCompatActivity implements StatusDialog.Sta
         viewPager.setOffscreenPageLimit(2);
 
 
-//        eventsListViewModel = new ViewModelProvider(this).get(EventsListViewModel.class);
-//        eventsListViewModel.getEventsListModelData().observe(this,
-//                new Observer<List<EventsListModel>>() {
-//                    @Override
-//                    public void onChanged(List<EventsListModel> eventsListModels) {
-//                        infoEventName.setText(eventsListModels.get(position).getEventName());
-//                        infoDescription.setText(eventsListModels.get(position).getEventDescription());
-//                        infoLocationName.setText(eventsListModels.get(position).getEventLocationName());
-////                        infoCreatorUsername.setText(eventsListModels.get(position).getCreator_username());
-//                    }
-//                });
-
-
-//        navController = Navigation.findNavController(view);
-//        position = EventInfoFragmentArgs.fromBundle(getArguments()).getPosition();
-
-//        textViewEventName = findViewById(R.id.event_textView_event_name);
-//        textViewDescription = findViewById(R.id.event_textView_event_description);
-//        textViewLocationName = findViewById(R.id.event_textView_location_name);
-//        textViewCreatorUsername = findViewById(R.id.event_textView_creator_name);
-//        buttonGotoEvents = findViewById(R.id.event_button_goto_events);
-//        buttonGotoChat = findViewById(R.id.event_button_goto_chat);
-//        buttonGotoMap = findViewById(R.id.event_button_goto_map);
     }
 
     private void initializeListeners() {
@@ -167,6 +158,19 @@ public class EventActivity extends AppCompatActivity implements StatusDialog.Sta
         });
     }
 
+//    private void initializeUsersList() {
+//        usersList = new ArrayList<>();
+//        FirebaseUser myUser = FirebaseAuth.getInstance().getCurrentUser();
+//        String myUserId = myUser.getUid();
+//        UserModel myUserModel = new UserModel(myUserId, myUser.)
+//        usersList.add(myUserModel);
+//        Query invitedUsersQuery =
+//                firebaseFirestore.collection(getString(R.string.ff_events_collection)).document(getEventID()).collection(getString(R.string.ff_eventInvitedUsers_collection));
+//        FirestoreRecyclerOptions<InvitedUserModel> invitedUsersOptions =
+//                new FirestoreRecyclerOptions.Builder<InvitedUserModel>().setQuery(invitedUsersQuery, InvitedUserModel.class).build();
+//
+//    }
+
     private void changeTabs(int position) {
         TextView mainTab;
         TextView subTab1, subTab2;
@@ -199,25 +203,8 @@ public class EventActivity extends AppCompatActivity implements StatusDialog.Sta
         subTab2.setTextSize(15);
     }
 
-//    private void initializeUsersList() {
-//        usersList = new ArrayList<>();
-//        FirebaseUser myUser = FirebaseAuth.getInstance().getCurrentUser();
-//        String myUserId = myUser.getUid();
-//        UserModel myUserModel = new UserModel(myUserId, myUser.)
-//        usersList.add(myUserModel);
-//        Query invitedUsersQuery =
-//                firebaseFirestore.collection(getString(R.string.ff_events_collection)).document(getEventID()).collection(getString(R.string.ff_eventInvitedUsers_collection));
-//        FirestoreRecyclerOptions<InvitedUserModel> invitedUsersOptions =
-//                new FirestoreRecyclerOptions.Builder<InvitedUserModel>().setQuery(invitedUsersQuery, InvitedUserModel.class).build();
-
-//    }
-
     @Override
     public void applyText(String status) {
         this.status = status;
-    }
-
-    public static String getStatus() {
-        return status;
     }
 }

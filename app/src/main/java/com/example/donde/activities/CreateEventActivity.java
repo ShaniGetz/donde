@@ -653,9 +653,12 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
                             String invitedUserID = invitedUserDoc.getId();
                             String invitedUserEmail = invitedUserDoc.getString(getString(R.string.ff_users_userEmail));
                             String invitedUserName = invitedUserDoc.getString(getString(R.string.ff_users_userName));
+                            // TODO: retrieve
+                            String invitedUserProfilePicURL = invitedUserDoc.getString(
+                                    getString(R.string.ff_users_invitedUserProfilePicURL));
                             Log.d("CreateEvent", String.format("adding user to ffInvited: %s", invitedUserEmail));
                             ffInvitedUserModels.add(new InvitedUserModel(invitedUserID,
-                                    invitedUserEmail, invitedUserName));
+                                    invitedUserName, invitedUserEmail, invitedUserProfilePicURL));
 
                         } else if (task.getResult().size() == 0) {
                             Toast.makeText(CreateEventActivity.this, String.format("No user found" +
