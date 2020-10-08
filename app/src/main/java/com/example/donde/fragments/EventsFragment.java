@@ -16,6 +16,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -33,6 +34,7 @@ import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
+import com.google.gson.Gson;
 
 
 /**
@@ -44,12 +46,6 @@ public class EventsFragment extends Fragment implements EventsListAdapter.OnEven
     private RecyclerView recyclerViewEventsList;
     private FirestoreRecyclerAdapter eventsRecyclerAdapter;
 
-    private EventsListViewModel eventsListViewModel;
-
-//    private NavController navController;
-//    private EventsListAdapter adapter;
-//    private Button buttonCreateNewEvent;
-
 
     public EventsFragment() {
         Log.e("EventsFragment", "Constructor");
@@ -60,25 +56,6 @@ public class EventsFragment extends Fragment implements EventsListAdapter.OnEven
     private void initializeFields(View view) {
         recyclerViewEventsList = view.findViewById(R.id.events_recyclerView_events);
         firebaseFirestore = FirebaseFirestore.getInstance();
-
-//        recyclerViewEventsList = view.findViewById(R.id.events_recyclerView_events);
-//        adapter = new EventsListAdapter(this);
-//
-//        recyclerViewEventsList.setLayoutManager(new LinearLayoutManager(getContext()));
-//        recyclerViewEventsList.setHasFixedSize(true);
-//        recyclerViewEventsList.setAdapter(adapter);
-//        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(recyclerViewEventsList.getContext(),
-//                DividerItemDecoration.VERTICAL);
-//        recyclerViewEventsList.addItemDecoration(dividerItemDecoration);
-//        navController = Navigation.findNavController(view);
-//
-//        buttonCreateNewEvent = view.findViewById(R.id.create_button_create);
-//        buttonCreateNewEvent.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                navController.navigate(R.id.action_eventsFragment_to_addEventFragment);
-//            }
-//        });
 
     }
 
@@ -106,15 +83,16 @@ public class EventsFragment extends Fragment implements EventsListAdapter.OnEven
         // query firestore for events
 //        Query eventsQuery =
 //                firebaseFirestore.collection(getString(R.string.ff_events_collection)).orderBy(getString(R.string.ff_event_start_time));
+        // TODO: only show events user is invited to
         Query eventsQuery =
                 firebaseFirestore.collection(getString(R.string.ff_events_collection)).orderBy(
                         getString(R.string.ff_events_eventTimeStarting));
         // recycler view inflater
-        FirestoreRecyclerOptions<EventModel> evenstOptions =
+        FirestoreRecyclerOptions<EventModel> eventOptions =
                 new FirestoreRecyclerOptions.Builder<EventModel>().setQuery(eventsQuery,
                         EventModel.class).build();
         eventsRecyclerAdapter =
-                new FirestoreRecyclerAdapter<EventModel, EventsViewHolder>(evenstOptions) {
+                new FirestoreRecyclerAdapter<EventModel, EventsViewHolder>(eventOptions) {
 
                     @Override
                     protected void onBindViewHolder(@NonNull EventsViewHolder holder, int position, @NonNull EventModel model) {
@@ -133,7 +111,11 @@ public class EventsFragment extends Fragment implements EventsListAdapter.OnEven
                                 Intent eventIntent = new Intent(getActivity(), EventActivity.class);
 
                                 eventIntent.putExtra(getString(R.string.arg_position), position);
-//                                eventIntent.putExtra(getString(R.string.arg_event_id), eventID);
+                                // gson helps pass objects
+                                Gson gson = new Gson();
+                                String eventJson = gson.toJson(model);
+                                eventIntent.putExtra(getString(R.string.arg_event_model), eventJson);
+                                eventIntent.putExtra(getString(R.string.arg_event_id), model.getEventID());
                                 startActivity(eventIntent);
                             }
                         });
@@ -172,24 +154,10 @@ public class EventsFragment extends Fragment implements EventsListAdapter.OnEven
         eventsRecyclerAdapter.stopListening();
     }
 
-//    @Override
-//    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-//        Log.e("EventsFragment", "in onActivityCreated");
-//
-//        super.onActivityCreated(savedInstanceState);
-//
-////        eventsListViewModel = new ViewModelProvider(getActivity()).get(EventsListViewModel.class);
-////        eventsListViewModel.getEventsListModelData().observe(getViewLifecycleOwner(), new Observer<List<EventModel>>() {
-////            @Override
-////            public void onChanged(List<EventModel> eventsListModels) {
-////                adapter.setEventsListModels(eventsListModels);
-////                adapter.notifyDataSetChanged();
-////            }
-////        });
-//    }
 
     @Override
     public void onItemClicked(int position, String eventID) {
+        Toast.makeText(getContext(), "clickity", Toast.LENGTH_SHORT).show();
         Intent eventIntent = new Intent(getActivity(), EventActivity.class);
 
         eventIntent.putExtra(getString(R.string.arg_position), position);

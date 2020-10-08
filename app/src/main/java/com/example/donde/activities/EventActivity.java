@@ -6,12 +6,13 @@ import android.widget.TextView;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.lifecycle.ViewModelProvider;
 import androidx.viewpager.widget.ViewPager;
 
 import com.example.donde.R;
+import com.example.donde.models.EventModel;
 import com.example.donde.recycle_views.events_recycler_view.EventsListViewModel;
 import com.example.donde.utils.ViewPagerAdapter;
+import com.google.gson.Gson;
 
 
 public class EventActivity extends AppCompatActivity {
@@ -33,6 +34,7 @@ public class EventActivity extends AppCompatActivity {
 
     private String eventID;
     private int position;
+    private EventModel event;
 
     private EventsListViewModel eventsListViewModel;
 //    private int position;
@@ -56,14 +58,25 @@ public class EventActivity extends AppCompatActivity {
 //    private Button buttonGotoChat;
 //    private Button buttonGotoMap;
 
+    public EventModel getEvent() {
+        return event;
+    }
+
+    public String getEventID() {
+        return eventID;
+    }
     private void initializeFields() {
         textViewInfoLabel = findViewById(R.id.event_textView_info_label);
         textViewMapLabel = findViewById(R.id.event_textView_map_label);
         textViewChatLabel = findViewById(R.id.event_textView_chat_label);
         viewPager = findViewById(R.id.event_viewPager);
-//        eventID = getIntent().getStringExtra(getString(R.string.arg_event_id));
+        eventID = getIntent().getStringExtra(getString(R.string.arg_event_id));
         position = getIntent().getIntExtra(getString(R.string.arg_position), -1);
-//        Toast.makeText(EventActivity.this, "Err " + eventID, Toast.LENGTH_SHORT).show();
+
+        // get event object from intent
+        Gson gson = new Gson();
+        event = gson.fromJson(getIntent().getStringExtra(getString(R.string.arg_event_model)),
+                EventModel.class);
 
         viewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager(), eventID, position);
         viewPager.setAdapter(viewPagerAdapter);
@@ -71,7 +84,7 @@ public class EventActivity extends AppCompatActivity {
         viewPager.setOffscreenPageLimit(2);
 
 
-        eventsListViewModel = new ViewModelProvider(this).get(EventsListViewModel.class);
+//        eventsListViewModel = new ViewModelProvider(this).get(EventsListViewModel.class);
 //        eventsListViewModel.getEventsListModelData().observe(this,
 //                new Observer<List<EventsListModel>>() {
 //                    @Override

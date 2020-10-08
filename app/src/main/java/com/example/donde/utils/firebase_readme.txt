@@ -31,6 +31,7 @@ Updates (old to new):
 -   -   -   eventInvitedUserID      [String]    //references user document ID in Users collection
 -   -   -   eventInvitedUserEmail   [String]
 -   -   -   eventInvitedUserName    [String]
+-   -   -   eventInvitedUserIsGoing
 
 -   Users   [Collection]
 -   -   userName            [String]
