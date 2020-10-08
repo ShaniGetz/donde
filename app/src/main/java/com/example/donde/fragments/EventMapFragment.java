@@ -59,6 +59,9 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback {
     private FragmentActivity myContext;
     private ClusterManager mClusterManager;
     private MyClusterManagerRenderer mClusterManagerRenderer;
+
+
+
     private ArrayList<ClusterMarker> mClusterMarkers = new ArrayList<>();
     LocationCallback mLocationCallback = new
 
@@ -111,6 +114,7 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback {
         if (mFusedLocationClient != null) {
             mFusedLocationClient.removeLocationUpdates(mLocationCallback);
         }
+
     }
 
     /**
@@ -316,3 +320,6 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback {
         }
     }
 }
+
+
+//        ((EventActivity)getActivity()).getInvitedUsersList()
