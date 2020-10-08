@@ -1,21 +1,36 @@
 package com.example.donde.activities;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.viewpager.widget.ViewPager;
 
 import com.example.donde.R;
+import com.example.donde.fragments.EventInfoFragment;
 import com.example.donde.models.EventModel;
+import com.example.donde.models.InvitedUserModel;
+import com.example.donde.models.UserModel;
 import com.example.donde.recycle_views.events_recycler_view.EventsListViewModel;
 import com.example.donde.utils.ViewPagerAdapter;
+import com.example.donde.utils.map_utils.StatusDialog;
+import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
+import com.firebase.ui.firestore.FirestoreRecyclerOptions;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 import com.google.gson.Gson;
 
+import java.util.ArrayList;
 
-public class EventActivity extends AppCompatActivity {
+
+public class EventActivity extends AppCompatActivity implements StatusDialog.StatusDialogListener {
+    private static String status;
     final int INFO_TAB = 0;
     final int MAP_TAB = 1;
     final int CHAT_TAB = 2;
@@ -39,13 +54,18 @@ public class EventActivity extends AppCompatActivity {
     private EventsListViewModel eventsListViewModel;
 //    private int position;
 
+    FirebaseFirestore firebaseFirestore;
+    public ArrayList<UserModel> usersList;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_event);
         initializeFields();
         initializeListeners();
+//        initializeUsersList();
     }
+
 //    private NavController navController;
 //    private EventsListViewModel eventsListViewModel;
 
@@ -177,5 +197,27 @@ public class EventActivity extends AppCompatActivity {
         mainTab.setTextSize(20);
         subTab1.setTextSize(15);
         subTab2.setTextSize(15);
+    }
+
+//    private void initializeUsersList() {
+//        usersList = new ArrayList<>();
+//        FirebaseUser myUser = FirebaseAuth.getInstance().getCurrentUser();
+//        String myUserId = myUser.getUid();
+//        UserModel myUserModel = new UserModel(myUserId, myUser.)
+//        usersList.add(myUserModel);
+//        Query invitedUsersQuery =
+//                firebaseFirestore.collection(getString(R.string.ff_events_collection)).document(getEventID()).collection(getString(R.string.ff_eventInvitedUsers_collection));
+//        FirestoreRecyclerOptions<InvitedUserModel> invitedUsersOptions =
+//                new FirestoreRecyclerOptions.Builder<InvitedUserModel>().setQuery(invitedUsersQuery, InvitedUserModel.class).build();
+
+//    }
+
+    @Override
+    public void applyText(String status) {
+        this.status = status;
+    }
+
+    public static String getStatus() {
+        return status;
     }
 }

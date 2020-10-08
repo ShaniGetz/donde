@@ -27,6 +27,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 
 import com.example.donde.R;
+import com.example.donde.activities.EventActivity;
 import com.example.donde.utils.map_utils.ClusterMarker;
 import com.example.donde.utils.map_utils.MyClusterManagerRenderer;
 import com.example.donde.utils.map_utils.StatusDialog;
@@ -46,15 +47,15 @@ import com.google.maps.android.clustering.ClusterManager;
 import java.util.ArrayList;
 import java.util.List;
 
-public class EventMapFragment extends Fragment implements OnMapReadyCallback, StatusDialog.StatusDialogListener {
+public class EventMapFragment extends Fragment implements OnMapReadyCallback {
     public static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
+    private String status;
     LocationRequest mLocationRequest;
     GoogleMap mGoogleMap;
     FusedLocationProviderClient mFusedLocationClient;
     //    LocationCallback mLocationCallback;
     Location mLastLocation;
     Marker mCurrLocationMarker;
-    String status;
     private FragmentActivity myContext;
     private ClusterManager mClusterManager;
     private MyClusterManagerRenderer mClusterManagerRenderer;
@@ -183,28 +184,28 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback, St
                 );
                 mClusterManager.setRenderer(mClusterManagerRenderer);
             }
-//            for(UserLocation userLocation: mUserLocations){
+//            for(UserModel user: mUserLocations){
 //                Log.d(TAG, "addMapMarkers: location: " + userLocation.getGeo_point().toString());
 //                try{
 //                    String snippet = "";
-//                    if(userLocation.getUser().getUser_id().equals(FirebaseAuth.getInstance().getUid())){
-//                        snippet = "This is you";
+//                    if(user.getUserID.equals(FirebaseAuth.getInstance().getCurrentUser())){
+//                        snippet = "Click to post your status ";
 //                    }
 //                    else{
-//                        snippet = "Determine route to " + userLocation.getUser().getUsername() + "?";
+//                        snippet = "";
 //                    }
 //                    int avatar = R.drawable.avatar; // set the default avatar
 //                    try{
-//                        avatar = Integer.parseInt(userLocation.getUser().getAvatar());
+//                        avatar = Integer.parseInt(user.setUserProfilePicURL());
 //                    }catch (NumberFormatException e){
-//                        Log.d(TAG, "addMapMarkers: no avatar for " + userLocation.getUser().getUsername() + ", setting default.");
+//                        Log.d(TAG, "addMapMarkers: no avatar for " + user.getUserName() + ", setting default.");
 //                    }
 //                    ClusterMarker newClusterMarker = new ClusterMarker(
-//                            new LatLng(userLocation.getGeo_point().getLatitude(), userLocation.getGeo_point().getLongitude()),
-//                            userLocation.getUser().getUsername(),
+//                            new LatLng(user.getGeo_point().getLatitude(),
+//                            user.getGeo_point().getLongitude()),
+//                            user.getUserName(),
 //                            snippet,
-//                            avatar,
-//                            userLocation.getUser()
+//                            avatar
 //                    );
 //                    mClusterManager.addItem(newClusterMarker);
 //                    mClusterMarkers.add(newClusterMarker);
@@ -217,29 +218,29 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback, St
                     mLastLocation.getLongitude()), "Shani Getz", "This is you", avatar);
             mClusterManager.addItem(newClusterMarker);
             mClusterMarkers.add(newClusterMarker);
-
-//            mClusterManager.setOnClusterItemClickListener(
-//                    new ClusterManager.OnClusterItemClickListener<ClusterMarker>() {
-//                        @Override public boolean onClusterItemClick(ClusterMarker clusterItem) {
-//                            if (clusterItem.getTitle().equals("shani getz")){
-//                                openDialog();
-//                                clusterItem.setSnippet(status);
-////                                clusterItem.setTitle(clusterItem.getTitle()+'\n'+status);
-//                            }
-//                            else{
-//                                return false;
-//                            }
-//                            // if true, click handling stops here and do not show info view, do not move camera
-//                            // you can avoid this by calling:
-//                            return false;
-//                        }
-//                    });
-
             ClusterMarker alonClusterMarker = new ClusterMarker(new LatLng(32.0, 34.0),
                     "alon", "This is your friend", R.drawable.avatar);
             mClusterManager.addItem(alonClusterMarker);
             mClusterMarkers.add(alonClusterMarker);
-
+            mClusterManager.setOnClusterItemClickListener(
+                    new ClusterManager.OnClusterItemClickListener<ClusterMarker>() {
+                        @Override
+                        public boolean onClusterItemClick(ClusterMarker clusterItem) {
+                            if (clusterItem.getTitle().equals("Shani Getz")){
+                                Toast.makeText(getContext(), " shani clicked", Toast.LENGTH_LONG).show();
+                                openDialog();
+                                Toast.makeText(getContext(), " shani clicked and open dialog", Toast.LENGTH_LONG).show();
+                                status = EventActivity.getStatus();
+                                clusterItem.setSnippet(status);
+                            }
+                            else{
+                                return false;
+                            }
+                            // if true, click handling stops here and do not show info view, do not move camera
+                            // you can avoid this by calling:
+                            return false;
+                        }
+                    });
             mClusterManager.cluster();
         }
     }
@@ -247,11 +248,6 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback, St
     public void openDialog(){
         StatusDialog statusDialog = new StatusDialog();
         statusDialog.show(myContext.getSupportFragmentManager(), "status dialog");
-    }
-
-    @Override
-    public void applyText(String status) {
-        this.status = status;
     }
 
     @Override
