@@ -88,12 +88,7 @@ public class EventsFragment extends Fragment implements EventsListAdapter.OnEven
     }
 
     private void initializeEventsList() {
-        // query firestore for events
-//        Query eventsQuery =
-//                firebaseFirestore.collection(getString(R.string.ff_events_collection)).orderBy(getString(R.string.ff_event_start_time));
-        // TODO: only show events user is invited to
 
-//        List<String> userInvitedEventIDs;
         String userID = ((MainActivity) getActivity()).getFirebaseAuth().getCurrentUser().getUid();
         DocumentReference userDocumentRef =
                 firebaseFirestore.collection(getString(R.string.ff_users_collection)).document(userID);
