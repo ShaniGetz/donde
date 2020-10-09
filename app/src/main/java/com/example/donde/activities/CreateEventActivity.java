@@ -462,7 +462,8 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
                                        CollectionReference invitedInUserEventsRef) {
         InvitedInUserEventModel newInvitedInUserEventModel =
                 new InvitedInUserEventModel(newEventId, newEventModel.getEventName(),
-                        newEventModel.getEventLocationName(), newEventModel.getEventCreatorName());
+                        newEventModel.getEventLocationName(), newEventModel.getEventCreatorName()
+                        , newEventModel.getEventTimeStarting());
         invitedInUserEventsRef.document(newEventId).set(newInvitedInUserEventModel).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {

@@ -28,7 +28,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.donde.R;
 import com.example.donde.activities.EventActivity;
 import com.example.donde.activities.MainActivity;
-import com.example.donde.models.EventModel;
+import com.example.donde.models.InvitedInUserEventModel;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -36,15 +36,11 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FieldPath;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.WriteBatch;
 import com.google.gson.Gson;
-
-import java.util.ArrayList;
-import java.util.List;
 
 
 /**
@@ -57,7 +53,6 @@ public class EventsFragment extends Fragment {
     private CollectionReference eventsCollectionRef;
     private RecyclerView recyclerViewEventsList;
     private FirestoreRecyclerAdapter eventsRecyclerAdapter;
-    private List<String> userInvitedEventIDs = new ArrayList<>();
 
     public EventsFragment() {
         Log.e("EventsFragment", "Constructor");
@@ -97,81 +92,89 @@ public class EventsFragment extends Fragment {
         String userID = ((MainActivity) getActivity()).getFirebaseAuth().getCurrentUser().getUid();
         DocumentReference userDocumentRef =
                 firebaseFirestore.collection(getString(R.string.ff_Users)).document(userID);
-//        CollectionReference eventsInUser = userDocumentRef.collection(getString(R.string.ff_InvitedInEventUsers));
-        userDocumentRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-            @Override
-            public void onSuccess(DocumentSnapshot documentSnapshot) {
-//                userInvitedEventIDs = (List<String>) documentSnapshot.get(getString(R.string.ff_users_userInvitedEventIDs));
-//                Log.d(TAG, String.format("userInvitedEventIDs size is %s", userInvitedEventIDs.size()));
+        CollectionReference eventsInUser = userDocumentRef.collection(getString(R.string.ff_InvitedInUserEvents));
 
 
-//                Query eventsQuery =
-//                        eventsCollectionRef.whereIn(FieldPath.documentId(), userInvitedEventIDs).orderBy(
-//                                getString(R.string.ff_Events_eventTimeStarting));
-                Query eventsQuery =
-                        eventsCollectionRef.orderBy(getString(R.string.ff_Events_eventTimeCreated), Query.Direction.DESCENDING);
-                // recycler view inflater
-                FirestoreRecyclerOptions<EventModel> eventOptions =
-                        new FirestoreRecyclerOptions.Builder<EventModel>().setQuery(eventsQuery,
-                                EventModel.class).build();
-                eventsRecyclerAdapter =
-                        new FirestoreRecyclerAdapter<EventModel, EventsViewHolder>(eventOptions) {
+        Query userEventsQuery =
+                eventsInUser.orderBy(getString(R.string.ff_InvitedInUserEvents_invitedInUserEventTimeStarting),
+                        Query.Direction.DESCENDING);
+        // recycler view inflater
+        FirestoreRecyclerOptions<InvitedInUserEventModel> eventOptions =
+                new FirestoreRecyclerOptions.Builder<InvitedInUserEventModel>().setQuery(userEventsQuery,
+                        InvitedInUserEventModel.class).build();
+        eventsRecyclerAdapter =
+                new FirestoreRecyclerAdapter<InvitedInUserEventModel, EventsViewHolder>(eventOptions) {
 
+                    @Override
+                    protected void onBindViewHolder(@NonNull EventsViewHolder holder, int position, @NonNull InvitedInUserEventModel model) {
+                        holder.textViewEventName.setText(String.format("Event name: %s",
+                                model.getInvitedInUserEventName()));
+                        holder.textViewEventCreatorName.setText(String.format("Creator name: %s",
+                                model.getInvitedInUserEventCreatorName()));
+                        holder.textViewEventLocationName.setText(String.format("Location " +
+                                "name: %s", model.getInvitedInUserEventLocationName()));
+                        holder.textViewEventTimeStarting.setText(String.format("Time " +
+                                "starting: %s", model.getInvitedInUserEventTimeStarting()));
+                        holder.buttonGotoEvent.setOnClickListener(new View.OnClickListener() {
                             @Override
-                            protected void onBindViewHolder(@NonNull EventsViewHolder holder, int position, @NonNull EventModel model) {
-                                holder.textViewEventName.setText(String.format("Event name: %s", model.getEventName()));
-                                holder.textViewEventDescription.setText(String.format("Event " +
-                                        "Description:\n%s", model.getEventDescription()));
-                                holder.textViewEventCreatorName.setText(String.format("Creator name: %s",
-                                        model.getEventCreatorName()));
-                                holder.textViewEventLocationName.setText(String.format("Location " +
-                                        "name: %s", model.getEventLocationName()));
-                                holder.textViewEventTimeStarting.setText(String.format("Time " +
-                                        "starting: %s", model.getEventTimeStarting()));
-                                holder.buttonGotoEvent.setOnClickListener(new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View v) {
-                                        Intent eventIntent = new Intent(getActivity(), EventActivity.class);
+                            public void onClick(View v) {
+                                Intent eventIntent = new Intent(getActivity(), EventActivity.class);
 
-                                        eventIntent.putExtra(getString(R.string.arg_position), position);
-                                        // gson helps pass objects
-                                        Gson gson = new Gson();
-                                        String eventJson = gson.toJson(model);
-                                        eventIntent.putExtra(getString(R.string.arg_event_model), eventJson);
-                                        eventIntent.putExtra(getString(R.string.arg_event_id), model.getEventID());
-                                        startActivity(eventIntent);
-                                    }
-                                });
-                                setEventDeleteButtonOnClick(holder, model);
+                                eventIntent.putExtra(getString(R.string.arg_position), position);
+                                // gson helps pass objects
+                                Gson gson = new Gson();
+                                String eventJson = gson.toJson(model);
+                                eventIntent.putExtra(getString(R.string.arg_event_model), eventJson);
+                                eventIntent.putExtra(getString(R.string.arg_event_id),
+                                        model.getInvitedInUserEventId());
+                                startActivity(eventIntent);
                             }
+                        });
+                        setEventDeleteButtonOnClick(holder, model);
+                    }
 
 
-                            @NonNull
-                            @Override
-                            public EventsViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-                                View view =
-                                        LayoutInflater.from(parent.getContext()).inflate(R.layout.single_event_item, parent, false);
-                                return new EventsViewHolder(view);
-                            }
+                    @NonNull
+                    @Override
+                    public EventsViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+                        View view =
+                                LayoutInflater.from(parent.getContext()).inflate(R.layout.single_event_item, parent, false);
+                        return new EventsViewHolder(view);
+                    }
 
 
-                        };
+                };
 
-                eventsRecyclerAdapter.startListening();
+        eventsRecyclerAdapter.startListening();
 //                recyclerViewEventsList.setHasFixedSize(true);
-                recyclerViewEventsList.setLayoutManager(new LinearLayoutManager(getContext()));
-                DividerItemDecoration dividerItemDecoration =
-                        new DividerItemDecoration(recyclerViewEventsList.getContext(),
-                                DividerItemDecoration.VERTICAL);
-                recyclerViewEventsList.addItemDecoration(dividerItemDecoration);
-                recyclerViewEventsList.setAdapter(eventsRecyclerAdapter);
-            }
-        });
-
-
+        recyclerViewEventsList.setLayoutManager(new LinearLayoutManager(getContext()));
+        DividerItemDecoration dividerItemDecoration =
+                new DividerItemDecoration(recyclerViewEventsList.getContext(),
+                        DividerItemDecoration.VERTICAL);
+        recyclerViewEventsList.addItemDecoration(dividerItemDecoration);
+        recyclerViewEventsList.setAdapter(eventsRecyclerAdapter);
     }
 
-    private void deleteEventFromInvitedUsers(EventModel model,
+
+//        userDocumentRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+//            @Override
+//            public void onSuccess(DocumentSnapshot documentSnapshot) {
+////                userInvitedEventIDs = (List<String>) documentSnapshot.get(getString(R.string.ff_users_userInvitedEventIDs));
+////                Log.d(TAG, String.format("userInvitedEventIDs size is %s", userInvitedEventIDs.size()));
+//
+//
+////                Query eventsQuery =
+////                        eventsCollectionRef.whereIn(FieldPath.documentId(), userInvitedEventIDs).orderBy(
+////                                getString(R.string.ff_Events_eventTimeStarting));
+//                // TODO: Fix to time starting
+
+
+//        });
+
+
+//    }
+
+    private void deleteEventFromInvitedUsers(InvitedInUserEventModel model,
                                              CollectionReference invitedInEventUsersRef) {
 
         WriteBatch usersDeleteBatch = firebaseFirestore.batch();
@@ -184,7 +187,7 @@ public class EventsFragment extends Fragment {
                 for (DocumentSnapshot userInEventSnapshot : queryDocumentSnapshots) {
                     String userInEventID = userInEventSnapshot.getId();
                     // TODO: show loading bar and handle onFailure
-                    usersDeleteBatch.delete(usersRef.document(userInEventID).collection(getString(R.string.ff_InvitedInUserEvents)).document(model.getEventID()));
+                    usersDeleteBatch.delete(usersRef.document(userInEventID).collection(getString(R.string.ff_InvitedInUserEvents)).document(model.getInvitedInUserEventId()));
                 }
                 usersDeleteBatch.commit().addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
@@ -206,12 +209,12 @@ public class EventsFragment extends Fragment {
         });
     }
 
-    private void setEventDeleteButtonOnClick(@NonNull EventsViewHolder holder, @NonNull EventModel model) {
+    private void setEventDeleteButtonOnClick(@NonNull EventsViewHolder holder, @NonNull InvitedInUserEventModel model) {
         holder.buttonDeleteEvent.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
-                DocumentReference eventDocumentRef = eventsCollectionRef.document(model.getEventID());
+                DocumentReference eventDocumentRef = eventsCollectionRef.document(model.getInvitedInUserEventId());
                 CollectionReference invitedInEventUsersRef =
                         eventDocumentRef.collection(getString(R.string.ff_InvitedInEventUsers));
 
@@ -224,7 +227,7 @@ public class EventsFragment extends Fragment {
 
     }
 
-    private void deleteEventSubcollection(EventModel model,
+    private void deleteEventSubcollection(InvitedInUserEventModel model,
                                           CollectionReference invitedInEventUsersRef) {
         WriteBatch deleteEventSubcollectionBatch = firebaseFirestore.batch();
 
@@ -246,15 +249,15 @@ public class EventsFragment extends Fragment {
         );
     }
 
-    private void deleteEventDocument(EventModel model) {
+    private void deleteEventDocument(InvitedInUserEventModel model) {
         // then delete document itself
 
 
-        eventsCollectionRef.document(model.getEventID()).delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+        eventsCollectionRef.document(model.getInvitedInUserEventId()).delete().addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
                 Toast.makeText(getContext(), String.format("Event \"%s\" deleted successfully",
-                        model.getEventName()), Toast.LENGTH_SHORT).show();
+                        model.getInvitedInUserEventName()), Toast.LENGTH_SHORT).show();
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override
@@ -291,7 +294,6 @@ public class EventsFragment extends Fragment {
     class EventsViewHolder extends RecyclerView.ViewHolder {
 
         private TextView textViewEventName;
-        private TextView textViewEventDescription;
         private TextView textViewEventTimeStarting;
         private TextView textViewEventCreatorName;
         private TextView textViewEventLocationName;
@@ -302,7 +304,6 @@ public class EventsFragment extends Fragment {
         public EventsViewHolder(@NonNull View itemView) {
             super(itemView);
             textViewEventName = itemView.findViewById(R.id.event_item_textView_event_name);
-            textViewEventDescription = itemView.findViewById(R.id.event_item_textView_event_description);
             textViewEventTimeStarting = itemView.findViewById(R.id.event_item_textView_event_time_starting);
             textViewEventCreatorName = itemView.findViewById(R.id.event_item_textView_event_creator_name);
             textViewEventLocationName = itemView.findViewById(R.id.event_item_textView_event_location_name);
