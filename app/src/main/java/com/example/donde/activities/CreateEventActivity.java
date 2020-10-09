@@ -378,7 +378,6 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
                 } else {
                 }// 2000 milliseconds = 2seconds
 
-                createEvent();
             }
         });
     }
