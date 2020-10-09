@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -16,6 +17,8 @@ import androidx.annotation.Nullable;
 import com.example.donde.BuildConfig;
 import com.example.donde.R;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
@@ -28,12 +31,15 @@ import java.util.HashMap;
 
 
 public class AccountActivity extends Activity {
+    private final String TAG = "tagAccountActivity";
     private Button buttonSave;
+    private Button buttonCancel;
+    private Button buttonDeleteAccount;
     private EditText textViewName;
     private ProgressBar progressBar;
-
     private FirebaseAuth firebaseAuth;
     private FirebaseFirestore firebaseFirestore;
+    private CollectionReference usersCollectionRef;
     private String userID;
     private String userEmail;
 
@@ -53,6 +59,7 @@ public class AccountActivity extends Activity {
         // details are loading
         progressBar.setVisibility(View.VISIBLE);
         buttonSave.setEnabled(false);
+        // TODO: set other buttons as enabled/disabled
 
         // check if user with given ID exists
         CollectionReference usersRef = firebaseFirestore.collection(getString(R.string.ff_Users));
@@ -83,15 +90,83 @@ public class AccountActivity extends Activity {
 
     private void initializeFields() {
         buttonSave = findViewById(R.id.account_button_save);
+        buttonCancel = findViewById(R.id.account_button_cancel);
+        buttonDeleteAccount = findViewById(R.id.account_button_delete_account);
         textViewName = findViewById(R.id.account_editText_name);
         progressBar = findViewById(R.id.account_progressBar);
         firebaseAuth = FirebaseAuth.getInstance();
         firebaseFirestore = FirebaseFirestore.getInstance();
+        usersCollectionRef = firebaseFirestore.collection(getString(R.string.ff_Users));
         userID = firebaseAuth.getCurrentUser().getUid();
         userEmail = firebaseAuth.getCurrentUser().getEmail();
+        if (firebaseAuth.getCurrentUser() != null) {
+            buttonDeleteAccount.setVisibility(View.VISIBLE);
+        }
     }
 
     private void initializeListeners() {
+        setButtonSaveOnClick();
+        setButtonCancelOnClick();
+        setButtonDeleteAccountOnClick();
+
+    }
+
+    private void setButtonCancelOnClick() {
+        buttonCancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                gotoMainActivity();
+            }
+        });
+    }
+
+    private void setButtonDeleteAccountOnClick() {
+        buttonDeleteAccount.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                // delete user from Users collection
+                usersCollectionRef.document(userID).delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Toast.makeText(AccountActivity.this, String.format("Successfully deleted " +
+                                        "account with email %s", userEmail),
+                                Toast.LENGTH_SHORT).show();
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+
+                        Toast.makeText(AccountActivity.this, String.format("Failed to delete " +
+                                        "account with email %s, error:", userEmail, e.getMessage()),
+                                Toast.LENGTH_SHORT).show();
+                    }
+                });
+
+                // delete user from Events collection
+
+
+                // delete user from authentication
+                firebaseAuth.getCurrentUser().delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Log.d(TAG, "Successfully deleted user from auth");
+                        gotoLoginActivity();
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Toast.makeText(AccountActivity.this, "Failed to delete user from FirebaseAuth", Toast.LENGTH_SHORT).show();
+                    }
+                });
+
+            }
+        });
+
+    }
+
+
+    private void setButtonSaveOnClick() {
         buttonSave.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -105,7 +180,7 @@ public class AccountActivity extends Activity {
                     userMap.put(getString(R.string.ff_Users_userID), userID);
                     userMap.put(getString(R.string.ff_Users_userEmail), userEmail);
                     userMap.put(getString(R.string.ff_Users_userName), sUserName);
-                    firebaseFirestore.collection(getString(R.string.ff_Users)).document(userID).set(userMap).addOnCompleteListener(new OnCompleteListener<Void>() {
+                    usersCollectionRef.document(userID).set(userMap).addOnCompleteListener(new OnCompleteListener<Void>() {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
                             // account save successful
@@ -130,7 +205,6 @@ public class AccountActivity extends Activity {
 
             }
         });
-
     }
 
     /*
@@ -148,6 +222,12 @@ public class AccountActivity extends Activity {
 
     }
 
+    private void gotoLoginActivity() {
+        Intent loginIntent = new Intent(AccountActivity.this, LoginActivity.class);
+        startActivity(loginIntent);
+        // prevent option to back-click back to here
+        finish();
+    }
 
     private void gotoMainActivity() {
         Intent mainIntent = new Intent(AccountActivity.this, MainActivity.class);

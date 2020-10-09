@@ -41,6 +41,15 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView2" />
 
+    <Button
+        android:layout_width="wrap_content"
+        android:id="@+id/account_button_cancel"
+        android:text="CANCEL"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/account_button_save"
+        app:layout_constraintTop_toTopOf="@id/account_button_save"
+        app:layout_constraintTop_toBottomOf="@id/account_button_save"
+        android:layout_height="wrap_content" />
 
     <Button
         android:id="@+id/account_button_save"
@@ -55,6 +64,7 @@
     <Button
         android:layout_width="wrap_content"
         android:id="@+id/account_button_delete_account"
+        android:visibility="invisible"
         android:text="delete account"
         app:layout_constraintTop_toBottomOf="@id/account_button_save"
         app:layout_constraintEnd_toEndOf="parent"
