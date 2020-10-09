@@ -13,16 +13,16 @@ import androidx.viewpager.widget.ViewPager;
 import com.example.donde.R;
 import com.example.donde.models.EventModel;
 import com.example.donde.models.InvitedInEventUserModel;
-import com.example.donde.models.InvitedInUserEventModel;
 import com.example.donde.recycle_views.events_recycler_view.EventsListViewModel;
 import com.example.donde.utils.ViewPagerAdapter;
 import com.example.donde.utils.map_utils.StatusDialog;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.Transaction;
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
@@ -75,19 +75,39 @@ public class EventActivity extends AppCompatActivity implements StatusDialog.Sta
             @Override
             public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
 
-                for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
-                    Log.d(TAG, String.format("Adding query snapshot name: %s",
-                            documentSnapshot.get(getString(R.string.ff_InvitedInEventUsers_invitedInEventUserName))));
-                    invitedUserInEventModelList.add(documentSnapshot.toObject(InvitedInEventUserModel.class));
-                }
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                Log.d(TAG, String.format("Failed getting list of users, error: %s", e.getMessage()));
+                firebaseFirestore.runTransaction(new Transaction.Function<ArrayList<InvitedInEventUserModel>>() {
+
+                    @Nullable
+                    @Override
+                    public ArrayList<InvitedInEventUserModel> apply(@NonNull Transaction transaction) throws FirebaseFirestoreException {
+                        ArrayList<InvitedInEventUserModel> invitedInEventUserModels = new ArrayList<>();
+                        for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
+                            Log.d(TAG, String.format("Adding query snapshot name: %s",
+                                    documentSnapshot.get(getString(R.string.ff_InvitedInEventUsers_invitedInEventUserName))));
+                            invitedInEventUserModels.add(documentSnapshot.toObject(InvitedInEventUserModel.class));
+                        }
+                        return invitedInEventUserModels;
+                    }
+                }).addOnSuccessListener(new OnSuccessListener<ArrayList<InvitedInEventUserModel>>() {
+                    @Override
+                    public void onSuccess(ArrayList<InvitedInEventUserModel> invitedInEventUserModels) {
+                        Log.d(TAG, String.format("Size of array after transaction is %s and first " +
+                                        "user is %s", invitedInEventUserModels.size(),
+                                invitedInEventUserModels.size() == 0 ? "NO " +
+                                        "USER" : invitedInEventUserModels.get(0)));
+                        invitedUserInEventModelList = invitedUsersList;
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.d(TAG, String.format("Transaction failed with error: %s", e.getMessage()));
+                    }
+                });
+
             }
         });
     }
+
 
     public EventModel getEvent() {
         return eventModel;

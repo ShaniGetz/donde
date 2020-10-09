@@ -125,6 +125,7 @@ public class AccountActivity extends Activity {
             @Override
             public void onClick(View v) {
 
+                // TODO: handle deleting users from events theyre invited to
                 // delete user from Users collection
                 usersCollectionRef.document(userID).delete().addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
