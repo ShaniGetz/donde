@@ -320,6 +320,6 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback {
         }
     }
 }
-
+//
 
 //        ((EventActivity)getActivity()).getInvitedUsersList()
