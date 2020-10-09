@@ -10,6 +10,7 @@ import android.location.Geocoder;
 import android.location.Location;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.Looper;
 import android.text.TextUtils;
 import android.util.Log;
@@ -110,6 +111,9 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
     private Date ffEventTimeCreated;
     private Date ffEventTimeStarting;
     private List<InvitedInEventUserModel> ffInvitedUserInEventModels;
+
+    private boolean didFinishSettingCreatorName;
+    private boolean didFinishSettingUsers;
 
     void checkForPermissions() {
         // Here, thisActivity is the current activity
@@ -354,6 +358,26 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
         buttonCreateEvent.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+                boolean didSetFields = retrieveAndSetEventFields();
+                if (didSetFields) {
+                    // TODO: should solve not with thread sleep but rather with structuring the asynchronus calls
+
+                    Handler handler = new Handler();
+                    handler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            {
+                                createEvent();
+//                        loadingDialog.dismiss();//dismiss the dialog box once data is retreived
+//                        Toast.makeText(Act_NewHome.this, "Not enough players online right now!", Toast.LENGTH_SHORT).show();
+//                        tvUserName.setText(u_name);
+                            }
+                        }
+                    }, 2000);
+                } else {
+                }// 2000 milliseconds = 2seconds
+
                 createEvent();
             }
         });
@@ -436,8 +460,7 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
 
 
     private void addInvitedInUserEvent(String newEventId, EventModel newEventModel,
-                                       CollectionReference invitedInUserEventsRef,
-                                       InvitedInEventUserModel invitedInUserEventModel) {
+                                       CollectionReference invitedInUserEventsRef) {
         InvitedInUserEventModel newInvitedInUserEventModel =
                 new InvitedInUserEventModel(newEventId, newEventModel.getEventName(),
                         newEventModel.getEventLocationName(), newEventModel.getEventCreatorName());
@@ -457,48 +480,53 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
     }
 
     private void createEvent() {
-        boolean didSetFields = retrieveAndSetEventFields();
-        if (didSetFields) {
-            progressBar.setVisibility(View.VISIBLE);
 
-            EventModel newEventModel = createNewEventModel();
+//        while (!didFinishSettingCreatorName || !didFinishSettingUsers) {
+//            try {
+//                Thread.sleep(20);
+//            } catch (InterruptedException e) {
+//                e.printStackTrace();
+//            }
+//        }
+        progressBar.setVisibility(View.VISIBLE);
 
-            eventsCollectionRef.add(newEventModel).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                @Override
-                public void onSuccess(DocumentReference documentReference) {
-                    // add invited users to event
-                    String newEventId = documentReference.getId();
-                    CollectionReference invitedInEventUsersRef =
-                            documentReference.collection(getString(R.string.ff_InvitedInEventUsers));
-                    for (InvitedInEventUserModel invitedInEventUserModel : ffInvitedUserInEventModels) {
-                        addInvitedInEventUser(invitedInEventUsersRef, invitedInEventUserModel);
+        EventModel newEventModel = createNewEventModel();
 
-                        // add event to invited users
-                        String invitedInEventUserId = invitedInEventUserModel.getInvitedInEventUserID();
-                        CollectionReference invitedInUserEventsRef =
-                                usersCollectionRef.document(invitedInEventUserId).collection(getString(R.string.ff_InvitedInUserEvents));
-                        addInvitedInUserEvent(newEventId, newEventModel, invitedInUserEventsRef,
-                                invitedInEventUserModel);
-                    }
+        eventsCollectionRef.add(newEventModel).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+            @Override
+            public void onSuccess(DocumentReference documentReference) {
+                // add invited users to event
+                String newEventId = documentReference.getId();
+                CollectionReference invitedInEventUsersRef =
+                        documentReference.collection(getString(R.string.ff_InvitedInEventUsers));
+                for (InvitedInEventUserModel invitedInEventUserModel : ffInvitedUserInEventModels) {
+                    Log.d(TAG, "Entering addInvitedInEventUser");
+                    addInvitedInEventUser(invitedInEventUsersRef, invitedInEventUserModel);
 
-                    Toast.makeText(CreateEventActivity.this, "Event created successfully",
-                            Toast.LENGTH_SHORT).show();
-                    gotoEvents();
-
+                    // add event to invited users
+                    String invitedInEventUserId = invitedInEventUserModel.getInvitedInEventUserID();
+                    CollectionReference invitedInUserEventsRef =
+                            usersCollectionRef.document(invitedInEventUserId).collection(getString(R.string.ff_InvitedInUserEvents));
+                    Log.d(TAG, "Entering addInvitedInUserEvent");
+                    addInvitedInUserEvent(newEventId, newEventModel, invitedInUserEventsRef);
                 }
 
-            }).addOnFailureListener(new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception e) {
-                    Toast.makeText(CreateEventActivity.this,
-                            "Error while creating event: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                }
-            });
+                Toast.makeText(CreateEventActivity.this, "Event created successfully",
+                        Toast.LENGTH_SHORT).show();
+                gotoEvents();
 
-            progressBar.setVisibility(View.INVISIBLE);
-        } else {
-            Toast.makeText(this, "Event could not be created", Toast.LENGTH_SHORT).show();
-        }
+            }
+
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Toast.makeText(CreateEventActivity.this,
+                        "Error while creating event: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        progressBar.setVisibility(View.INVISIBLE);
+
     }
 
 
@@ -514,8 +542,8 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
 
         if (!setEventName(editTextEventName.getText().toString())) {
             toastErrorMessage = "Fix event name";
-        } else if (!setEventCreatorName()) {
-            toastErrorMessage = "Error getting creator name";
+//        } else if (!setEventCreatorName()) {
+//            toastErrorMessage = "Error getting creator name";
 
         } else if (!setInvitedUsers(new ArrayList<>(Arrays.asList(
                 editTextInvitedUser1.getText().toString(),
@@ -530,8 +558,8 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
             // ffEventLocation should be full since it is retrieved from the search query
         } else if (this.ffEventLocation == null) {
             toastErrorMessage = "Fix event location";
-        } else if (!setEventCreatorUID()) {
-            toastErrorMessage = "Error getting creator UID";
+//        } else if (!setEventCreatorUID()) {
+//            toastErrorMessage = "Error getting creator UID";
         } else if (!setEventTimeCreated()) {
             toastErrorMessage = "Error setting creation time";
             // TODO: Time starting not working (giving weird times)
@@ -618,6 +646,7 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
                         ffEventCreatorName =
                                 creatorDocument.getString(getString(R.string.ff_Users_userName));
                         Log.d("create", "event creator name is " + ffEventCreatorName);
+                        didFinishSettingCreatorName = true;
 
                     }
                 } else {
@@ -654,7 +683,6 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
     }
 
     private boolean setInvitedUsers(ArrayList<String> userEmails) {
-
         ffInvitedUserInEventModels = new ArrayList<>();
         CollectionReference usersRef = firebaseFirestore.collection(getString(R.string.ff_Users));
         // add self to invitees
@@ -681,7 +709,8 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
                             // TODO: retrieve
 //                            String invitedUserProfilePicURL = invitedUserDoc.getString(
 //                                    getString(R.string.ff_InvitedInEventUser_));
-                            Log.d("CreateEvent", String.format("adding user to ffInvited: %s", invitedUserEmail));
+                            Log.d(TAG, String.format("adding user to ffInvited: %s",
+                                    invitedUserEmail));
                             ffInvitedUserInEventModels.add(new InvitedInEventUserModel(invitedUserID,
                                     invitedUserName, invitedUserEmail));
 
@@ -701,6 +730,7 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
                                         "email %s, error: %s", userEmail, task.getException().getMessage()),
                                 Toast.LENGTH_SHORT).show();
                     }
+                    didFinishSettingUsers = true;
                 }
             });
         }

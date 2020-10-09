@@ -36,9 +36,9 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FieldPath;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
@@ -50,13 +50,12 @@ import java.util.List;
  */
 public class EventsFragment extends Fragment {
 
+    private final String TAG = "TagEventsFragment";
     private FirebaseFirestore firebaseFirestore;
     private CollectionReference eventsCollectionRef;
     private RecyclerView recyclerViewEventsList;
     private FirestoreRecyclerAdapter eventsRecyclerAdapter;
     private List<String> userInvitedEventIDs = new ArrayList<>();
-
-    private final String TAG = "TagEventsFragment";
 
     public EventsFragment() {
         Log.e("EventsFragment", "Constructor");
@@ -143,6 +142,12 @@ public class EventsFragment extends Fragment {
                                 holder.buttonDeleteEvent.setOnClickListener(new View.OnClickListener() {
                                     @Override
                                     public void onClick(View v) {
+                                        DocumentReference eventDocumentRef = eventsCollectionRef.document(model.getEventID());
+                                        // TODO: Should be done with cloud functions with node.js
+                                        // first delete subcollection
+                                        deleteEventSubcollection(eventDocumentRef);
+                                        // then delete document itself
+
                                         eventsCollectionRef.document(model.getEventID()).delete().addOnSuccessListener(new OnSuccessListener<Void>() {
                                             @Override
                                             public void onSuccess(Void aVoid) {
@@ -185,6 +190,29 @@ public class EventsFragment extends Fragment {
         });
 
 
+    }
+
+    private void deleteEventSubcollection(DocumentReference eventRef) {
+        CollectionReference invitedInEventUsersRef = eventRef.collection(getString(R.string.ff_InvitedInEventUsers));
+        invitedInEventUsersRef.get().addOnSuccessListener(
+                new OnSuccessListener<QuerySnapshot>() {
+                    @Override
+                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                        for (DocumentSnapshot documentReference : queryDocumentSnapshots) {
+                            invitedInEventUsersRef.document(documentReference.getId()).delete().addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    Toast.makeText(getContext(), String.format("Failed to delete a " +
+                                                    "user with id %s, error: %s",
+                                            documentReference.getId(),
+                                            e.getMessage()),
+                                            Toast.LENGTH_SHORT).show();
+                                }
+                            });
+                        }
+                    }
+                }
+        );
     }
 
     @Override

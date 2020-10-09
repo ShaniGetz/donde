@@ -78,9 +78,6 @@ public class EventActivity extends AppCompatActivity implements StatusDialog.Sta
                             documentSnapshot.get(getString(R.string.ff_InvitedInEventUsers_invitedInEventUserName))));
                     invitedUserInEventModelList.add(documentSnapshot.toObject(InvitedInEventUserModel.class));
                 }
-                Log.d(TAG, String.format("Size of invited users list is: %s and first name is: %s"
-                        , invitedUserInEventModelList.size(),
-                        invitedUserInEventModelList.get(0).getInvitedInEventUserName()));
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override
