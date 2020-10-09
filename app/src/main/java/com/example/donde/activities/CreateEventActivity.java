@@ -290,6 +290,7 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
         setEventCreatorName();
     }
 
+
     private void initializeSearchQuery() {
         searchViewLocationSearch.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
@@ -313,21 +314,32 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
 
                         Address address = addressList.get(0);
                         latling = new LatLng(address.getLatitude(), address.getLongitude());
+                        Log.d("latLng ", latling.latitude + " " + latling.longitude);
                     }
 //                    TileOverlay offlineTileOverlay = mGoogleMap.addTileOverlay(new TileOverlayOptions()
 //                            .tileProvider(new OfflineTileProvider()));
-                    TileOverlay onlineTileOverlay =
-                            mGoogleMap.addTileOverlay(new TileOverlayOptions()
-                                    .tileProvider(new CustomMapTileProvider(getFilesDir().getAbsolutePath())));
+//                    TileOverlay onlineTileOverlay =
+//                            mGoogleMap.addTileOverlay(new TileOverlayOptions()
+//                                    .tileProvider(new OfflineTileProvider(getBaseContext())));
                     Log.d("MAP", getFilesDir().getAbsolutePath());
 //                    mGoogleMap.addMarker(new MarkerOptions().position(latling).title(location));
 //                    mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latling, 15));
 //                    setEventLocation(latling.latitude, latling.longitude);
-//                    setUpMap(mGoogleMap, latling.latitude, latling.longitude, 21);
+////                    setUpMap(mGoogleMap, latling.latitude, latling.longitude, 21);
+//                    mGoogleMap.setMapType(GoogleMap.MAP_TYPE_NONE);
+//                    TileOverlay onlineTileOverlay = mGoogleMap.addTileOverlay(new TileOverlayOptions()
+//                            .tileProvider(new OfflineTileProvider(getBaseContext())));
+//                    mGoogleMap.setMaxZoomPreference(19);
+//                    setUpMap(mGoogleMap, latling.latitude, latling.longitude, 19);
+//                    CameraUpdate upd = CameraUpdateFactory.newLatLngZoom(new LatLng(latling.latitude, latling.longitude), 22);
+//                    mGoogleMap.moveCamera(upd);
+                    // if we add these line it actually finds the location but not large enough
+                    mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latling, 15));
+                    setEventLocation(latling.latitude, latling.longitude);
                     mGoogleMap.setMapType(GoogleMap.MAP_TYPE_NONE);
-                    onlineTileOverlay = mGoogleMap.addTileOverlay(new TileOverlayOptions()
+                    TileOverlay onlineTileOverlay = mGoogleMap.addTileOverlay(new TileOverlayOptions()
                             .tileProvider(new OfflineTileProvider(getBaseContext())));
-                    setUpMap(mGoogleMap, latling.latitude, latling.longitude, 21);
+                    mGoogleMap.setMaxZoomPreference(19);
 
 
                 }

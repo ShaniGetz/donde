@@ -44,7 +44,7 @@ public class OfflineTileProvider implements TileProvider {
             byte[] data;
             //
 //                File file = new File(TILES_DIR, x + "_" + y + ".png");
-            File file = new File(tilesDir, "firstmap.png");
+            File file = new File(tilesDir, x + y+ ".png");
 
             Log.d("TAG", tilesDir);
             if (file.exists()) {
@@ -64,6 +64,9 @@ public class OfflineTileProvider implements TileProvider {
                 data = readTile(new URL("https://a.tile.openstreetmap.org/" +
                                 z + "/" + x + "/" + y + ".png").openStream(),
                         BUFFER_SIZE_NETWORK);
+
+                Log.d("TAG", tilesDir);
+
 
                 try (OutputStream out = new BufferedOutputStream(new FileOutputStream(file))) {
                     out.write(data);
