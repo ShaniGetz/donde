@@ -28,6 +28,7 @@ import androidx.fragment.app.FragmentActivity;
 
 import com.example.donde.R;
 import com.example.donde.activities.EventActivity;
+import com.example.donde.models.InvitedInEventUserModel;
 import com.example.donde.utils.map_utils.ClusterMarker;
 import com.example.donde.utils.map_utils.MyClusterManagerRenderer;
 import com.example.donde.utils.map_utils.StatusDialog;
@@ -42,6 +43,8 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.GeoPoint;
 import com.google.maps.android.clustering.ClusterManager;
 
 import java.util.ArrayList;
@@ -49,6 +52,7 @@ import java.util.List;
 
 public class EventMapFragment extends Fragment implements OnMapReadyCallback {
     public static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
+    private static final String TAG = "Adding mark";
     private String status;
     LocationRequest mLocationRequest;
     GoogleMap mGoogleMap;
@@ -59,6 +63,8 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback {
     private FragmentActivity myContext;
     private ClusterManager mClusterManager;
     private MyClusterManagerRenderer mClusterManagerRenderer;
+    ArrayList<InvitedInEventUserModel> InvitedUsersList;
+    String curUserName;
 
 
 
@@ -188,52 +194,55 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback {
                 );
                 mClusterManager.setRenderer(mClusterManagerRenderer);
             }
-//            for(UserModel user: mUserLocations){
-//                Log.d(TAG, "addMapMarkers: location: " + userLocation.getGeo_point().toString());
-//                try{
-//                    String snippet = "";
-//                    if(user.getUserID.equals(FirebaseAuth.getInstance().getCurrentUser())){
-//                        snippet = "Click to post your status ";
-//                    }
-//                    else{
-//                        snippet = "";
-//                    }
-//                    int avatar = R.drawable.avatar; // set the default avatar
-//                    try{
+            InvitedUsersList = ((EventActivity)getActivity()).getInvitedUsersList();
+            for(InvitedInEventUserModel user: InvitedUsersList){
+                try{
+                    String snippet = "";
+                    if(user.getInvitedInEventUserID().equals(FirebaseAuth.getInstance().getCurrentUser())){
+                        curUserName = user.getInvitedInEventUserName();
+                        int lat = (int) (mLastLocation.getLatitude() * 1E6);
+                        int lng = (int) (mLastLocation.getLongitude() * 1E6);
+                        user.setInvitedInEventUserCurrentLocation(new GeoPoint(lat, lng));
+                        snippet = "Click to post your status";
+                    }
+                    else{
+                        snippet = "";
+                    }
+                    int avatar = R.drawable.avatar; // set the default avatar
+                    try{
 //                        avatar = Integer.parseInt(user.setUserProfilePicURL());
-//                    }catch (NumberFormatException e){
-//                        Log.d(TAG, "addMapMarkers: no avatar for " + user.getUserName() + ", setting default.");
-//                    }
-//                    ClusterMarker newClusterMarker = new ClusterMarker(
-//                            new LatLng(user.getGeo_point().getLatitude(),
-//                            user.getGeo_point().getLongitude()),
-//                            user.getUserName(),
-//                            snippet,
-//                            avatar
-//                    );
-//                    mClusterManager.addItem(newClusterMarker);
-//                    mClusterMarkers.add(newClusterMarker);
-//                }catch (NullPointerException e){
-//                    Log.e(TAG, "addMapMarkers: NullPointerException: " + e.getMessage() );
-//                }
-//            }
-            int avatar = R.drawable.shani_getz;
-            ClusterMarker newClusterMarker = new ClusterMarker(new LatLng(mLastLocation.getLatitude(),
-                    mLastLocation.getLongitude()), "Shani Getz", "This is you", avatar);
-            mClusterManager.addItem(newClusterMarker);
-            mClusterMarkers.add(newClusterMarker);
-            ClusterMarker alonClusterMarker = new ClusterMarker(new LatLng(32.0, 34.0),
-                    "alon", "This is your friend", R.drawable.avatar);
-            mClusterManager.addItem(alonClusterMarker);
-            mClusterMarkers.add(alonClusterMarker);
+                    }catch (NumberFormatException e){
+                        Log.d(TAG, "addMapMarkers: no avatar for " + user.getInvitedInEventUserName() + ", setting default.");
+                    }
+                    ClusterMarker newClusterMarker = new ClusterMarker(
+                            new LatLng(user.getInvitedInEventUserCurrentLocation().getLatitude(),
+                            user.getInvitedInEventUserCurrentLocation().getLongitude()),
+                            user.getInvitedInEventUserName(),
+                            snippet,
+                            avatar
+                    );
+                    mClusterManager.addItem(newClusterMarker);
+                    mClusterMarkers.add(newClusterMarker);
+                }catch (NullPointerException e){
+                    Log.e(TAG, "addMapMarkers: NullPointerException: " + e.getMessage() );
+                }
+            }
+//            int avatar = R.drawable.shani_getz;
+//            ClusterMarker newClusterMarker = new ClusterMarker(new LatLng(mLastLocation.getLatitude(),
+//                    mLastLocation.getLongitude()), "Shani Getz", "This is you", avatar);
+//            mClusterManager.addItem(newClusterMarker);
+//            mClusterMarkers.add(newClusterMarker);
+//            ClusterMarker alonClusterMarker = new ClusterMarker(new LatLng(32.0, 34.0),
+//                    "alon", "This is your friend", R.drawable.avatar);
+//            mClusterManager.addItem(alonClusterMarker);
+//            mClusterMarkers.add(alonClusterMarker);
             mClusterManager.setOnClusterItemClickListener(
                     new ClusterManager.OnClusterItemClickListener<ClusterMarker>() {
                         @Override
                         public boolean onClusterItemClick(ClusterMarker clusterItem) {
-                            if (clusterItem.getTitle().equals("Shani Getz")){
-                                Toast.makeText(getContext(), " shani clicked", Toast.LENGTH_LONG).show();
+                            if (clusterItem.getTitle().equals(curUserName)){
+                                Toast.makeText(getContext(), " me clicked", Toast.LENGTH_LONG).show();
                                 openDialog();
-                                Toast.makeText(getContext(), " shani clicked and open dialog", Toast.LENGTH_LONG).show();
                                 status = EventActivity.getStatus();
                                 clusterItem.setSnippet(status);
                             }
