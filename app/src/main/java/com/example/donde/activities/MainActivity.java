@@ -65,8 +65,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-
         initializeFields();
         initializeListeners();
     }
@@ -76,7 +74,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onStart() {
 
         super.onStart();
-
 //      if current user is null, we want to log in
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if (currentUser == null) {

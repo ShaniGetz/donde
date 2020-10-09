@@ -31,13 +31,13 @@ public class CustomMapTileProvider implements TileProvider {
         return image == null ? null : new Tile(TILE_WIDTH, TILE_HEIGHT, image);
     }
 
-    private byte[] readTileImage(int x, int y, int zoom) throws IOException {
+    private byte[] readTileImage(int x, int y, int z) throws IOException {
         ByteArrayOutputStream buffer = null;
         FileInputStream fileInputStream = null;
 
         try {
 
-            fileInputStream = new FileInputStream(tilesDir + "/firstmap.png");
+            fileInputStream = new FileInputStream(tilesDir +"map/" + z + '_' + x + '_' + y + ".png");
             buffer = new ByteArrayOutputStream();
 
             int nRead;

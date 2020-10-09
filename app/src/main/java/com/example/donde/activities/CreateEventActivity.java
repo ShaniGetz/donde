@@ -33,11 +33,13 @@ import com.example.donde.models.EventModel;
 import com.example.donde.models.InvitedInEventUserModel;
 import com.example.donde.models.InvitedInUserEventModel;
 import com.example.donde.utils.map_utils.CustomMapTileProvider;
+import com.example.donde.utils.map_utils.OfflineTileProvider;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -298,15 +300,15 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
                 List<Address> addressList = new ArrayList<>();
                 if (location != null || !location.equals("")) {
                     Geocoder geocoder = new Geocoder(CreateEventActivity.this);
+                    LatLng latling = new LatLng(0,0);
+
                     try {
                         addressList = geocoder.getFromLocationName(location, 1);
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-                    LatLng latling;
                     if (addressList.size() == 0) {
                         Toast.makeText(CreateEventActivity.this, "Search query failed", Toast.LENGTH_SHORT).show();
-                        latling = new LatLng(10, 10);
                     } else {
 
                         Address address = addressList.get(0);
@@ -317,9 +319,17 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
                     TileOverlay onlineTileOverlay =
                             mGoogleMap.addTileOverlay(new TileOverlayOptions()
                                     .tileProvider(new CustomMapTileProvider(getFilesDir().getAbsolutePath())));
-                    mGoogleMap.addMarker(new MarkerOptions().position(latling).title(location));
-                    mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latling, 15));
-                    setEventLocation(latling.latitude, latling.longitude);
+                    Log.d("MAP", getFilesDir().getAbsolutePath());
+//                    mGoogleMap.addMarker(new MarkerOptions().position(latling).title(location));
+//                    mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latling, 15));
+//                    setEventLocation(latling.latitude, latling.longitude);
+//                    setUpMap(mGoogleMap, latling.latitude, latling.longitude, 21);
+                    mGoogleMap.setMapType(GoogleMap.MAP_TYPE_NONE);
+                    onlineTileOverlay = mGoogleMap.addTileOverlay(new TileOverlayOptions()
+                            .tileProvider(new OfflineTileProvider(getBaseContext())));
+                    setUpMap(mGoogleMap, latling.latitude, latling.longitude, 21);
+
+
                 }
                 return false;
             }
@@ -329,6 +339,14 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
                 return false;
             }
         });
+    }
+
+    private void setUpMap(GoogleMap mMap, Double LAT, Double LON, float ZOOM) {
+        mMap.setMapType(GoogleMap.MAP_TYPE_NONE);
+        mMap.addTileOverlay(new TileOverlayOptions().tileProvider(new
+                CustomMapTileProvider(getFilesDir().getAbsolutePath())));
+        CameraUpdate upd = CameraUpdateFactory.newLatLngZoom(new LatLng(LAT, LON), ZOOM);
+        mMap.moveCamera(upd);
     }
 
     private void initializeListeners() {
