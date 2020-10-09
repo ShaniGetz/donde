@@ -28,6 +28,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.donde.R;
 import com.example.donde.activities.EventActivity;
 import com.example.donde.activities.MainActivity;
+import com.example.donde.models.EventModel;
 import com.example.donde.models.InvitedInUserEventModel;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
@@ -118,16 +119,25 @@ public class EventsFragment extends Fragment {
                         holder.buttonGotoEvent.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
-                                Intent eventIntent = new Intent(getActivity(), EventActivity.class);
+                                firebaseFirestore.collection(getString(R.string.ff_Events)).document(model.getInvitedInUserEventId()).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                                    @Override
+                                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                                        EventModel eventModel =
+                                                documentSnapshot.toObject(EventModel.class);
 
-                                eventIntent.putExtra(getString(R.string.arg_position), position);
-                                // gson helps pass objects
-                                Gson gson = new Gson();
-                                String eventJson = gson.toJson(model);
-                                eventIntent.putExtra(getString(R.string.arg_event_model), eventJson);
-                                eventIntent.putExtra(getString(R.string.arg_event_id),
-                                        model.getInvitedInUserEventId());
-                                startActivity(eventIntent);
+                                        Intent eventIntent = new Intent(getActivity(), EventActivity.class);
+
+                                        eventIntent.putExtra(getString(R.string.arg_position), position);
+                                        // gson helps pass objects
+                                        Gson gson = new Gson();
+                                        String eventJson = gson.toJson(eventModel);
+                                        eventIntent.putExtra(getString(R.string.arg_event_model), eventJson);
+                                        eventIntent.putExtra(getString(R.string.arg_event_id),
+                                                eventModel.getEventID());
+                                        startActivity(eventIntent);
+                                    }
+                                });
+
                             }
                         });
                         setEventDeleteButtonOnClick(holder, model);

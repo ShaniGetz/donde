@@ -13,11 +13,13 @@ import androidx.viewpager.widget.ViewPager;
 import com.example.donde.R;
 import com.example.donde.models.EventModel;
 import com.example.donde.models.InvitedInEventUserModel;
+import com.example.donde.models.InvitedInUserEventModel;
 import com.example.donde.recycle_views.events_recycler_view.EventsListViewModel;
 import com.example.donde.utils.ViewPagerAdapter;
 import com.example.donde.utils.map_utils.StatusDialog;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -44,7 +46,7 @@ public class EventActivity extends AppCompatActivity implements StatusDialog.Sta
     private ViewPagerAdapter viewPagerAdapter;
     private String eventID;
     private int position;
-    private EventModel event;
+    private EventModel eventModel;
     //    private int position;
     private EventsListViewModel eventsListViewModel;
     private ArrayList<InvitedInEventUserModel> invitedUsersList;
@@ -88,7 +90,7 @@ public class EventActivity extends AppCompatActivity implements StatusDialog.Sta
     }
 
     public EventModel getEvent() {
-        return event;
+        return eventModel;
     }
 
     public String getEventID() {
@@ -107,8 +109,9 @@ public class EventActivity extends AppCompatActivity implements StatusDialog.Sta
 
         // get event object from intent
         Gson gson = new Gson();
-        event = gson.fromJson(getIntent().getStringExtra(getString(R.string.arg_event_model)),
+        eventModel = gson.fromJson(getIntent().getStringExtra(getString(R.string.arg_event_model)),
                 EventModel.class);
+
 
         viewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager(), eventID, position);
         viewPager.setAdapter(viewPagerAdapter);
@@ -117,6 +120,7 @@ public class EventActivity extends AppCompatActivity implements StatusDialog.Sta
 
 
     }
+
 
     private void initializeListeners() {
         textViewInfoLabel.setOnClickListener(new View.OnClickListener() {
