@@ -202,11 +202,12 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback {
                 for (InvitedInEventUserModel user : invitedUsersList) {
                     try {
                         String snippet = "";
-                        if (user.getInvitedInEventUserID().equals(FirebaseAuth.getInstance().getCurrentUser())) {
+                        if (user.getInvitedInEventUserID().equals(FirebaseAuth.getInstance().getCurrentUser().getUid())) {
                             curUserName = user.getInvitedInEventUserName();
-                            int lat = (int) (mLastLocation.getLatitude() * 1E6);
-                            int lng = (int) (mLastLocation.getLongitude() * 1E6);
-                            user.setInvitedInEventUserCurrentLocation(new GeoPoint(lat, lng));
+                            user.setInvitedInEventUserCurrentLocation(new GeoPoint(mLastLocation.getLatitude(), mLastLocation.getLongitude()));
+                            Log.d(TAG, user.getInvitedInEventUserCurrentLocation().toString());
+                            Log.d(TAG, mLastLocation.toString());
+                            //TODO: also need to chang location in firestore
                             snippet = "Click to post your status";
                         } else {
                             snippet = "";
