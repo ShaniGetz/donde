@@ -360,8 +360,7 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
     private void initializeDebugAutofill() {
         buttonDebugAutofill.setOnClickListener(v -> {
             editTextEventName.setText("A Debug Event Name");
-            editTextEventDescription.setText("A debug description for an event. This text is kind of long but" +
-                    " also not too long.");
+            editTextEventDescription.setText("A debug description for an event. This text is kind of long but" + " also not too long.");
             searchViewLocationSearch.setQuery("Ein Bokek", true);
             editTextEventDay.setText("16");
             editTextEventMonth.setText("10");

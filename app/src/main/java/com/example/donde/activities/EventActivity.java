@@ -106,7 +106,7 @@ public class EventActivity extends AppCompatActivity implements StatusDialog.Sta
 
             }
         });
-    }m
+    }
 
 
     public EventModel getEvent() {

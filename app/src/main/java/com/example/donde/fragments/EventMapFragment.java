@@ -8,6 +8,7 @@ import android.Manifest;
 import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
+import android.location.Geocoder;
 import android.location.Location;
 import android.os.Build;
 import android.os.Bundle;
@@ -31,6 +32,7 @@ import com.example.donde.activities.EventActivity;
 import com.example.donde.models.InvitedInEventUserModel;
 import com.example.donde.utils.map_utils.ClusterMarker;
 import com.example.donde.utils.map_utils.MyClusterManagerRenderer;
+import com.example.donde.utils.map_utils.OfflineTileProvider;
 import com.example.donde.utils.map_utils.StatusDialog;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
@@ -44,6 +46,9 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.GeoPoint;
+import com.google.android.gms.maps.model.TileOverlay;
+import com.google.android.gms.maps.model.TileOverlayOptions;
 import com.google.firebase.firestore.GeoPoint;
 import com.google.maps.android.clustering.ClusterManager;
 
@@ -64,7 +69,12 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback {
     private String status;
     private FragmentActivity myContext;
     private ClusterManager mClusterManager;
+    private GeoPoint geoPoint;
+    private LatLng laLing;
     private MyClusterManagerRenderer mClusterManagerRenderer;
+
+
+
     private ArrayList<ClusterMarker> mClusterMarkers = new ArrayList<>();
     LocationCallback mLocationCallback = new
 
@@ -82,12 +92,17 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback {
                             mCurrLocationMarker.remove();
                         }
                         //Place current location marker
-                        LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+//                        LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
                         //add marker pic
                         Log.d(TAG, "Calling add map markers");
                         addMapMarkers();
                         //move map camera
-                        mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 11));
+//                        mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 11));
+                        mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(laLing, 17));
+                        Log.d("onLocationResult", laLing.latitude + " " + laLing.longitude);
+                        mGoogleMap.setMapType(GoogleMap.MAP_TYPE_NONE);
+                        TileOverlay onlineTileOverlay = mGoogleMap.addTileOverlay(new TileOverlayOptions()
+                                .tileProvider(new OfflineTileProvider(myContext)));
                     }
                 }
             };
@@ -95,6 +110,8 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        geoPoint = ((EventActivity)getActivity()).getEvent().getEventLocation();
+        laLing = new LatLng(geoPoint.getLatitude(), geoPoint.getLongitude());
         return inflater.inflate(R.layout.fragment_event_map, container, false);
 
     }
@@ -165,6 +182,10 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback {
             mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback, Looper.myLooper());
             mGoogleMap.setMyLocationEnabled(true);
         }
+
+        mGoogleMap.setMapType(GoogleMap.MAP_TYPE_NONE);
+        TileOverlay offlineTileOverlay = mGoogleMap.addTileOverlay(new TileOverlayOptions()
+                .tileProvider(new OfflineTileProvider(getContext())));
     }
 
     public void ChangeType(View view) {
@@ -335,6 +356,6 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback {
         }
     }
 }
-//
+
 
 //        ((EventActivity)getActivity()).getInvitedUsersList()

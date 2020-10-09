@@ -1,6 +1,7 @@
 package com.example.donde.utils.map_utils;
 
 import android.content.Context;
+import android.location.Geocoder;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.util.Log;
@@ -30,10 +31,13 @@ public class OfflineTileProvider implements TileProvider {
     private Context context;
     private ConnectivityManager connectivityManager;
 
+
     public OfflineTileProvider(Context context) {
         super();
         this.context = context;
         tilesDir = context.getApplicationContext().getFilesDir().toString();
+        Log.d("TAG", tilesDir);
+
     }
 
     @Override
@@ -46,9 +50,11 @@ public class OfflineTileProvider implements TileProvider {
 //                File file = new File(TILES_DIR, x + "_" + y + ".png");
             File file = new File(tilesDir, x +"_"+y+ ".png");
 
-            Log.d("TAG", tilesDir);
+//            Log.d("getTile", tilesDir + x +"_"+y+ ".png");
             if (file.exists()) {
                 data = readTile(new FileInputStream(file), BUFFER_SIZE_FILE);
+                Log.d("reading from file", tilesDir + x +"_"+y+ ".png");
+
             } else {
                 if (connectivityManager == null) {
                     connectivityManager = (ConnectivityManager) context.getSystemService(
