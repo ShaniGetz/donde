@@ -101,8 +101,10 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback {
                         mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(laLing, 17));
                         Log.d("onLocationResult", laLing.latitude + " " + laLing.longitude);
                         mGoogleMap.setMapType(GoogleMap.MAP_TYPE_NONE);
+
                         TileOverlay onlineTileOverlay = mGoogleMap.addTileOverlay(new TileOverlayOptions()
                                 .tileProvider(new OfflineTileProvider(myContext)));
+
                     }
                 }
             };

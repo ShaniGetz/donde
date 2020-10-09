@@ -48,11 +48,11 @@ public class OfflineTileProvider implements TileProvider {
             byte[] data;
             //
 //                File file = new File(TILES_DIR, x + "_" + y + ".png");
-            File file = new File(tilesDir, x +"_"+y+ ".png");
+            File fileOne = new File(tilesDir, x +"_"+y+ ".png");
 
 //            Log.d("getTile", tilesDir + x +"_"+y+ ".png");
-            if (file.exists()) {
-                data = readTile(new FileInputStream(file), BUFFER_SIZE_FILE);
+            if (fileOne.exists()) {
+                data = readTile(new FileInputStream(fileOne), BUFFER_SIZE_FILE);
                 Log.d("reading from file", tilesDir + x +"_"+y+ ".png");
 
             } else {
@@ -74,7 +74,7 @@ public class OfflineTileProvider implements TileProvider {
                 Log.d("TAG", tilesDir);
 
 
-                try (OutputStream out = new BufferedOutputStream(new FileOutputStream(file))) {
+                try (OutputStream out = new BufferedOutputStream(new FileOutputStream(fileOne))) {
                     out.write(data);
                 }
             }
@@ -102,4 +102,6 @@ public class OfflineTileProvider implements TileProvider {
             buffer.close();
         }
     }
+
+
 }
