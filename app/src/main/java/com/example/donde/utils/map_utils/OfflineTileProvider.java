@@ -44,7 +44,7 @@ public class OfflineTileProvider implements TileProvider {
             byte[] data;
             //
 //                File file = new File(TILES_DIR, x + "_" + y + ".png");
-            File file = new File(tilesDir, x + y+ ".png");
+            File file = new File(tilesDir, x +"_"+y+ ".png");
 
             Log.d("TAG", tilesDir);
             if (file.exists()) {
