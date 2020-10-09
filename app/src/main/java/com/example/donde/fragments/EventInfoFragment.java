@@ -92,15 +92,15 @@ public class EventInfoFragment extends Fragment {
     private void initializeInvitedUsersList() {
 
         Query invitedUsersQuery =
-                firebaseFirestore.collection(getString(R.string.ff_events_collection)).document(this.eventId).collection(getString(R.string.ff_eventInvitedUsers_collection));
+                firebaseFirestore.collection(getString(R.string.ff_Events)).document(this.eventId).collection(getString(R.string.ff_InvitedInEventUsers));
         FirestoreRecyclerOptions<InvitedInEventUserModel> invitedUsersOptions =
                 new FirestoreRecyclerOptions.Builder<InvitedInEventUserModel>().setQuery(invitedUsersQuery, InvitedInEventUserModel.class).build();
         invitedUsersRecyclerAdapter =
                 new FirestoreRecyclerAdapter<InvitedInEventUserModel, InvitedUsersViewHolder>(invitedUsersOptions) {
                     @Override
                     protected void onBindViewHolder(@NonNull InvitedUsersViewHolder holder, int position, @NonNull InvitedInEventUserModel model) {
-                        Log.e("EventInfoFragment", String.format("user name is %s", model.getInvitedUserInEventName()));
-                        holder.textViewInvitedUserName.setText(model.getInvitedUserInEventName());
+                        Log.e("EventInfoFragment", String.format("user name is %s", model.getInvitedInEventUserName()));
+                        holder.textViewInvitedUserName.setText(model.getInvitedInEventUserName());
                     }
 
 

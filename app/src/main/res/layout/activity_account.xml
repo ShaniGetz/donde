@@ -52,5 +52,14 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/account_editText_name" />
 
+    <Button
+        android:layout_width="wrap_content"
+        android:id="@+id/account_button_delete_account"
+        android:text="delete account"
+        app:layout_constraintTop_toBottomOf="@id/account_button_save"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_height="wrap_content" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

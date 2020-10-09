@@ -69,17 +69,18 @@ public class EventActivity extends AppCompatActivity implements StatusDialog.Sta
     }
 
     private void initializeInvitedUsersList() {
-        firebaseFirestore.collection(getString(R.string.ff_events_collection)).document(eventID).collection(getString(R.string.ff_eventInvitedUsers_collection)).get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+        firebaseFirestore.collection(getString(R.string.ff_Events)).document(eventID).collection(getString(R.string.ff_InvitedInEventUsers)).get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
             @Override
             public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
 
                 for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
                     Log.d(TAG, String.format("Adding query snapshot name: %s",
-                            documentSnapshot.get(getString(R.string.ff_InvitedUsers_eventInvitedUserName))));
+                            documentSnapshot.get(getString(R.string.ff_InvitedInEventUsers_invitedInEventUserName))));
                     invitedUserInEventModelList.add(documentSnapshot.toObject(InvitedInEventUserModel.class));
                 }
                 Log.d(TAG, String.format("Size of invited users list is: %s and first name is: %s"
-                        , invitedUserInEventModelList.size(), invitedUserInEventModelList.get(0).getInvitedUserInEventName()));
+                        , invitedUserInEventModelList.size(),
+                        invitedUserInEventModelList.get(0).getInvitedInEventUserName()));
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override

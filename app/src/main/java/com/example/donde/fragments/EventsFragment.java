@@ -67,7 +67,7 @@ public class EventsFragment extends Fragment {
     private void initializeFields(View view) {
         recyclerViewEventsList = view.findViewById(R.id.events_recyclerView_events);
         firebaseFirestore = FirebaseFirestore.getInstance();
-        eventsCollectionRef = firebaseFirestore.collection(getString(R.string.ff_events_collection));
+        eventsCollectionRef = firebaseFirestore.collection(getString(R.string.ff_Events));
 
     }
 
@@ -95,17 +95,19 @@ public class EventsFragment extends Fragment {
 
         String userID = ((MainActivity) getActivity()).getFirebaseAuth().getCurrentUser().getUid();
         DocumentReference userDocumentRef =
-                firebaseFirestore.collection(getString(R.string.ff_users_collection)).document(userID);
+                firebaseFirestore.collection(getString(R.string.ff_Users)).document(userID);
         userDocumentRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
             public void onSuccess(DocumentSnapshot documentSnapshot) {
-                userInvitedEventIDs = (List<String>) documentSnapshot.get(getString(R.string.ff_users_userInvitedEventIDs));
-                Log.d(TAG, String.format("userInvitedEventIDs size is %s", userInvitedEventIDs.size()));
+//                userInvitedEventIDs = (List<String>) documentSnapshot.get(getString(R.string.ff_users_userInvitedEventIDs));
+//                Log.d(TAG, String.format("userInvitedEventIDs size is %s", userInvitedEventIDs.size()));
 
 
+//                Query eventsQuery =
+//                        eventsCollectionRef.whereIn(FieldPath.documentId(), userInvitedEventIDs).orderBy(
+//                                getString(R.string.ff_Events_eventTimeStarting));
                 Query eventsQuery =
-                        eventsCollectionRef.whereIn(FieldPath.documentId(), userInvitedEventIDs).orderBy(
-                                getString(R.string.ff_events_eventTimeStarting));
+                        eventsCollectionRef.orderBy(getString(R.string.ff_Events_eventTimeCreated), Query.Direction.DESCENDING);
                 // recycler view inflater
                 FirestoreRecyclerOptions<EventModel> eventOptions =
                         new FirestoreRecyclerOptions.Builder<EventModel>().setQuery(eventsQuery,

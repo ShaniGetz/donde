@@ -29,14 +29,12 @@
     <string name="ff_Events_InvitedInEventUsers">InvitedInEventUsers </string>
     <!--InvitedInEventUsers subcollection-->
     <string name="ff_InvitedInEventUsers">InvitedInEventUsers</string>
-    <string name="ff_InvitedInEventUsers_invitedInUserEventID">invitedInUserEventID</string>
-    <string name="ff_InvitedInEventUsers_invitedInUserEventName">invitedInUserEventName</string>
-    <string name="ff_InvitedInEventUsers_invitedInUserEventLocationName">
-        invitedInUserEventLocationName</string>
-    <string name="ff_InvitedInEventUsers_invitedInUserEventCreatorName">invitedInUserEventCreatorName</string>
-    <string name="ff_InvitedInEventUsers_invitedInUserEventIsGoing">invitedInUserEventIsGoing</string>
-    <string name="ff_InvitedInEventUsers_invitedInUserEventTimeStarting">
-        invitedInUserEventTimeStarting</string>
+    <string name="ff_InvitedInEventUsers_invitedInEventUserID">invitedInEventUserID</string>
+    <string name="ff_InvitedInEventUsers_invitedInEventUserStatus">invitedInEventUserStatus</string>
+    <string name="ff_InvitedInEventUsers_invitedInEventUserCurrentLocation">invitedInEventUserCurrentLocation</string>
+    <string name="ff_InvitedInEventUsers_invitedInEventUserProfilePicURL">invitedInEventUserProfilePicURL</string>
+    <string name="ff_InvitedInEventUsers_invitedInEventUserName">invitedInEventUserName</string>
+    <string name="ff_InvitedInEventUsers_invitedInEventUserIsGoing">invitedInEventUserIsGoing</string>
 
 
 </resources>

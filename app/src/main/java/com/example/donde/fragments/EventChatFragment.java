@@ -48,38 +48,38 @@ public class EventChatFragment extends Fragment {
     }
 
 
-    private void initializeListeners() {
-        buttonSendMessage.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String sMessage = editTextMessage.getText().toString();
-                String sUID = firebaseAuth.getUid();
-                if (isMessageValid(sMessage)) {
-                    progressBarSendProgress.setVisibility(View.VISIBLE);
-                    Map<String, Object> messageMap = new HashMap<>();
-                    messageMap.put(getString(R.string.ff_chat_message_content_key), sMessage);
-                    messageMap.put(getString(R.string.ff_chat_sender_uid_key), sUID);
-                    firebaseFirestore.collection("EventsList/" + eventID + "/Chat").add(messageMap).addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
-                        @Override
-                        public void onComplete(@NonNull Task<DocumentReference> task) {
-                            progressBarSendProgress.setVisibility(View.INVISIBLE);
-                        }
-                    }).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                        @Override
-                        public void onSuccess(DocumentReference documentReference) {
-                            editTextMessage.setText("");
-                            Toast.makeText(getActivity(), "Message sent successfully", Toast.LENGTH_SHORT).show();
-                        }
-                    }).addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            Toast.makeText(getActivity(), "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                        }
-                    });
-                }
-            }
-        });
-    }
+//    private void initializeListeners() {
+//        buttonSendMessage.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                String sMessage = editTextMessage.getText().toString();
+//                String sUID = firebaseAuth.getUid();
+//                if (isMessageValid(sMessage)) {
+//                    progressBarSendProgress.setVisibility(View.VISIBLE);
+//                    Map<String, Object> messageMap = new HashMap<>();
+//                    messageMap.put(getString(R.string.ff_chat_message_content_key), sMessage);
+//                    messageMap.put(getString(R.string.ff_chat_sender_uid_key), sUID);
+//                    firebaseFirestore.collection("EventsList/" + eventID + "/Chat").add(messageMap).addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
+//                        @Override
+//                        public void onComplete(@NonNull Task<DocumentReference> task) {
+//                            progressBarSendProgress.setVisibility(View.INVISIBLE);
+//                        }
+//                    }).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+//                        @Override
+//                        public void onSuccess(DocumentReference documentReference) {
+//                            editTextMessage.setText("");
+//                            Toast.makeText(getActivity(), "Message sent successfully", Toast.LENGTH_SHORT).show();
+//                        }
+//                    }).addOnFailureListener(new OnFailureListener() {
+//                        @Override
+//                        public void onFailure(@NonNull Exception e) {
+//                            Toast.makeText(getActivity(), "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+//                        }
+//                    });
+//                }
+//            }
+//        });
+//    }
 
     private boolean isMessageValid(String message) {
         boolean isMessageEmpty = TextUtils.isEmpty(message);
@@ -99,6 +99,6 @@ public class EventChatFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         initializeFields(view);
-        initializeListeners();
+//        initializeListeners();
     }
 }

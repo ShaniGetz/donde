@@ -28,8 +28,8 @@ public class FirebaseRepository {
     private void initializeFields(OnFirestoreTaskComplete onFirestoreTaskComplete) {
         this.onFirestoreTaskComplete = onFirestoreTaskComplete;
         firebaseAuth = FirebaseAuth.getInstance();
-        eventsRef = firebaseFirestore.collection(App.getRes().getString(R.string.ff_events_collection));
-        usersRef = firebaseFirestore.collection(App.getRes().getString(R.string.ff_users_collection));
+        eventsRef = firebaseFirestore.collection(App.getRes().getString(R.string.ff_Events));
+        usersRef = firebaseFirestore.collection(App.getRes().getString(R.string.ff_Users));
 
 
     }

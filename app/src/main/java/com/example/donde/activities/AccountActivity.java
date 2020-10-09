@@ -55,8 +55,8 @@ public class AccountActivity extends Activity {
         buttonSave.setEnabled(false);
 
         // check if user with given ID exists
-        CollectionReference usersRef = firebaseFirestore.collection(getString(R.string.ff_users_collection));
-        Query userExistsQuery = usersRef.whereEqualTo(getString(R.string.ff_users_userID), userID);
+        CollectionReference usersRef = firebaseFirestore.collection(getString(R.string.ff_Users));
+        Query userExistsQuery = usersRef.whereEqualTo(getString(R.string.ff_Users_userID), userID);
         userExistsQuery.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
 
             @Override
@@ -66,7 +66,8 @@ public class AccountActivity extends Activity {
                         throw new AssertionError("More than one user exists with given ID");
                     } else if (task.getResult().size() == 1) {
                         DocumentSnapshot userDocument = task.getResult().getDocuments().get(0);
-                        String userName = userDocument.getString(getString(R.string.ff_users_userName));
+                        String userName =
+                                userDocument.getString(getString(R.string.ff_Users_userName));
                         textViewName.setText(userName);
                     }
                 } else {
@@ -101,10 +102,10 @@ public class AccountActivity extends Activity {
                     progressBar.setVisibility(View.VISIBLE);
                     // get user ID for current user
                     HashMap<String, String> userMap = new HashMap<>();
-                    userMap.put(getString(R.string.ff_users_userID), userID);
-                    userMap.put(getString(R.string.ff_users_userEmail), userEmail);
-                    userMap.put(getString(R.string.ff_users_userName), sUserName);
-                    firebaseFirestore.collection(getString(R.string.ff_users_collection)).document(userID).set(userMap).addOnCompleteListener(new OnCompleteListener<Void>() {
+                    userMap.put(getString(R.string.ff_Users_userID), userID);
+                    userMap.put(getString(R.string.ff_Users_userEmail), userEmail);
+                    userMap.put(getString(R.string.ff_Users_userName), sUserName);
+                    firebaseFirestore.collection(getString(R.string.ff_Users)).document(userID).set(userMap).addOnCompleteListener(new OnCompleteListener<Void>() {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
                             // account save successful

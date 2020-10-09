@@ -29,8 +29,8 @@ import androidx.core.content.ContextCompat;
 import com.example.donde.BuildConfig;
 import com.example.donde.R;
 import com.example.donde.models.EventModel;
-import com.example.donde.models.InvitedInUserEventModel;
 import com.example.donde.models.InvitedInEventUserModel;
+import com.example.donde.models.InvitedInUserEventModel;
 import com.example.donde.utils.map_utils.CustomMapTileProvider;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
@@ -72,21 +72,16 @@ import java.util.List;
 
 public class CreateEventActivity extends AppCompatActivity implements OnMapReadyCallback {
     public static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
+    private final String TAG = "tagCreateEventActivity";
     GoogleMap mGoogleMap;
     SupportMapFragment mapFrag;
     LocationRequest mLocationRequest;
     Location mLastLocation;
     Marker mCurrLocationMarker;
     FusedLocationProviderClient mFusedLocationClient;
-    SearchView searchView;
-
-
     LocationCallback mLocationCallback;
     private EditText editTextEventName;
     private EditText editTextEventDescription;
-    private EditText editTextLocationName;
-    private EditText editTextLongitude;
-    private EditText editTextLatitude;
     private EditText editTextEventDay;
     private EditText editTextEventMonth;
     private EditText editTextEventYear;
@@ -98,14 +93,13 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
     private Button buttonCreateEvent;
     private Button buttonDebugAutofill;
     private ProgressBar progressBar;
-    private FirebaseFirestore firebaseFirestore;
     private SearchView searchViewLocationSearch;
-
-    // Authentication
+    // Firebase
     private FirebaseAuth firebaseAuth;
     private FirebaseUser firebaseUser;
-
-
+    private FirebaseFirestore firebaseFirestore;
+    private CollectionReference usersCollectionRef;
+    private CollectionReference eventsCollectionRef;
     // Fields for storing data to push to FirebaseFirestore (ff)
     private String ffEventName;
     private String ffEventDescription;
@@ -115,10 +109,7 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
     private String ffEventCreatorName;
     private Date ffEventTimeCreated;
     private Date ffEventTimeStarting;
-
     private List<InvitedInEventUserModel> ffInvitedUserInEventModels;
-    private CollectionReference usersCollectionRef;
-
 
     void checkForPermissions() {
         // Here, thisActivity is the current activity
@@ -225,6 +216,8 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
     }
 
     private void initializeFields() {
+
+        // Views
         editTextEventName = findViewById(R.id.create_editText_event_name);
         editTextEventDescription = findViewById(R.id.create_editText_event_description);
         buttonCreateEvent = findViewById(R.id.create_button_create);
@@ -238,18 +231,17 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
         editTextInvitedUser1 = findViewById(R.id.create_editText_invited_user1);
         editTextInvitedUser2 = findViewById(R.id.create_editText_invited_user2);
         editTextInvitedUser3 = findViewById(R.id.create_editText_invited_user3);
-
         searchViewLocationSearch = findViewById(R.id.create_searchView_location_search);
 
+        // Firebase
         firebaseAuth = FirebaseAuth.getInstance();
         firebaseUser = firebaseAuth.getCurrentUser();
-        if (BuildConfig.DEBUG && !(firebaseUser != null)) {
-            throw new AssertionError("No user is logged in");
-        }
         firebaseFirestore = FirebaseFirestore.getInstance();
-        usersCollectionRef = firebaseFirestore.collection(getString(R.string.ff_users_collection));
+        usersCollectionRef = firebaseFirestore.collection(getString(R.string.ff_Users));
+        eventsCollectionRef = firebaseFirestore.collection(getString(R.string.ff_Events));
 
 
+        // Location
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         mapFrag =
                 (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.create_mapView);
@@ -423,9 +415,45 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
         return createdEvent;
     }
 
-    private InvitedInUserEventModel createNewInvitedEventInUserModel() {
-        InvitedInUserEventModel invitedEventInUserModel = new InvitedInUserEventModel();
+    private void addInvitedInEventUser(CollectionReference invitedInEventUsersRef,
+                                       InvitedInEventUserModel invitedInEventUserModel) {
+        invitedInEventUsersRef.document(invitedInEventUserModel.getInvitedInEventUserID()).set(invitedInEventUserModel).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                Log.d(TAG, String.format("Added user %s to event",
+                        invitedInEventUserModel.getInvitedInEventUserName()));
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.d(TAG, String.format("Failed to add user %s to event, error: %s",
+                        invitedInEventUserModel.getInvitedInEventUserName(), e.getMessage()));
 
+            }
+        });
+
+    }
+
+
+    private void addInvitedInUserEvent(String newEventId, EventModel newEventModel,
+                                       CollectionReference invitedInUserEventsRef,
+                                       InvitedInEventUserModel invitedInUserEventModel) {
+        InvitedInUserEventModel newInvitedInUserEventModel =
+                new InvitedInUserEventModel(newEventId, newEventModel.getEventName(),
+                        newEventModel.getEventLocationName(), newEventModel.getEventCreatorName());
+        invitedInUserEventsRef.document(newEventId).set(newInvitedInUserEventModel).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                Log.d(TAG, String.format("Added event %s to user", newEventModel.getEventName()));
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.d(TAG, String.format("Failed to add event %s to user, error: %s",
+                        newEventModel.getEventName(), e.getMessage()));
+
+            }
+        });
     }
 
     private void createEvent() {
@@ -433,23 +461,26 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
         if (didSetFields) {
             progressBar.setVisibility(View.VISIBLE);
 
-            EventModel createdEvent = createNewEventModel();
-            InvitedInUserEventModel createdInvitedEventInUserModel =
-                    createNewInvitedEventInUserModel ();
+            EventModel newEventModel = createNewEventModel();
 
-
-
-
-            firebaseFirestore.collection(getString(R.string.ff_events_collection)).add(createdEvent).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+            eventsCollectionRef.add(newEventModel).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                 @Override
                 public void onSuccess(DocumentReference documentReference) {
-                    // add invited users
-                    CollectionReference invitedUsersRef =
-                            documentReference.collection(getString(R.string.ff_events_eventInvitedUsers));
-                    for (InvitedInEventUserModel invitedUserInEventModel : ffInvitedUserInEventModels) {
+                    // add invited users to event
+                    String newEventId = documentReference.getId();
+                    CollectionReference invitedInEventUsersRef =
+                            documentReference.collection(getString(R.string.ff_InvitedInEventUsers));
+                    for (InvitedInEventUserModel invitedInEventUserModel : ffInvitedUserInEventModels) {
+                        addInvitedInEventUser(invitedInEventUsersRef, invitedInEventUserModel);
 
-                        addInvitedUserToEvent(documentReference, invitedUsersRef, invitedUserInEventModel);
+                        // add event to invited users
+                        String invitedInEventUserId = invitedInEventUserModel.getInvitedInEventUserID();
+                        CollectionReference invitedInUserEventsRef =
+                                usersCollectionRef.document(invitedInEventUserId).collection(getString(R.string.ff_InvitedInUserEvents));
+                        addInvitedInUserEvent(newEventId, newEventModel, invitedInUserEventsRef,
+                                invitedInEventUserModel);
                     }
+
                     Toast.makeText(CreateEventActivity.this, "Event created successfully",
                             Toast.LENGTH_SHORT).show();
                     gotoEvents();
@@ -470,32 +501,6 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
         }
     }
 
-    private void addInvitedUserToEvent(DocumentReference documentReference, CollectionReference invitedUsersRef, InvitedInEventUserModel invitedUserInEventModel) {
-        invitedUsersRef.document(invitedUserInEventModel.getInvitedUserInEventID()).set(invitedUserInEventModel).addOnSuccessListener(new OnSuccessListener<Void>() {
-            @Override
-            public void onSuccess(Void aVoid) {
-                Log.d("CreateEventActivity",
-                        "adding " + invitedUserInEventModel.getInvitedUserInEventEmail());
-                addEventToInvitedUser(invitedUserInEventModel.getInvitedUserInEventID(),
-                        documentReference.getId());
-
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                Log.d("CreateEventActivity",
-                        "failed " + invitedUserInEventModel.getInvitedUserInEventEmail());
-
-                Toast.makeText(CreateEventActivity.this, String.format("Error " +
-                                "adding invited user %s: with error: %s",
-                        invitedUserInEventModel.getInvitedUserInEventEmail(), e.getMessage()),
-                        Toast.LENGTH_SHORT).show();
-                documentReference.delete(); // if adding users failed, delete
-                return;
-                // document
-            }
-        });
-    }
 
     private void addEventToInvitedUser(String invitedUserId, String eventId) {
 
@@ -599,7 +604,7 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
     private boolean setEventCreatorName() {
         String creatorUID = this.firebaseUser.getUid();
         Query creatorUserQuery =
-                usersCollectionRef.whereEqualTo(getString(R.string.ff_users_userID), creatorUID);
+                usersCollectionRef.whereEqualTo(getString(R.string.ff_Users_userID), creatorUID);
         this.progressBar.setVisibility(View.VISIBLE);
         creatorUserQuery.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
@@ -610,7 +615,8 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
                                 "exists.");
                     } else {
                         DocumentSnapshot creatorDocument = task.getResult().getDocuments().get(0);
-                        ffEventCreatorName = creatorDocument.getString(getString(R.string.ff_users_userName));
+                        ffEventCreatorName =
+                                creatorDocument.getString(getString(R.string.ff_Users_userName));
                         Log.d("create", "event creator name is " + ffEventCreatorName);
 
                     }
@@ -650,14 +656,15 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
     private boolean setInvitedUsers(ArrayList<String> userEmails) {
 
         ffInvitedUserInEventModels = new ArrayList<>();
-        CollectionReference usersRef = firebaseFirestore.collection(getString(R.string.ff_users_collection));
+        CollectionReference usersRef = firebaseFirestore.collection(getString(R.string.ff_Users));
         // add self to invitees
         userEmails.add(firebaseUser.getEmail());
         for (String userEmail : userEmails) {
             if (TextUtils.isEmpty(userEmail)) {
                 continue;
             }
-            Query userByEmailQuery = usersRef.whereEqualTo(getString(R.string.ff_users_userEmail), userEmail);
+            Query userByEmailQuery = usersRef.whereEqualTo(getString(R.string.ff_Users_userEmail)
+                    , userEmail);
 
             progressBar.setVisibility(View.VISIBLE);
             userByEmailQuery.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
@@ -667,14 +674,16 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
                         if (task.getResult().size() == 1) {
                             DocumentSnapshot invitedUserDoc = task.getResult().getDocuments().get(0);
                             String invitedUserID = invitedUserDoc.getId();
-                            String invitedUserEmail = invitedUserDoc.getString(getString(R.string.ff_users_userEmail));
-                            String invitedUserName = invitedUserDoc.getString(getString(R.string.ff_users_userName));
+                            String invitedUserEmail =
+                                    invitedUserDoc.getString(getString(R.string.ff_Users_userEmail));
+                            String invitedUserName =
+                                    invitedUserDoc.getString(getString(R.string.ff_Users_userName));
                             // TODO: retrieve
-                            String invitedUserProfilePicURL = invitedUserDoc.getString(
-                                    getString(R.string.ff_users_invitedUserProfilePicURL));
+//                            String invitedUserProfilePicURL = invitedUserDoc.getString(
+//                                    getString(R.string.ff_InvitedInEventUser_));
                             Log.d("CreateEvent", String.format("adding user to ffInvited: %s", invitedUserEmail));
                             ffInvitedUserInEventModels.add(new InvitedInEventUserModel(invitedUserID,
-                                    invitedUserName, invitedUserEmail, invitedUserProfilePicURL));
+                                    invitedUserName, invitedUserEmail));
 
                         } else if (task.getResult().size() == 0) {
                             Toast.makeText(CreateEventActivity.this, String.format("No user found" +
