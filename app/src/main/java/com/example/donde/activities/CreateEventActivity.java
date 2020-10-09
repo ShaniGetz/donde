@@ -272,6 +272,11 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
                     MarkerOptions markerOptions = new MarkerOptions();
                     markerOptions.position(latLng);
                     markerOptions.title("Current Position");
+
+//                markerOptions.icon(bitmapDescriptorFromVector(getApplicationContext(), R.drawable.shani_getz));
+
+//                markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.shani_getz));
+
                     markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA));
                     mCurrLocationMarker = mGoogleMap.addMarker(markerOptions);
                     //move map camera
@@ -313,13 +318,18 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
                     }
                     // if we add these line it actually finds the location but not large enough
                     //what does v do? crazy zoom when gets bigger
-                    mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latling, 15));
+                    mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latling, 17));
                     setEventLocation(latling.latitude, latling.longitude);
                     mGoogleMap.setMapType(GoogleMap.MAP_TYPE_NONE);
                     TileOverlay onlineTileOverlay = mGoogleMap.addTileOverlay(new TileOverlayOptions()
                             .tileProvider(new OfflineTileProvider(getBaseContext())));
-                    // what does the number here do? when smaller has more zoom (the opp of the top)
-//                    mGoogleMap.setMaxZoomPreference(15);
+
+                    // add marker
+                    MarkerOptions markerOptions = new MarkerOptions();
+                    markerOptions.position(latling);
+                    markerOptions.title("Event Position");
+                    markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
+                    mCurrLocationMarker = mGoogleMap.addMarker(markerOptions);
 
 
                 }
