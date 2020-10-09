@@ -49,16 +49,16 @@ public class EventActivity extends AppCompatActivity implements StatusDialog.Sta
     private EventModel eventModel;
     //    private int position;
     private EventsListViewModel eventsListViewModel;
-    private ArrayList<InvitedInEventUserModel> invitedUsersList;
     private String TAG = "EventActivity";
-    private List<InvitedInEventUserModel> invitedUserInEventModelList = new ArrayList<>();
+    private ArrayList<InvitedInEventUserModel> invitedUserInEventModelList = new ArrayList<>();
+
+    public ArrayList<InvitedInEventUserModel> getInvitedUserInEventModelList() {
+        return invitedUserInEventModelList;
+    }
+
 
     public static String getStatus() {
         return status;
-    }
-
-    public ArrayList<InvitedInEventUserModel> getInvitedUsersList() {
-        return invitedUsersList;
     }
 
     @Override
@@ -95,7 +95,7 @@ public class EventActivity extends AppCompatActivity implements StatusDialog.Sta
                                         "user is %s", invitedInEventUserModels.size(),
                                 invitedInEventUserModels.size() == 0 ? "NO " +
                                         "USER" : invitedInEventUserModels.get(0)));
-                        invitedUserInEventModelList = invitedUsersList;
+                        invitedUserInEventModelList = invitedInEventUserModels;
                     }
                 }).addOnFailureListener(new OnFailureListener() {
                     @Override
