@@ -2,6 +2,7 @@ package com.example.donde.activities;
 
 import android.Manifest;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -412,11 +413,33 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_create_event);
+        if (isOnline()) {
+
+            setContentView(R.layout.activity_create_event);
         initializeFields();
         initializeListeners();
+        }else{
+            // TODO: Make dialog box and not toast
+
+            Toast.makeText(this, "Go online in order to create an event", Toast.LENGTH_SHORT).show();
+            gotoEvents();
+        }
     }
 
+    // TODO: Doesn't work on older devices. Need to implement advanced solution from here: https://stackoverflow.com/a/27312494/10524650
+    // ICMP
+    public boolean isOnline() {
+        Runtime runtime = Runtime.getRuntime();
+        try {
+            Process ipProcess = runtime.exec("/system/bin/ping -c 1 8.8.8.8");
+            int     exitValue = ipProcess.waitFor();
+            return (exitValue == 0);
+        }
+        catch (IOException e)          { e.printStackTrace(); }
+        catch (InterruptedException e) { e.printStackTrace(); }
+
+        return false;
+    }
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
