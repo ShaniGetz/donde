@@ -34,7 +34,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
-import com.example.donde.BuildConfig;
 import com.example.donde.R;
 import com.example.donde.models.EventModel;
 import com.example.donde.models.InvitedInEventUserModel;
@@ -98,9 +97,6 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
     private EditText editTextEventYear;
     private EditText editTextEventHour;
     private EditText editTextEventMinute;
-    private EditText editTextInvitedUser1;
-    private EditText editTextInvitedUser2;
-    private EditText editTextInvitedUser3;
     private Button buttonCreateEvent;
     private Button buttonDebugAutofill;
     private ProgressBar progressBar;
@@ -118,6 +114,7 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
     // Firebase
     private FirebaseAuth firebaseAuth;
     private FirebaseUser firebaseUser;
+    private DocumentReference currUserDocumentRef;
     private FirebaseFirestore firebaseFirestore;
     private CollectionReference usersCollectionRef;
     private CollectionReference eventsCollectionRef;
@@ -253,7 +250,7 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
 
     private void addInvitedUsersToAutocomplete() {
         ArrayList<String> invitedUsersAutocomplete;
-        usersCollectionRef.document(firebaseUser.getUid()).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+        currUserDocumentRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
             public void onSuccess(DocumentSnapshot documentSnapshot) {
                 ArrayList<String> interactedUsersArray = (ArrayList<String>)
@@ -292,7 +289,7 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
         autoCompleteInvitedUsers.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                if (actionId == EditorInfo.IME_ACTION_DONE && !TextUtils.isEmpty(v.getText())) {
                     String invitedUser = v.getText().toString();
                     addInvitedUserToList(invitedUser);
                 }
@@ -332,6 +329,7 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
         firebaseFirestore = FirebaseFirestore.getInstance();
         usersCollectionRef = firebaseFirestore.collection(getString(R.string.ff_Users));
         eventsCollectionRef = firebaseFirestore.collection(getString(R.string.ff_Events));
+        currUserDocumentRef = usersCollectionRef.document(firebaseUser.getUid());
 
         initializeListViewInvitedUsers();
         initializeAutocompleteInvitedUsers();
@@ -456,9 +454,6 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
             editTextEventYear.setText("2020");
             editTextEventHour.setText("20");
             editTextEventMinute.setText("30");
-            editTextInvitedUser1.setText("shani@gmail.com");
-            editTextInvitedUser2.setText("batsheva@gmail.com");
-            editTextInvitedUser3.setText("alon@gmail.com");
         });
     }
 
@@ -633,8 +628,10 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
                     CollectionReference invitedInUserEventsRef =
                             usersCollectionRef.document(invitedInEventUserId).collection(getString(R.string.ff_InvitedInUserEvents));
                     Log.d(TAG, "Entering addInvitedInUserEvent");
+                    addInteractedEmailsToUser(usersCollectionRef.document(invitedInEventUserId));
                     addInvitedInUserEvent(newEventId, newEventModel, invitedInUserEventsRef);
                 }
+
 
                 Toast.makeText(CreateEventActivity.this, "Event created successfully",
                         Toast.LENGTH_SHORT).show();
@@ -654,12 +651,18 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
 
     }
 
+    private void addInteractedEmailsToUser(DocumentReference userRef) {
 
-    private void addEventToInvitedUser(String invitedUserId, String eventId) {
-
-        usersCollectionRef.document(invitedUserId).update("userInvitedEventIDs",
-                FieldValue.arrayUnion(eventId));
+        userRef.update(getString(R.string.ff_Users_userInteractedUserEmails),
+                FieldValue.arrayUnion(listViewInvitedUsersList.toArray(new String[listViewInvitedUsersList.size()])));
     }
+
+
+//    private void addEventToInvitedUser(String invitedUserId, String eventId) {
+//
+//        usersCollectionRef.document(invitedUserId).update("userInvitedEventIDs",
+//                FieldValue.arrayUnion(eventId));
+//    }
 
     private boolean retrieveAndSetEventFields() {
         String toastErrorMessage = "";
@@ -752,36 +755,32 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
     }
 
     private boolean setEventCreatorName() {
-        String creatorUID = this.firebaseUser.getUid();
-        Query creatorUserQuery =
-                usersCollectionRef.whereEqualTo(getString(R.string.ff_Users_userID), creatorUID);
         this.progressBar.setVisibility(View.VISIBLE);
-        creatorUserQuery.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+        currUserDocumentRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                if (task.isSuccessful()) {
-                    if (BuildConfig.DEBUG && task.getResult().size() != 1) {
-                        throw new AssertionError("Either no or more than one user with given UID " +
-                                "exists.");
-                    } else {
-                        DocumentSnapshot creatorDocument = task.getResult().getDocuments().get(0);
-                        ffEventCreatorName =
-                                creatorDocument.getString(getString(R.string.ff_Users_userName));
-                        Log.d("create", "event creator name is " + ffEventCreatorName);
-                        didFinishSettingCreatorName = true;
+            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                ffEventCreatorName =
+                        documentSnapshot.getString(getString(R.string.ff_Users_userName));
+                Log.d("create", "event creator name is " + ffEventCreatorName);
+                didFinishSettingCreatorName = true;
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
 
-                    }
-                } else {
-                    Toast.makeText(CreateEventActivity.this, String.format("Error getting creator" +
-                                    " user name: %s", task.getException().getMessage()),
-                            Toast.LENGTH_SHORT).show();
-                }
+                Toast.makeText(CreateEventActivity.this, String.format("Error getting creator" +
+                                " user name: %s", e.getMessage()),
+                        Toast.LENGTH_SHORT).show();
+            }
+
+
+        }).addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 progressBar.setVisibility(View.INVISIBLE);
 
             }
         });
-
-
         return true;
     }
 

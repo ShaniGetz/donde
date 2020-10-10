@@ -3,6 +3,7 @@ package com.example.donde.models;
 import com.google.android.gms.maps.model.LatLng;
 
 import java.lang.reflect.Array;
+import java.util.ArrayList;
 
 public class UserModel {
     String userID;
@@ -11,6 +12,7 @@ public class UserModel {
     LatLng userCurLocation;
     String userStatus;
     Array userInvitedEventsIDs;
+    ArrayList<String> userInteractedUserEmails;
 
     public void setUserID(String userID) {
         this.userID = userID;
