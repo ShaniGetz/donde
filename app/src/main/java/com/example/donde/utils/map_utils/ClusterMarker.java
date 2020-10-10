@@ -3,18 +3,25 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.maps.android.clustering.ClusterItem;
 
 public class ClusterMarker implements ClusterItem {
+    private String userID;
     private LatLng position;
     private String title;
     private String snippet;
     private int iconPicture;
 //    private User user;
 
-    public ClusterMarker(LatLng position, String title, String snippet, int iconPicture) {
+    public ClusterMarker(String userID, LatLng position, String title, String snippet, int iconPicture) {
+        this.userID = userID;
         this.position = position;
         this.title = title;
         this.snippet = snippet;
         this.iconPicture = iconPicture;
     }
+
+    public String getUserID() {
+        return userID;
+    }
+
     public int getIconPicture() {
         return iconPicture;
     }
