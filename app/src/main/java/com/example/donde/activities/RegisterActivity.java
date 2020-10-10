@@ -2,11 +2,14 @@ package com.example.donde.activities;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
@@ -15,9 +18,15 @@ import androidx.annotation.Nullable;
 
 import com.example.donde.R;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
+import com.squareup.picasso.Picasso;
 
 public class RegisterActivity extends Activity {
     Button buttonGotoLogin;
@@ -26,8 +35,7 @@ public class RegisterActivity extends Activity {
     EditText editTextEmail;
     EditText editTextPassword;
     ProgressBar progressBar;
-
-    FirebaseAuth firebaseAuth;
+    FirebaseAuth fAuth;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -44,7 +52,7 @@ public class RegisterActivity extends Activity {
         editTextEmail = findViewById(R.id.register_editText_email);
         editTextPassword = findViewById(R.id.register_editText_password);
         progressBar = findViewById(R.id.register_progressBar);
-        firebaseAuth = FirebaseAuth.getInstance();
+        fAuth = FirebaseAuth.getInstance();
     }
 
     private void initializeListeners() {
@@ -66,7 +74,7 @@ public class RegisterActivity extends Activity {
                     //show progress
                     progressBar.setVisibility(View.VISIBLE);
 
-                    firebaseAuth.createUserWithEmailAndPassword(sUserEmail, sUserPassword).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                    fAuth.createUserWithEmailAndPassword(sUserEmail, sUserPassword).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                         @Override
                         public void onComplete(@NonNull Task<AuthResult> task) {
                             // register successful
@@ -92,7 +100,6 @@ public class RegisterActivity extends Activity {
 
             }
         });
-
     }
 
     @Override
@@ -105,7 +112,7 @@ public class RegisterActivity extends Activity {
 
     private void handleUserAlreadyLoggedIn() {
         // if a user is already logged in, he shouldn't be on this page
-        if (firebaseAuth.getCurrentUser() != null) {
+        if (fAuth.getCurrentUser() != null) {
             gotoMainActivity();
         }
     }
