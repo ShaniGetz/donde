@@ -26,6 +26,7 @@
         android:textColor="#000000"
         android:textSize="50sp"
         android:textStyle="bold"
+        app:layout_constraintBottom_toTopOf="@id/create_editText_event_name"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -116,6 +117,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:hint="year"
+        android:inputType="number"
         app:layout_constraintEnd_toStartOf="@id/create_editText_event_hour"
         app:layout_constraintStart_toEndOf="@id/create_editText_event_month"
         app:layout_constraintTop_toTopOf="@id/create_editText_event_day" />
@@ -126,6 +128,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:hint="month"
+        android:inputType="number"
         app:layout_constraintEnd_toStartOf="@id/create_editText_event_year"
         app:layout_constraintStart_toEndOf="@id/create_editText_event_day"
         app:layout_constraintTop_toTopOf="@id/create_editText_event_day" />
@@ -135,6 +138,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:hint="day"
+        android:inputType="number"
         app:layout_constraintBottom_toTopOf="@id/create_editText_invited_user1"
         app:layout_constraintEnd_toStartOf="@id/create_editText_event_month"
         app:layout_constraintStart_toStartOf="parent"
@@ -146,10 +150,24 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:hint="hour (HH)"
+        android:inputType="datetime"
         app:layout_constraintEnd_toEndOf="@+id/create_editText_event_minute"
         app:layout_constraintStart_toEndOf="@id/create_editText_event_year"
 
         app:layout_constraintTop_toTopOf="@id/create_editText_event_day" />
+
+<!--    TODO: Implement pickers-->
+<!--    <TimePicker-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:timePickerMode="spinner"-->
+<!--        android:visibility="gone" />-->
+
+<!--    <DatePicker-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:datePickerMode="spinner"-->
+<!--        android:visibility="gone" />-->
 
     <EditText
         android:id="@+id/create_editText_event_minute"
@@ -201,7 +219,9 @@
         android:id="@+id/create_autoComplete_invited_users"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:imeOptions="actionDone"
         android:hint="invited user4"
+        android:inputType="textEmailAddress"
         app:layout_constraintEnd_toStartOf="@id/create_editText_event_name"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@id/create_editText_event_name" />

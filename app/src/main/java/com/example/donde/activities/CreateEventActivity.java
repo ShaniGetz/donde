@@ -14,7 +14,9 @@ import android.os.Handler;
 import android.os.Looper;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
@@ -23,6 +25,7 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.SearchView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -240,7 +243,6 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
     private void initializeListViewInvitedUsers() {
         listViewInvitedUsers = findViewById(R.id.create_listView_invited_users);
         listViewInvitedUsersList = new ArrayList<>();
-        listViewInvitedUsersList.addAll(Arrays.asList("other", "nothis"));
 
         listViewInvitedUsersAdapter = new ArrayAdapter<>(this,
                 R.layout.listview_invited_users_single_item, listViewInvitedUsersList);
@@ -260,11 +262,27 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
         autoCompleteInvitedUsers.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                autoCompleteInvitedUsers.setText("");
-                listViewInvitedUsersList.add(parent.getItemAtPosition(position).toString());
-                listViewInvitedUsersAdapter.notifyDataSetChanged();
+                String invitedUser = parent.getItemAtPosition(position).toString();
+                addInvitedUserToList(invitedUser);
             }
         });
+        autoCompleteInvitedUsers.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    String invitedUser = v.getText().toString();
+                    addInvitedUserToList(invitedUser);
+                }
+                return false;
+            }
+        });
+
+    }
+
+    private void addInvitedUserToList(String invitedUser) {
+        autoCompleteInvitedUsers.setText("");
+        listViewInvitedUsersList.add(invitedUser);
+        listViewInvitedUsersAdapter.notifyDataSetChanged();
     }
 
     private void initializeFields() {
@@ -572,13 +590,6 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
 
     private void createEvent() {
 
-//        while (!didFinishSettingCreatorName || !didFinishSettingUsers) {
-//            try {
-//                Thread.sleep(20);
-//            } catch (InterruptedException e) {
-//                e.printStackTrace();
-//            }
-//        }
         progressBar.setVisibility(View.VISIBLE);
 
         EventModel newEventModel = createNewEventModel();
@@ -636,10 +647,7 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
 //        } else if (!setEventCreatorName()) {
 //            toastErrorMessage = "Error getting creator name";
 
-        } else if (!setInvitedUsers(new ArrayList<>(Arrays.asList(
-                editTextInvitedUser1.getText().toString(),
-                editTextInvitedUser2.getText().toString(),
-                editTextInvitedUser3.getText().toString())))) {
+        } else if (!setInvitedUsers(listViewInvitedUsersList)) {
 
             toastErrorMessage = "Error inviting guests";
         } else if (!setEventDescription(editTextEventDescription.getText().toString())) {
