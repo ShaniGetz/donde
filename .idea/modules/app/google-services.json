@@ -1,0 +1,56 @@
+{
+  "project_info": {
+    "project_number": "142291395026",
+    "firebase_url": "https://donde-4cda4.firebaseio.com",
+    "project_id": "donde-4cda4",
+    "storage_bucket": "donde-4cda4.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:142291395026:android:b3ece4b0c0e6368813a80b",
+        "android_client_info": {
+          "package_name": "com.example.donde"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "142291395026-unf5ds25vm5sqcf6g2bo9ob0v03vkiuo.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.donde",
+            "certificate_hash": "d6ab278b6a14f681253f056396c2b77cdbb24fe8"
+          }
+        },
+        {
+          "client_id": "142291395026-8am10h9o06rn8m6p3fbe1mu2o39dh7lf.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.donde",
+            "certificate_hash": "ec3ea05c7663cb26e3fa6515a9f17c2009c26e5e"
+          }
+        },
+        {
+          "client_id": "142291395026-hi7avmeru1tr24uf5ja7gmmmvvm0n4bv.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDhffsOGJOZXV-fXLSVvH2ZKoMI1AHEbtU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "142291395026-hi7avmeru1tr24uf5ja7gmmmvvm0n4bv.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
