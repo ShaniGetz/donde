@@ -16,6 +16,7 @@ import android.os.Looper;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
@@ -84,6 +85,8 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
     Marker mCurrLocationMarker;
     FusedLocationProviderClient mFusedLocationClient;
     LocationCallback mLocationCallback;
+
+    // Views
     private EditText editTextEventName;
     private EditText editTextEventDescription;
     private EditText editTextEventDay;
@@ -98,6 +101,8 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
     private Button buttonDebugAutofill;
     private ProgressBar progressBar;
     private SearchView searchViewLocationSearch;
+    private AutoCompleteTextView autoCompleteInviteUser;
+
     // Firebase
     private FirebaseAuth firebaseAuth;
     private FirebaseUser firebaseUser;
@@ -222,6 +227,15 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
         }
     }
 
+
+    /*
+    initialize autocomplete for inviting a user
+     */
+    private void initializeAutoCompleteInviteUser() {
+        autoCompleteInviteUser = findViewById(R.id.create_autoComplete_invite_user);
+
+
+    }
     private void initializeFields() {
 
         // Views
@@ -239,6 +253,8 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
         editTextInvitedUser2 = findViewById(R.id.create_editText_invited_user2);
         editTextInvitedUser3 = findViewById(R.id.create_editText_invited_user3);
         searchViewLocationSearch = findViewById(R.id.create_searchView_location_search);
+        initializeAutoCompleteInviteUser();
+
 
         // Firebase
         firebaseAuth = FirebaseAuth.getInstance();
