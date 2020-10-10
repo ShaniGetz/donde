@@ -15,10 +15,12 @@ import android.os.Looper;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.SearchView;
 import android.widget.Toast;
@@ -101,11 +103,15 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
     private Button buttonDebugAutofill;
     private ProgressBar progressBar;
     private SearchView searchViewLocationSearch;
+    private ListView listViewInvitedUsers;
     private AutoCompleteTextView autoCompleteInvitedUsers;
 
     // Utils
     private ArrayAdapter<String> autoCompleteInvitedUsersAdapter;
-    private ArrayList<String> autoCompleteInvitedUsersStrings;
+    private ArrayList<String> autoCompleteInvitedUsersList;
+    private ArrayAdapter<String> listViewInvitedUsersAdapter;
+    private ArrayList<String> listViewInvitedUsersList;
+
 
     // Firebase
     private FirebaseAuth firebaseAuth;
@@ -231,14 +237,34 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
         }
     }
 
+    private void initializeListViewInvitedUsers() {
+        listViewInvitedUsers = findViewById(R.id.create_listView_invited_users);
+        listViewInvitedUsersList = new ArrayList<>();
+        listViewInvitedUsersList.addAll(Arrays.asList("other", "nothis"));
+
+        listViewInvitedUsersAdapter = new ArrayAdapter<>(this,
+                R.layout.listview_invited_users_single_item, listViewInvitedUsersList);
+        listViewInvitedUsers.setAdapter(listViewInvitedUsersAdapter);
+
+
+    }
+
     private void initializeAutocompleteInvitedUsers() {
         autoCompleteInvitedUsers = findViewById(R.id.create_autoComplete_invited_users);
-        autoCompleteInvitedUsersStrings = new ArrayList<String>();
-        autoCompleteInvitedUsersStrings.addAll(Arrays.asList("yo", "bo", "go", "do"));
+        autoCompleteInvitedUsersList = new ArrayList<String>();
+        autoCompleteInvitedUsersList.addAll(Arrays.asList("yo", "bo", "go", "do"));
         autoCompleteInvitedUsersAdapter = new ArrayAdapter<String>(this,
-                R.layout.autocomplete_invited_user_single_item, autoCompleteInvitedUsersStrings);
+                R.layout.autocomplete_invited_user_single_item, autoCompleteInvitedUsersList);
         autoCompleteInvitedUsers.setAdapter(autoCompleteInvitedUsersAdapter);
         autoCompleteInvitedUsers.setThreshold(1);
+        autoCompleteInvitedUsers.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                autoCompleteInvitedUsers.setText("");
+                listViewInvitedUsersList.add(parent.getItemAtPosition(position).toString());
+                listViewInvitedUsersAdapter.notifyDataSetChanged();
+            }
+        });
     }
 
     private void initializeFields() {
@@ -258,6 +284,7 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
         editTextInvitedUser2 = findViewById(R.id.create_editText_invited_user2);
         editTextInvitedUser3 = findViewById(R.id.create_editText_invited_user3);
         searchViewLocationSearch = findViewById(R.id.create_searchView_location_search);
+        initializeListViewInvitedUsers();
         initializeAutocompleteInvitedUsers();
 
         // Firebase
