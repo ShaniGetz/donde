@@ -43,6 +43,8 @@ public class AccountActivity extends Activity {
     private String userID;
     private String userEmail;
 
+    // TODO: Any change that happens here should apply to other places that have users (e.g. in
+    //  event)
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

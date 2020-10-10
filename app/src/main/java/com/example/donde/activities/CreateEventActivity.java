@@ -2,7 +2,6 @@ package com.example.donde.activities;
 
 import android.Manifest;
 import android.app.AlertDialog;
-import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -16,6 +15,8 @@ import android.os.Looper;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
@@ -84,6 +85,8 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
     Marker mCurrLocationMarker;
     FusedLocationProviderClient mFusedLocationClient;
     LocationCallback mLocationCallback;
+
+    // Views
     private EditText editTextEventName;
     private EditText editTextEventDescription;
     private EditText editTextEventDay;
@@ -98,6 +101,12 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
     private Button buttonDebugAutofill;
     private ProgressBar progressBar;
     private SearchView searchViewLocationSearch;
+    private AutoCompleteTextView autoCompleteInvitedUsers;
+
+    // Utils
+    private ArrayAdapter<String> autoCompleteInvitedUsersAdapter;
+    private ArrayList<String> autoCompleteInvitedUsersStrings;
+
     // Firebase
     private FirebaseAuth firebaseAuth;
     private FirebaseUser firebaseUser;
@@ -222,6 +231,16 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
         }
     }
 
+    private void initializeAutocompleteInvitedUsers() {
+        autoCompleteInvitedUsers = findViewById(R.id.create_autoComplete_invited_users);
+        autoCompleteInvitedUsersStrings = new ArrayList<String>();
+        autoCompleteInvitedUsersStrings.addAll(Arrays.asList("yo", "bo", "go", "do"));
+        autoCompleteInvitedUsersAdapter = new ArrayAdapter<String>(this,
+                R.layout.autocomplete_invited_user_single_item, autoCompleteInvitedUsersStrings);
+        autoCompleteInvitedUsers.setAdapter(autoCompleteInvitedUsersAdapter);
+        autoCompleteInvitedUsers.setThreshold(1);
+    }
+
     private void initializeFields() {
 
         // Views
@@ -239,6 +258,7 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
         editTextInvitedUser2 = findViewById(R.id.create_editText_invited_user2);
         editTextInvitedUser3 = findViewById(R.id.create_editText_invited_user3);
         searchViewLocationSearch = findViewById(R.id.create_searchView_location_search);
+        initializeAutocompleteInvitedUsers();
 
         // Firebase
         firebaseAuth = FirebaseAuth.getInstance();
@@ -302,7 +322,7 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
                 List<Address> addressList = new ArrayList<>();
                 if (location != null || !location.equals("")) {
                     Geocoder geocoder = new Geocoder(CreateEventActivity.this);
-                    LatLng latling = new LatLng(0,0);
+                    LatLng latling = new LatLng(0, 0);
 
                     try {
                         addressList = geocoder.getFromLocationName(location, 1);
@@ -416,9 +436,9 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
         if (isOnline()) {
 
             setContentView(R.layout.activity_create_event);
-        initializeFields();
-        initializeListeners();
-        }else{
+            initializeFields();
+            initializeListeners();
+        } else {
             // TODO: Make dialog box and not toast
 
             Toast.makeText(this, "Go online in order to create an event", Toast.LENGTH_SHORT).show();
@@ -432,11 +452,13 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
         Runtime runtime = Runtime.getRuntime();
         try {
             Process ipProcess = runtime.exec("/system/bin/ping -c 1 8.8.8.8");
-            int     exitValue = ipProcess.waitFor();
+            int exitValue = ipProcess.waitFor();
             return (exitValue == 0);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
-        catch (IOException e)          { e.printStackTrace(); }
-        catch (InterruptedException e) { e.printStackTrace(); }
 
         return false;
     }
