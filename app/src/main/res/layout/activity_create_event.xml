@@ -46,9 +46,10 @@
         android:id="@+id/create_listView_invited_users"
         android:layout_width="100dp"
         android:layout_height="150dp"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/create_button_create"
 
-        app:layout_constraintTop_toTopOf="@id/create_editText_event_name" />
+        app:layout_constraintStart_toStartOf="@id/create_autoComplete_invited_users"
+        app:layout_constraintTop_toBottomOf="@id/create_autoComplete_invited_users" />
 
     <EditText
         android:id="@+id/create_editText_event_description"
@@ -139,7 +140,7 @@
         android:layout_height="wrap_content"
         android:hint="day"
         android:inputType="number"
-        app:layout_constraintBottom_toTopOf="@id/create_editText_invited_user1"
+        app:layout_constraintBottom_toTopOf="@id/create_autoComplete_invited_users"
         app:layout_constraintEnd_toStartOf="@id/create_editText_event_month"
         app:layout_constraintStart_toStartOf="parent"
 
@@ -156,18 +157,18 @@
 
         app:layout_constraintTop_toTopOf="@id/create_editText_event_day" />
 
-<!--    TODO: Implement pickers-->
-<!--    <TimePicker-->
-<!--        android:layout_width="wrap_content"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:timePickerMode="spinner"-->
-<!--        android:visibility="gone" />-->
+    <!--    TODO: Implement pickers-->
+    <!--    <TimePicker-->
+    <!--        android:layout_width="wrap_content"-->
+    <!--        android:layout_height="wrap_content"-->
+    <!--        android:timePickerMode="spinner"-->
+    <!--        android:visibility="gone" />-->
 
-<!--    <DatePicker-->
-<!--        android:layout_width="wrap_content"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:datePickerMode="spinner"-->
-<!--        android:visibility="gone" />-->
+    <!--    <DatePicker-->
+    <!--        android:layout_width="wrap_content"-->
+    <!--        android:layout_height="wrap_content"-->
+    <!--        android:datePickerMode="spinner"-->
+    <!--        android:visibility="gone" />-->
 
     <EditText
         android:id="@+id/create_editText_event_minute"
@@ -178,53 +179,18 @@
         app:layout_constraintStart_toEndOf="@id/create_editText_event_hour"
         app:layout_constraintTop_toTopOf="@id/create_editText_event_day" />
 
-    <!--    <androidx.recyclerview.widget.RecyclerView-->
-    <!--        android:id="@+id/create_recyclerView_invited_users"-->
-    <!--        android:layout_width="match_parent"-->
-    <!--        android:layout_height="wrap_content"-->
-    <!--        app:layout_constraintBottom_toTopOf="@id/create_button_create"-->
-    <!--        app:layout_constraintTop_toBottomOf="@id/create_editText_event_day" />-->
-    <EditText
-        android:id="@+id/create_editText_invited_user1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:hint="invited user 1"
-        app:layout_constraintBottom_toTopOf="@id/create_button_create"
-        app:layout_constraintEnd_toStartOf="@+id/create_editText_invited_user2"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/create_editText_event_day" />
-
-    <EditText
-        android:id="@+id/create_editText_invited_user2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:hint="invited user 2"
-        app:layout_constraintBottom_toTopOf="@id/create_button_create"
-        app:layout_constraintEnd_toStartOf="@id/create_editText_invited_user3"
-        app:layout_constraintStart_toEndOf="@id/create_editText_invited_user1"
-        app:layout_constraintTop_toBottomOf="@id/create_editText_event_day" />
-
-
-    <EditText
-        android:id="@+id/create_editText_invited_user3"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:hint="invited user 3"
-        app:layout_constraintBottom_toTopOf="@id/create_button_create"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@id/create_editText_invited_user2"
-        app:layout_constraintTop_toBottomOf="@id/create_editText_event_day" />
 
     <AutoCompleteTextView
         android:id="@+id/create_autoComplete_invited_users"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:imeOptions="actionDone"
         android:hint="invited user4"
+        android:imeOptions="actionDone"
         android:inputType="textEmailAddress"
+        app:layout_constraintBottom_toTopOf="@id/create_listView_invited_users"
         app:layout_constraintEnd_toStartOf="@id/create_editText_event_name"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@id/create_editText_event_name" />
+        app:layout_constraintTop_toBottomOf="@id/create_editText_event_day" />
 
     <Button
         android:id="@+id/create_button_create"
@@ -234,7 +200,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/create_editText_invited_user1" />
+        app:layout_constraintTop_toBottomOf="@id/create_listView_invited_users" />
 
     <Button
         android:id="@+id/create_button_debug_fill_default"

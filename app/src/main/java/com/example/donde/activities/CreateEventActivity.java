@@ -75,7 +75,6 @@ import com.google.firebase.firestore.QuerySnapshot;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -251,10 +250,34 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
 
     }
 
+
+    private void addInvitedUsersToAutocomplete() {
+        ArrayList<String> invitedUsersAutocomplete;
+        usersCollectionRef.document(firebaseUser.getUid()).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+            @Override
+            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                ArrayList<String> interactedUsersArray = (ArrayList<String>)
+                        documentSnapshot.get(getString(R.string.ff_Users_userInteractedUserEmails));
+                if (!(interactedUsersArray == null)) {
+                    autoCompleteInvitedUsersList.addAll(interactedUsersArray);
+                    autoCompleteInvitedUsersAdapter.notifyDataSetChanged();
+
+                }
+
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.d(TAG, "adding interacted users to autocomplete failed");
+            }
+        });
+
+    }
+
     private void initializeAutocompleteInvitedUsers() {
         autoCompleteInvitedUsers = findViewById(R.id.create_autoComplete_invited_users);
         autoCompleteInvitedUsersList = new ArrayList<String>();
-        autoCompleteInvitedUsersList.addAll(Arrays.asList("yo", "bo", "go", "do"));
+        addInvitedUsersToAutocomplete();
         autoCompleteInvitedUsersAdapter = new ArrayAdapter<String>(this,
                 R.layout.autocomplete_invited_user_single_item, autoCompleteInvitedUsersList);
         autoCompleteInvitedUsers.setAdapter(autoCompleteInvitedUsersAdapter);
@@ -279,6 +302,9 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
 
     }
 
+    /*
+    Adds invited user from autocomplete text view to invited users list
+     */
     private void addInvitedUserToList(String invitedUser) {
         autoCompleteInvitedUsers.setText("");
         listViewInvitedUsersList.add(invitedUser);
@@ -298,12 +324,7 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
         editTextEventYear = findViewById(R.id.create_editText_event_year);
         editTextEventHour = findViewById(R.id.create_editText_event_hour);
         editTextEventMinute = findViewById(R.id.create_editText_event_minute);
-        editTextInvitedUser1 = findViewById(R.id.create_editText_invited_user1);
-        editTextInvitedUser2 = findViewById(R.id.create_editText_invited_user2);
-        editTextInvitedUser3 = findViewById(R.id.create_editText_invited_user3);
         searchViewLocationSearch = findViewById(R.id.create_searchView_location_search);
-        initializeListViewInvitedUsers();
-        initializeAutocompleteInvitedUsers();
 
         // Firebase
         firebaseAuth = FirebaseAuth.getInstance();
@@ -312,6 +333,8 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
         usersCollectionRef = firebaseFirestore.collection(getString(R.string.ff_Users));
         eventsCollectionRef = firebaseFirestore.collection(getString(R.string.ff_Events));
 
+        initializeListViewInvitedUsers();
+        initializeAutocompleteInvitedUsers();
 
         // Location
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);

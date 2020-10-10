@@ -40,6 +40,7 @@ Updates (old to new):
 -   -   userID              [String]        //references user ID as it appears in Firebase Authentication
 -   -   userEmail           [String]
 -   -   userProfilePicURL   [String]        //URL for the profile pic inside Firebase Storage
+-   -   userInteractedUserEmails    [String]
 -   -   userInvitedEventIDs [Array<String>]
 -   -   InvitedInUserEvents   [Collection]
 -   -   -   invitedInUserEventID              [String]    //references event document ID in Events collection
