@@ -49,6 +49,7 @@ public class AccountActivity extends Activity {
     private CollectionReference usersCollectionRef;
     private String userID;
     private String userEmail;
+    private String userProfilePicURL;
     FirebaseAuth fAuth;
     StorageReference storageReference;
     Button buttonChangeProfilePic;
@@ -164,6 +165,7 @@ public class AccountActivity extends Activity {
                     @Override
                     public void onSuccess(Uri uri) {
                         Picasso.get().load(uri).into(profileImage);
+                        userProfilePicURL = uri.toString();
                     };
                 });
             }
@@ -245,6 +247,7 @@ public class AccountActivity extends Activity {
                     userMap.put(getString(R.string.ff_Users_userID), userID);
                     userMap.put(getString(R.string.ff_Users_userEmail), userEmail);
                     userMap.put(getString(R.string.ff_Users_userName), sUserName);
+                    userMap.put("userProfilePicURL", userProfilePicURL);
                     usersCollectionRef.document(userID).set(userMap).addOnCompleteListener(new OnCompleteListener<Void>() {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
