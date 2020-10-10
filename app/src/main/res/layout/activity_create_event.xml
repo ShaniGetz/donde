@@ -189,7 +189,14 @@
         app:layout_constraintStart_toEndOf="@id/create_editText_invited_user2"
         app:layout_constraintTop_toBottomOf="@id/create_editText_event_day" />
 
-
+    <AutoCompleteTextView
+        android:layout_width="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/create_button_create"
+        app:layout_constraintTop_toTopOf="@id/create_button_create"
+        android:id="@+id/create_autoComplete_invite_user"
+        android:hint="invited user4"
+        android:layout_height="wrap_content" />
     <Button
         android:id="@+id/create_button_create"
         android:layout_width="wrap_content"

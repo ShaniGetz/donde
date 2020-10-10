@@ -41,6 +41,7 @@ Updates (old to new):
 -   -   userEmail           [String]
 -   -   userProfilePicURL   [String]        //URL for the profile pic inside Firebase Storage
 -   -   userInvitedEventIDs [Array<String>]
+-   -   userInteracted
 -   -   InvitedInUserEvents   [Collection]
 -   -   -   invitedInUserEventID              [String]    //references event document ID in Events collection
 -   -   -   invitedInUserEventName            [String]
