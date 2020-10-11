@@ -38,11 +38,12 @@ public class OfflineDataTransfer{
     String EndpointId;
     String SERVICE_ID;
     ConnectionLifecycleCallback connectionLifecycleCallback;
-    boolean isConnected;
     PayloadCallback payloadCallback;
     Hashtable<String, GeoPoint> Location_dict = new Hashtable<String, GeoPoint>();
     Hashtable<String, String> Status_dict = new Hashtable<String, String>();
     private static final Strategy STRATEGY = Strategy.P2P_CLUSTER;
+    public boolean isAdvertising;
+    public boolean isDiscovering;
 
 
     public OfflineDataTransfer(String name, GeoPoint geopoint, Context Context, String status) {
@@ -53,7 +54,6 @@ public class OfflineDataTransfer{
         SERVICE_ID = context.getPackageName();
         Location_dict.put(myName, geopoint);
         Status_dict.put(myName, myStatus);
-        isConnected = false;
         payloadCallback = new PayloadCallback() {
                     @Override
                     public void onPayloadReceived(String endpointId, Payload payload) {
@@ -109,16 +109,31 @@ public class OfflineDataTransfer{
     }
 
     public void updateLocation(GeoPoint geopoint){
-        geoPoint = geopoint;
-        Location_dict.put(myName, geopoint);
+        if(isAdvertising){
+            stopAdvertising();
+            geoPoint = geopoint;
+            Location_dict.put(myName, geopoint);
+            startAdvertising();
+        }else{
+            geoPoint = geopoint;
+            Location_dict.put(myName, geopoint);
+        }
     }
 
     public void updateStatus(String status){
-        myStatus = status;
-        Status_dict.put(myName, myStatus);
+        if(isAdvertising){
+            stopAdvertising();
+            myStatus = status;
+            if(myStatus != null) {
+                Status_dict.put(myName, myStatus);
+            }
+            startAdvertising();
+        }else {
+            myStatus = status;
+            Status_dict.put(myName, myStatus);
+        }
 
     }
-
 
     public GeoPoint getOtherLocation(String name){
         return Location_dict.get(name);
@@ -129,9 +144,11 @@ public class OfflineDataTransfer{
     }
 
     public void stopAdvertising(){
+                isAdvertising = false;
         Nearby.getConnectionsClient(context).stopAdvertising();
     }
     public void stopDiscovering(){
+        isDiscovering = false;
         Nearby.getConnectionsClient(context).stopDiscovery();
     }
 
@@ -168,6 +185,9 @@ public class OfflineDataTransfer{
             };
 
     public void startAdvertising() {
+        isAdvertising = true;
+        stopDiscovering();
+        isDiscovering = false;
         AdvertisingOptions advertisingOptions =
                 new AdvertisingOptions.Builder().setStrategy(STRATEGY).build();
         Nearby.getConnectionsClient(context).startAdvertising(getUser(), SERVICE_ID, connectionLifecycleCallback, advertisingOptions)
@@ -187,6 +207,9 @@ public class OfflineDataTransfer{
     }
 
     public void startDiscovery() {
+        isDiscovering = true;
+        stopAdvertising();
+        isAdvertising = false;
         DiscoveryOptions discoveryOptions = new DiscoveryOptions.Builder().setStrategy(STRATEGY).build();
         Nearby.getConnectionsClient(context)
                 .startDiscovery(SERVICE_ID, endpointDiscoveryCallback, discoveryOptions)

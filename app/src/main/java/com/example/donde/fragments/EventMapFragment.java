@@ -74,7 +74,6 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback {
     Button updateButton;
     private MyClusterManagerRenderer mClusterManagerRenderer;
     private OfflineDataTransfer offlineDataTransfer;
-    boolean isAdvertising;
 
 
     private ArrayList<ClusterMarker> mClusterMarkers = new ArrayList<>();
@@ -93,18 +92,9 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback {
                         //to update the location we have
                         offlineDataTransfer.updateLocation(new GeoPoint(location.getLatitude(), location.getLongitude()));
 
-                        //change location:
-                        offlineDataTransfer.stopAdvertising();
-                        offlineDataTransfer.startAdvertising();
-
-                        if(isAdvertising){
-                            offlineDataTransfer.stopAdvertising();
+                        if(offlineDataTransfer.isAdvertising){
                             offlineDataTransfer.startDiscovery();
-                            isAdvertising = false;
-
                         }else{
-                            isAdvertising = true;
-                            offlineDataTransfer.stopDiscovering();
                             offlineDataTransfer.startAdvertising();
                         }
                         if (mCurrLocationMarker != null) {
@@ -177,7 +167,6 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback {
 //        googleMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
 
         mGoogleMap = googleMap;
-        isAdvertising = true;
         updateButton = (Button) getActivity().findViewById(R.id.update);
         updateButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -193,8 +182,8 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback {
 
         mGoogleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
         mLocationRequest = new LocationRequest();
-        mLocationRequest.setInterval(35);
-        mLocationRequest.setFastestInterval(35);
+        mLocationRequest.setInterval(70);
+        mLocationRequest.setFastestInterval(70);
         mLocationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
 
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
