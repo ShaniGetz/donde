@@ -31,10 +31,12 @@ import com.example.donde.activities.EventActivity;
 import com.example.donde.activities.MainActivity;
 import com.example.donde.models.EventModel;
 import com.example.donde.models.InvitedInUserEventModel;
+import com.example.donde.utils.OfflineDownloader;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -331,15 +333,14 @@ public class EventsFragment extends Fragment {
             });
         }
 
-        private void acceptEventInvite() {
+        private void acceptEventInvite(InvitedInUserEventModel eventAccepted) {
+            FirebaseUser currUser = ((MainActivity) getActivity()).getmAuth().getCurrentUser();
 
+            OfflineDownloader offlineDownloader = new OfflineDownloader(currUser, eventAccepted, getContext());
         }
 
 
     }
-
-
-
 
 
 }

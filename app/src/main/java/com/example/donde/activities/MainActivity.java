@@ -16,6 +16,11 @@ import com.google.firebase.auth.FirebaseUser;
 
 public class MainActivity extends AppCompatActivity {
     private FloatingActionButton fabCreateEvent;
+
+    public FirebaseAuth getmAuth() {
+        return mAuth;
+    }
+
     private FirebaseAuth mAuth;
 
 
@@ -26,6 +31,8 @@ public class MainActivity extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
         fabCreateEvent = findViewById(R.id.main_create_fab);
     }
+
+
 
     private void initializeListeners() {
         fabCreateEvent.setOnClickListener(new View.OnClickListener() {
