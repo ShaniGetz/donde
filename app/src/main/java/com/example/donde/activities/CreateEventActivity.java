@@ -1,11 +1,9 @@
 package com.example.donde.activities;
 
 import android.Manifest;
-import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Address;
@@ -36,21 +34,18 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import com.example.donde.R;
 import com.example.donde.models.EventModel;
 import com.example.donde.models.InvitedInEventUserModel;
 import com.example.donde.models.InvitedInUserEventModel;
-import com.example.donde.utils.map_utils.CustomMapTileProvider;
 import com.example.donde.utils.map_utils.OfflineTileProvider;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -85,6 +80,9 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+
+import static com.example.donde.utils.UIHelpers.checkForPermissions;
+import static com.example.donde.utils.UIHelpers.checkLocationPermission;
 
 public class CreateEventActivity extends AppCompatActivity implements OnMapReadyCallback {
     public static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
@@ -143,34 +141,6 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
     private boolean didFinishSettingCreatorName;
     private boolean didFinishSettingUsers;
 
-    void checkForPermissions() {
-
-
-        // Here, thisActivity is the current activity
-        if (ContextCompat.checkSelfPermission(this,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                != PackageManager.PERMISSION_GRANTED) {
-
-            // Permission is not granted
-            // Should we show an explanation?
-            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-                // Show an explanation to the user *asynchronously* -- don't block
-                // this thread waiting for the user's response! After the user
-                // sees the explanation, try again to request the permission.
-                // This part I didn't implement,because for my case it isn't needed
-                Log.i("TAG", "Unexpected flow");
-            } else {
-                // No explanation needed; request the permission
-                ActivityCompat.requestPermissions(this,
-                        new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, MY_PERMISSIONS_REQUEST_LOCATION);
-
-                // MY_PERMISSIONS_REQUEST_EXTERNAL_STORAGE is an
-                // app-defined int constant. The callback method gets the
-                // result of the request.
-            }
-        }
-    }
 
     @Override
     protected void onPause() {
@@ -181,41 +151,6 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
         }
     }
 
-    private void checkLocationPermission() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED) {
-
-            // Should we show an explanation?
-            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-                    Manifest.permission.ACCESS_FINE_LOCATION)) {
-
-                // Show an explanation to the user *asynchronously* -- don't block
-                // this thread waiting for the user's response! After the user
-                // sees the explanation, try again to request the permission.
-                new AlertDialog.Builder(this)
-                        .setTitle("Location Permission Needed")
-                        .setMessage("This app needs the Location permission, please accept to use location functionality")
-                        .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                //Prompt the user once explanation has been shown
-                                ActivityCompat.requestPermissions(CreateEventActivity.this,
-                                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                                        MY_PERMISSIONS_REQUEST_LOCATION);
-                            }
-                        })
-                        .create()
-                        .show();
-
-
-            } else {
-                // No explanation needed, we can request the permission.
-                ActivityCompat.requestPermissions(this,
-                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                        MY_PERMISSIONS_REQUEST_LOCATION);
-            }
-        }
-    }
 
     @Override
     public void onRequestPermissionsResult(int requestCode,
@@ -225,7 +160,7 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    checkForPermissions();
+                    checkForPermissions(this, this);
                     // permission was granted, yay! Do the
                     // location-related task you need to do.
                     if (ContextCompat.checkSelfPermission(this,
@@ -531,13 +466,6 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
         });
     }
 
-    private void setUpMap(GoogleMap mMap, Double LAT, Double LON, float ZOOM) {
-        mMap.setMapType(GoogleMap.MAP_TYPE_NONE);
-        mMap.addTileOverlay(new TileOverlayOptions().tileProvider(new
-                CustomMapTileProvider(getFilesDir().getAbsolutePath())));
-        CameraUpdate upd = CameraUpdateFactory.newLatLngZoom(new LatLng(LAT, LON), ZOOM);
-        mMap.moveCamera(upd);
-    }
 
     private void initializeListeners() {
         initializeSearchQuery();
@@ -642,7 +570,7 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
                 mGoogleMap.setMyLocationEnabled(true);
             } else {
                 //Request Location Permission
-                checkLocationPermission();
+                checkLocationPermission(this, this);
             }
         } else {
             mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback, Looper.myLooper());
@@ -755,12 +683,6 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
                 FieldValue.arrayUnion((Object[]) listViewInvitedUsersList.toArray(new String[listViewInvitedUsersList.size()])));
     }
 
-
-//    private void addEventToInvitedUser(String invitedUserId, String eventId) {
-//
-//        usersCollectionRef.document(invitedUserId).update("userInvitedEventIDs",
-//                FieldValue.arrayUnion(eventId));
-//    }
 
     private boolean retrieveAndSetEventFields() {
         String toastErrorMessage = "";
