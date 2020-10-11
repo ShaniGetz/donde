@@ -2,6 +2,8 @@ package com.example.donde.activities;
 
 import android.Manifest;
 import android.app.AlertDialog;
+import android.app.DatePickerDialog;
+import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -391,29 +393,73 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
 
     private void initializeTimeAndDate() {
         Context createContext = this;
+
+
         textViewEventTime = findViewById(R.id.create_textView_event_time);
-//        textViewEventTime.setOnClickListener(new View.OnClickListener() {
-//
-//
-//            @Override
-//            public void onClick(View v) {
-//                // TODO Auto-generated method stub
-//                Calendar mcurrentTime = Calendar.getInstance();
-//                int hour = mcurrentTime.get(Calendar.HOUR_OF_DAY);
-//                int minute = mcurrentTime.get(Calendar.MINUTE);
-//                TimePickerDialog mTimePicker;
-//                mTimePicker = new TimePickerDialog(createContext, new TimePickerDialog.OnTimeSetListener() {
-//                    @Override
-//                    public void onTimeSet(TimePicker timePicker, int selectedHour, int selectedMinute) {
-//                        textViewEventTime.setText(selectedHour + ":" + selectedMinute);
-//                    }
-//                }, hour, minute, true);//Yes 24 hour time
-//                mTimePicker.setTitle("Select Time");
-////                mTimePicker.mode
-//                mTimePicker.show();
-//
-//            }
-//        });
+        textViewEventTime.setOnClickListener(new View.OnClickListener() {
+
+
+            @Override
+            public void onClick(View v) {
+                // TODO Auto-generated method stub
+                Calendar mcurrentTime = Calendar.getInstance();
+                int hour = mcurrentTime.get(Calendar.HOUR_OF_DAY);
+                int minute = mcurrentTime.get(Calendar.MINUTE);
+                TimePickerDialog mTimePicker;
+//                int resTheme = R.style.SpinnerTimePicker;
+
+                int resTheme =
+                        TimePickerDialog.THEME_HOLO_DARK;
+                mTimePicker = new TimePickerDialog(createContext, resTheme,
+                        new TimePickerDialog.OnTimeSetListener() {
+                            @Override
+                            public void onTimeSet(TimePicker timePicker, int selectedHour, int selectedMinute) {
+                                textViewEventTime.setText(selectedHour + ":" + selectedMinute);
+                            }
+                        }, hour, minute, true);//Yes 24 hour time
+                mTimePicker.setTitle("Select Time");
+                mTimePicker.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+                mTimePicker.show();
+
+            }
+
+        });
+
+        textViewEventDate = findViewById(R.id.create_textView_event_date);
+        textViewEventDate.setOnClickListener(new View.OnClickListener() {
+
+
+            @Override
+            public void onClick(View v) {
+                // TODO Auto-generated method stub
+                Calendar mcurrentTime = Calendar.getInstance();
+                int day = mcurrentTime.get(Calendar.DAY_OF_MONTH);
+                int month = mcurrentTime.get(Calendar.MONTH);
+                int year = mcurrentTime.get(Calendar.YEAR);
+                DatePickerDialog mDatePicker;
+//                int resTheme = R.style.SpinnerTimePicker;
+
+                int resTheme = DatePickerDialog.THEME_HOLO_DARK;
+                mDatePicker = new DatePickerDialog(createContext, resTheme,
+                        new DatePickerDialog.OnDateSetListener() {
+                            @Override
+                            public void onDateSet(DatePicker view, int selectedYear,
+                                                  int selectedMonth,
+                                                  int selectedDayOfMonth) {
+                                textViewEventTime.setText(selectedDayOfMonth + "/" + selectedMonth +
+                                        "/" + selectedYear);
+
+                            }
+
+                        }, year, month, day);//Yes 24 hour time
+                mDatePicker.setTitle("Select Date");
+                mDatePicker.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+                mDatePicker.show();
+
+            }
+
+        });
+
     }
 
     private void initializeSearchQuery() {
