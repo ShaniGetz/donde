@@ -2,6 +2,8 @@ package com.example.donde.activities;
 
 import android.Manifest;
 import android.app.AlertDialog;
+import android.app.DatePickerDialog;
+import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -76,10 +78,13 @@ import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 public class CreateEventActivity extends AppCompatActivity implements OnMapReadyCallback {
     public static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
@@ -391,29 +396,87 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
 
     private void initializeTimeAndDate() {
         Context createContext = this;
+
+
+        initializeTimePicker(createContext);
+        initializeDatePicker(createContext);
+
+    }
+
+
+    private void initializeDatePicker(Context createContext) {
+        textViewEventDate = findViewById(R.id.create_textView_event_date);
+        textViewEventDate.setOnClickListener(new View.OnClickListener() {
+
+
+            //TODO: Hide soft keyboard when choosing items in craeteevent
+            @Override
+            public void onClick(View v) {
+                // TODO: on click show currently selected date, not current date
+                Calendar mcurrentTime = Calendar.getInstance();
+                int day = mcurrentTime.get(Calendar.DAY_OF_MONTH);
+                int month = mcurrentTime.get(Calendar.MONTH);
+                int year = mcurrentTime.get(Calendar.YEAR);
+                DatePickerDialog mDatePicker;
+//                int resTheme = R.style.SpinnerTimePicker;
+
+                int resTheme = DatePickerDialog.THEME_HOLO_DARK;
+                mDatePicker = new DatePickerDialog(createContext, resTheme,
+                        new DatePickerDialog.OnDateSetListener() {
+                            @Override
+                            public void onDateSet(DatePicker view, int selectedYear,
+                                                  int selectedMonth,
+                                                  int selectedDayOfMonth) {
+                                int correctMonth = selectedMonth + 1;
+                                textViewEventDate.setText(selectedDayOfMonth + "/" + correctMonth +
+                                        "/" + selectedYear);
+
+                            }
+
+                        }, year, month, day);//Yes 24 hour time
+                mDatePicker.setTitle("Select Date");
+                mDatePicker.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+                mDatePicker.show();
+
+
+            }
+
+        });
+    }
+
+    private void initializeTimePicker(Context createContext) {
         textViewEventTime = findViewById(R.id.create_textView_event_time);
-//        textViewEventTime.setOnClickListener(new View.OnClickListener() {
-//
-//
-//            @Override
-//            public void onClick(View v) {
-//                // TODO Auto-generated method stub
-//                Calendar mcurrentTime = Calendar.getInstance();
-//                int hour = mcurrentTime.get(Calendar.HOUR_OF_DAY);
-//                int minute = mcurrentTime.get(Calendar.MINUTE);
-//                TimePickerDialog mTimePicker;
-//                mTimePicker = new TimePickerDialog(createContext, new TimePickerDialog.OnTimeSetListener() {
-//                    @Override
-//                    public void onTimeSet(TimePicker timePicker, int selectedHour, int selectedMinute) {
-//                        textViewEventTime.setText(selectedHour + ":" + selectedMinute);
-//                    }
-//                }, hour, minute, true);//Yes 24 hour time
-//                mTimePicker.setTitle("Select Time");
-////                mTimePicker.mode
-//                mTimePicker.show();
-//
-//            }
-//        });
+        textViewEventTime.setOnClickListener(new View.OnClickListener() {
+
+
+            @Override
+            public void onClick(View v) {
+                // TODO Auto-generated method stub
+                Calendar mcurrentTime = Calendar.getInstance();
+                int hour = mcurrentTime.get(Calendar.HOUR_OF_DAY);
+                int minute = mcurrentTime.get(Calendar.MINUTE);
+                TimePickerDialog mTimePicker;
+//                int resTheme = R.style.SpinnerTimePicker;
+
+                int resTheme =
+                        TimePickerDialog.THEME_HOLO_DARK;
+                mTimePicker = new TimePickerDialog(createContext, resTheme,
+                        new TimePickerDialog.OnTimeSetListener() {
+                            @Override
+                            public void onTimeSet(TimePicker timePicker, int selectedHour, int selectedMinute) {
+                                String viewMinute = String.format("%s%s", selectedMinute < 10 ? "0" : "",
+                                        selectedMinute);
+
+                                textViewEventTime.setText(selectedHour + ":" + viewMinute);
+                            }
+                        }, hour, minute, true);//Yes 24 hour time
+                mTimePicker.setTitle("Select Time");
+                mTimePicker.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+                mTimePicker.show();
+
+            }
+
+        });
     }
 
     private void initializeSearchQuery() {
@@ -688,8 +751,8 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
 
     private void addInteractedEmailsToUser(DocumentReference userRef) {
 
-//        userRef.update(getString(R.string.ff_Users_userInteractedUserEmails),
-//                FieldValue.arrayUnion((Object) listViewInvitedUsersList.toArray(new String[listViewInvitedUsersList.size()])));
+        userRef.update(getString(R.string.ff_Users_userInteractedUserEmails),
+                FieldValue.arrayUnion((Object[]) listViewInvitedUsersList.toArray(new String[listViewInvitedUsersList.size()])));
     }
 
 
@@ -724,7 +787,7 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
             toastErrorMessage = "Error setting creation time";
             // TODO: Time starting not working (giving weird times)
             // TODO: Fix time to be taken from time picker dialog
-        } else if (!setEventTimeStarting(10, 10, 2020, 10, 10)) {
+        } else if (!setEventTimeStarting()) {
             toastErrorMessage = "Fix time starting";
         }
         if (!TextUtils.isEmpty(toastErrorMessage)) {
@@ -820,18 +883,19 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
         return true;
     }
 
-    private boolean setEventTimeStarting(int day, int month, int year, int hour, int minute) {
-        Calendar cal = Calendar.getInstance();
-        Date startDate = new Date(year, month, day, hour, minute);
-        cal.setLenient(false);
-        cal.setTime(startDate);
+    private boolean setEventTimeStarting() {
+        SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy,HH:mm", Locale.ENGLISH);
+        Date date;
         try {
-            cal.getTime();
-            this.ffEventTimeStarting = startDate;
+            date = formatter.parse(String.format("%s,%s", textViewEventDate.getText(),
+                    textViewEventTime.getText()));
+            this.ffEventTimeStarting = date;
             return true;
-        } catch (Exception e) {
+        } catch (ParseException e) {
+            e.printStackTrace();
             return false;
         }
+
     }
 
     private boolean setInvitedUsers(ArrayList<String> userEmails) {
