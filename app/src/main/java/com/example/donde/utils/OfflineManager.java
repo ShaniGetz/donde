@@ -20,6 +20,12 @@ public class OfflineDownloader extends AppCompatActivity {
     // file dir of the current app on phone
     private File fileDir;
 
+    private String debugString;
+
+    public OfflineDownloader() {
+        this.debugString = "Testing if this gets saved offline";
+    }
+
     public OfflineDownloader(FirebaseUser userDownloading,
                              InvitedInUserEventModel eventToDownload, Context context) {
         this.eventToDownload = eventToDownload;
@@ -27,12 +33,17 @@ public class OfflineDownloader extends AppCompatActivity {
         this.fileDir = context.getFilesDir();
     }
 
-    private void downloadEventToOffline() {
+    public void downloadEventToOffline() {
 
-        downloadEventGuestsNames();
-        downloadEventGuestsProfilePics();
+        downloadDebug();
+
+//        downloadEventGuestsNames();
+//        downloadEventGuestsProfilePics();
     }
 
+    private void downloadDebug() {
+        this.fileDir.
+    }
     private void downloadEventGuestsNames() {
 
     }
