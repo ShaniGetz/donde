@@ -38,14 +38,10 @@ public class OfflineDataTransfer{
     String EndpointId;
     String SERVICE_ID;
     ConnectionLifecycleCallback connectionLifecycleCallback;
-    ConnectionLifecycleCallback connectionLifecycleCallbackForChild;
     boolean isConnected;
     PayloadCallback payloadCallback;
-    PayloadCallback payloadCallbackForChild;
     Hashtable<String, GeoPoint> Location_dict = new Hashtable<String, GeoPoint>();
     Hashtable<String, String> Status_dict = new Hashtable<String, String>();
-
-
     private static final Strategy STRATEGY = Strategy.P2P_CLUSTER;
 
 
@@ -110,69 +106,6 @@ public class OfflineDataTransfer{
                     }
 
                 };
-
-        /**
-         * Methods for childNodes
-         */
-        payloadCallbackForChild = new PayloadCallback() {
-                    @Override
-                    public void onPayloadReceived(String endpointId, Payload payload) {
-                        // This always gets the full data of the payload. Will be null if it's not a BYTES
-                        // payload. You can check the payload type with payload.getType().
-                        byte[] receivedBytes = payload.asBytes();
-                    }
-
-                    @Override
-                    public void onPayloadTransferUpdate(String endpointId, PayloadTransferUpdate update) {
-                        // Bytes payloads are sent as a single chunk, so you'll receive a SUCCESS update immediately
-                        // after the call to onPayloadReceived().
-                    }
-                };
-
-        connectionLifecycleCallbackForChild = new ConnectionLifecycleCallback() {
-                    @Override
-                    public void onConnectionInitiated(String endpointId, ConnectionInfo connectionInfo) {
-                        Log.d("offline child ","Connection request from " + connectionInfo.getEndpointName());
-                        // Automatically accept the connection on both sides.
-                        Nearby.getConnectionsClient(context)
-                                .acceptConnection(endpointId, payloadCallbackForChild)
-                                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                    @Override
-                                    public void onSuccess(Void aVoid) {
-                                        stopAdvertising();
-                                    }
-                                })
-                                .addOnFailureListener(new OnFailureListener() {
-                                    @Override
-                                    public void onFailure(@NonNull Exception e) {
-                                        Log.d("offline child ", "Child node can't get connected",e);
-                                    }
-                                });
-                    }
-
-                    @Override
-                    public void onConnectionResult(String endpointId, ConnectionResolution result) {
-                        switch (result.getStatus().getStatusCode()) {
-                            case ConnectionsStatusCodes.STATUS_OK:
-                                // We're connected! Can now start sending and receiving data.
-                                break;
-                            case ConnectionsStatusCodes.STATUS_CONNECTION_REJECTED:
-                                // The connection was rejected by one or both sides.
-                                break;
-                            case ConnectionsStatusCodes.STATUS_ERROR:
-                                // The connection broke before it was able to be accepted.
-                                break;
-                            default:
-                                // Unknown status code
-                        }
-                    }
-
-                    @Override
-                    public void onDisconnected(String endpointId) {
-                        // We've been disconnected from this endpoint. No more data can be
-                        // sent or received.
-                    }
-                };
     }
 
     public void updateLocation(GeoPoint geopoint){
@@ -198,6 +131,9 @@ public class OfflineDataTransfer{
     public void stopAdvertising(){
         Nearby.getConnectionsClient(context).stopAdvertising();
     }
+    public void stopDiscovering(){
+        Nearby.getConnectionsClient(context).stopDiscovery();
+    }
 
 
     private EndpointDiscoveryCallback endpointDiscoveryCallback =
@@ -215,6 +151,8 @@ public class OfflineDataTransfer{
                                         Log.d("OfflineDataTransfer", "Request a connection :" + info.getEndpointName());
                                         // We successfully requested a connection. Now both sides
                                         // must accept before the connection is established.
+                                        Nearby.getConnectionsClient(context).stopDiscovery();
+                                        startAdvertising();
                                     })
                             .addOnFailureListener(
                                     (Exception e) -> {
@@ -232,7 +170,7 @@ public class OfflineDataTransfer{
     public void startAdvertising() {
         AdvertisingOptions advertisingOptions =
                 new AdvertisingOptions.Builder().setStrategy(STRATEGY).build();
-        Nearby.getConnectionsClient(context).startAdvertising(getUser(), SERVICE_ID, connectionLifecycleCallbackForChild, advertisingOptions)
+        Nearby.getConnectionsClient(context).startAdvertising(getUser(), SERVICE_ID, connectionLifecycleCallback, advertisingOptions)
                 .addOnSuccessListener(
                         (Void unused) -> {
                             // We're advertising!
@@ -260,9 +198,8 @@ public class OfflineDataTransfer{
                 .addOnFailureListener(
                         (Exception e) -> {
                             // We're unable to start discovering.
-                            Log.d("OfflineDataTransfer", "We're unable to start discovering");
+                            Log.d("OfflineDataTransfer", e.toString());
                         });
-
     }
 
 

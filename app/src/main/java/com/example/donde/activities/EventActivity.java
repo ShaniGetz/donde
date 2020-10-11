@@ -95,8 +95,9 @@ public class EventActivity extends AppCompatActivity implements StatusDialog.Sta
         GeoPoint geoPoint = new GeoPoint(0, 0);
 //        GeoPoint geoPoint = new GeoPoint(31.768161300000003, 35.2127055);
         offlineDataTransfer = new OfflineDataTransfer(currUserID, geoPoint, this,"");
-        offlineDataTransfer.startDiscovery();
+//        offlineDataTransfer.startDiscovery();
         offlineDataTransfer.startAdvertising();
+        myUserId = currUserID;
 
     }
 
@@ -119,7 +120,7 @@ public class EventActivity extends AppCompatActivity implements StatusDialog.Sta
             recreate();
         }
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        myUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+//        myUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
     }
 
     public static String getMyUserId() {

@@ -16,6 +16,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -70,9 +71,10 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback {
     private ClusterManager mClusterManager;
     private GeoPoint geoPoint;
     private LatLng laLing;
+    Button updateButton;
     private MyClusterManagerRenderer mClusterManagerRenderer;
     private OfflineDataTransfer offlineDataTransfer;
-
+    boolean isAdvertising;
 
 
     private ArrayList<ClusterMarker> mClusterMarkers = new ArrayList<>();
@@ -88,7 +90,23 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback {
                         Location location = locationList.get(locationList.size() - 1);
                         Log.i("MapsActivity", "Location: " + location.getLatitude() + " " + location.getLongitude());
                         mLastLocation = location;
+                        //to update the location we have
                         offlineDataTransfer.updateLocation(new GeoPoint(location.getLatitude(), location.getLongitude()));
+
+                        //change location:
+                        offlineDataTransfer.stopAdvertising();
+                        offlineDataTransfer.startAdvertising();
+
+                        if(isAdvertising){
+                            offlineDataTransfer.stopAdvertising();
+                            offlineDataTransfer.startDiscovery();
+                            isAdvertising = false;
+
+                        }else{
+                            isAdvertising = true;
+                            offlineDataTransfer.stopDiscovering();
+                            offlineDataTransfer.startAdvertising();
+                        }
                         if (mCurrLocationMarker != null) {
                             mCurrLocationMarker.remove();
                         }
@@ -116,6 +134,7 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback {
         geoPoint = ((EventActivity)getActivity()).getEvent().getEventLocation();
         laLing = new LatLng(geoPoint.getLatitude(), geoPoint.getLongitude());
         offlineDataTransfer = ((EventActivity) getActivity()).getOfflineDataTransfer();
+
         return inflater.inflate(R.layout.fragment_event_map, container, false);
 
     }
@@ -124,7 +143,6 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(getActivity());
-
         SupportMapFragment mapFragment =
                 (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map_mapView);
         if (mapFragment != null) {
@@ -158,8 +176,16 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback {
 //        googleMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
 //        googleMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
 
-
         mGoogleMap = googleMap;
+        isAdvertising = true;
+        updateButton = (Button) getActivity().findViewById(R.id.update);
+        updateButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                offlineDataTransfer.stopAdvertising();
+                offlineDataTransfer.startDiscovery();
+            }
+        });
 //        String tilesDir = getContext().getFilesDir().toString();
 
 //        mGoogleMap.addTileOverlay(new TileOverlayOptions().tileProvider(new OfflineTileProvider(getContext())));
@@ -167,8 +193,8 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback {
 
         mGoogleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
         mLocationRequest = new LocationRequest();
-        mLocationRequest.setInterval(20);
-        mLocationRequest.setFastestInterval(20);
+        mLocationRequest.setInterval(35);
+        mLocationRequest.setFastestInterval(35);
         mLocationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
 
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -243,7 +269,11 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback {
                     try {
                         String snippet = "";
                         if (user.getInvitedInEventUserID().equals(myUserId)) {
-                            user.setInvitedInEventUserCurrentLocation(new GeoPoint(mLastLocation.getLatitude(), mLastLocation.getLongitude()));
+                            GeoPoint Geo;
+                            if (mLastLocation == null)
+                            {Geo =  new GeoPoint(31.768161300000003, 35.2127055);}
+                            else{Geo =  new GeoPoint(mLastLocation.getLatitude(), mLastLocation.getLongitude());}
+                            user.setInvitedInEventUserCurrentLocation(Geo);
                             Log.d(TAG, user.getInvitedInEventUserCurrentLocation().toString());
                             Log.d(TAG, mLastLocation.toString());
                             snippet = "Click to post your status";
