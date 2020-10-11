@@ -409,9 +409,10 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
         textViewEventDate.setOnClickListener(new View.OnClickListener() {
 
 
+            //TODO: Hide soft keyboard when choosing items in craeteevent
             @Override
             public void onClick(View v) {
-                // TODO Auto-generated method stub
+                // TODO: on click show currently selected date, not current date
                 Calendar mcurrentTime = Calendar.getInstance();
                 int day = mcurrentTime.get(Calendar.DAY_OF_MONTH);
                 int month = mcurrentTime.get(Calendar.MONTH);
@@ -426,7 +427,8 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
                             public void onDateSet(DatePicker view, int selectedYear,
                                                   int selectedMonth,
                                                   int selectedDayOfMonth) {
-                                textViewEventDate.setText(selectedDayOfMonth + "/" + selectedMonth +
+                                int correctMonth = selectedMonth + 1;
+                                textViewEventDate.setText(selectedDayOfMonth + "/" + correctMonth +
                                         "/" + selectedYear);
 
                             }
@@ -462,7 +464,10 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
                         new TimePickerDialog.OnTimeSetListener() {
                             @Override
                             public void onTimeSet(TimePicker timePicker, int selectedHour, int selectedMinute) {
-                                textViewEventTime.setText(selectedHour + ":" + selectedMinute);
+                                String viewMinute = String.format("%s%s", selectedMinute < 10 ? "0" : "",
+                                        selectedMinute);
+
+                                textViewEventTime.setText(selectedHour + ":" + viewMinute);
                             }
                         }, hour, minute, true);//Yes 24 hour time
                 mTimePicker.setTitle("Select Time");
@@ -747,7 +752,7 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
     private void addInteractedEmailsToUser(DocumentReference userRef) {
 
         userRef.update(getString(R.string.ff_Users_userInteractedUserEmails),
-                FieldValue.arrayUnion((Object) listViewInvitedUsersList.toArray(new String[listViewInvitedUsersList.size()])));
+                FieldValue.arrayUnion((Object[]) listViewInvitedUsersList.toArray(new String[listViewInvitedUsersList.size()])));
     }
 
 
@@ -882,8 +887,8 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
         SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy,HH:mm", Locale.ENGLISH);
         Date date;
         try {
-            date = formatter.parse(String.format("%s,%s", textViewEventDate,
-                    textViewEventTime));
+            date = formatter.parse(String.format("%s,%s", textViewEventDate.getText(),
+                    textViewEventTime.getText()));
             this.ffEventTimeStarting = date;
             return true;
         } catch (ParseException e) {
