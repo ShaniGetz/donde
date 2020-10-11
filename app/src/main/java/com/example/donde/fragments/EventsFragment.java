@@ -111,6 +111,9 @@ public class EventsFragment extends Fragment {
 
                     @Override
                     protected void onBindViewHolder(@NonNull EventsViewHolder holder, int position, @NonNull InvitedInUserEventModel model) {
+                        DocumentReference eventRef = firebaseFirestore.collection(getString(R.string.ff_Events)).document(model.getInvitedInUserEventId());
+
+
                         holder.textViewEventName.setText(String.format("Event name: %s",
                                 model.getInvitedInUserEventName()));
                         holder.textViewEventCreatorName.setText(String.format("Creator name: %s",
@@ -119,31 +122,11 @@ public class EventsFragment extends Fragment {
                                 "name: %s", model.getInvitedInUserEventLocationName()));
                         holder.textViewEventTimeStarting.setText(String.format("Time " +
                                 "starting: %s", model.getInvitedInUserEventTimeStarting()));
-                        holder.buttonGotoEvent.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                firebaseFirestore.collection(getString(R.string.ff_Events)).document(model.getInvitedInUserEventId()).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                                    @Override
-                                    public void onSuccess(DocumentSnapshot documentSnapshot) {
-                                        EventModel eventModel =
-                                                documentSnapshot.toObject(EventModel.class);
-
-                                        Intent eventIntent = new Intent(getActivity(), EventActivity.class);
-
-                                        eventIntent.putExtra(getString(R.string.arg_position), position);
-                                        // gson helps pass objects
-                                        Gson gson = new Gson();
-                                        String eventJson = gson.toJson(eventModel);
-                                        eventIntent.putExtra(getString(R.string.arg_event_model), eventJson);
-                                        eventIntent.putExtra(getString(R.string.arg_event_id),
-                                                eventModel.getEventID());
-                                        startActivity(eventIntent);
-                                    }
-                                });
-
-                            }
-                        });
+                        setGotoEventButtonOnClick(holder, position, model, eventRef);
                         setEventDeleteButtonOnClick(holder, model);
+
+
+                        initializeIsGoingCheckbox(holder, model, eventRef);
                     }
 
 
@@ -168,24 +151,61 @@ public class EventsFragment extends Fragment {
         recyclerViewEventsList.setAdapter(eventsRecyclerAdapter);
     }
 
-
-//        userDocumentRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-//            @Override
-//            public void onSuccess(DocumentSnapshot documentSnapshot) {
-////                userInvitedEventIDs = (List<String>) documentSnapshot.get(getString(R.string.ff_users_userInvitedEventIDs));
-////                Log.d(TAG, String.format("userInvitedEventIDs size is %s", userInvitedEventIDs.size()));
-//
-//
-////                Query eventsQuery =
-////                        eventsCollectionRef.whereIn(FieldPath.documentId(), userInvitedEventIDs).orderBy(
-////                                getString(R.string.ff_Events_eventTimeStarting));
-//                // TODO: Fix to time starting
+    private void initializeIsGoingCheckbox(@NonNull EventsViewHolder holder,
+                                           InvitedInUserEventModel model,
+                                           DocumentReference eventRef) {
+        // set checked to correspond to user's response
+        holder.checkBoxEventIsGoing.setChecked(model.isInvitedInUserEventIsGoing());
 
 
-//        });
+        holder.checkBoxEventIsGoing.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                // update change in firestore
+                eventRef.update(getString(R.string.ff_InvitedInUserEvents_invitedInUserEventIsGoing), isChecked);
+                // TODO: Handle update failure
+                if (isChecked) {
+                    acceptEventInvite();
+                }
+            }
+        });
+    }
 
+    private void acceptEventInvite() {
 
-//    }
+        //download event offline
+
+    }
+
+    private void setGotoEventButtonOnClick(@NonNull EventsViewHolder holder, int position,
+                                           @NonNull InvitedInUserEventModel model,
+                                           DocumentReference eventRef) {
+        holder.buttonGotoEvent.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                eventRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                    @Override
+                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                        EventModel eventModel =
+                                documentSnapshot.toObject(EventModel.class);
+
+                        Intent eventIntent = new Intent(getActivity(), EventActivity.class);
+
+                        eventIntent.putExtra(getString(R.string.arg_position), position);
+                        // gson helps pass objects
+                        Gson gson = new Gson();
+                        String eventJson = gson.toJson(eventModel);
+                        eventIntent.putExtra(getString(R.string.arg_event_model), eventJson);
+                        eventIntent.putExtra(getString(R.string.arg_event_id),
+                                eventModel.getEventID());
+                        startActivity(eventIntent);
+                    }
+                });
+
+            }
+        });
+    }
+
 
     private void deleteEventFromInvitedUsers(InvitedInUserEventModel model,
                                              CollectionReference invitedInEventUsersRef) {
@@ -323,14 +343,7 @@ public class EventsFragment extends Fragment {
             checkBoxEventIsGoing = itemView.findViewById(R.id.event_item_checkBox_is_going);
             buttonGotoEvent = itemView.findViewById(R.id.event_item_button_goto_event);
             buttonDeleteEvent = itemView.findViewById(R.id.event_item_button_delete_event);
-            checkBoxEventIsGoing.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                @Override
-                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                    if (isChecked) {
-                        acceptEventInvite();
-                    }
-                }
-            });
+
         }
 
         private void acceptEventInvite(InvitedInUserEventModel eventAccepted) {

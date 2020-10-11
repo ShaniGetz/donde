@@ -251,9 +251,14 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
     Adds invited user from autocomplete text view to invited users list
      */
     private void addInvitedUserToList(String invitedUser) {
-        autoCompleteInvitedUsers.setText("");
-        listViewInvitedUsersList.add(invitedUser);
-        listViewInvitedUsersAdapter.notifyDataSetChanged();
+        if (!TextUtils.isEmpty(invitedUser)) {
+            autoCompleteInvitedUsers.setText("");
+            if (!listViewInvitedUsersList.contains(invitedUser)) {
+
+                listViewInvitedUsersList.add(invitedUser);
+                listViewInvitedUsersAdapter.notifyDataSetChanged();
+            }
+        }
     }
 
     private void initializeFields() {

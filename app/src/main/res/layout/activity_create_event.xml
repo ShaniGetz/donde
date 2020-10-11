@@ -101,6 +101,7 @@
 
     <SearchView
         android:id="@+id/create_searchView_location_search"
+        android:inputType="textCapWords"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:layout_constraintBottom_toTopOf="@id/create_mapView"

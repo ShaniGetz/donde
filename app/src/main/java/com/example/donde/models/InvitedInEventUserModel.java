@@ -13,6 +13,32 @@ public class InvitedInEventUserModel {
     private String invitedInEventUserStatus;
     private GeoPoint invitedInEventUserCurrentLocation;
     private String invitedInEventUserProfilePicURL;
+    private boolean invitedInEventUserIsGoing;
+
+    public InvitedInEventUserModel(String invitedInEventUserID, String invitedInEventUserName,
+                                   String invitedInEventUserEmail, String invitedInEventUserStatus, GeoPoint invitedInEventUserCurrentLocation, String invitedInEventUserProfilePicURL, boolean invitedInEventUserIsGoing) {
+        this.invitedInEventUserID = invitedInEventUserID;
+        this.invitedInEventUserName = invitedInEventUserName;
+        this.invitedInEventUserEmail = invitedInEventUserEmail;
+        this.invitedInEventUserStatus = invitedInEventUserStatus;
+        this.invitedInEventUserCurrentLocation = invitedInEventUserCurrentLocation;
+        this.invitedInEventUserProfilePicURL = invitedInEventUserProfilePicURL;
+        this.invitedInEventUserIsGoing = invitedInEventUserIsGoing;
+    }
+
+    public InvitedInEventUserModel(String invitedInEventUserID, String invitedInEventUserName, String invitedInEventUserEmail) {
+        this(invitedInEventUserID, invitedInEventUserName, invitedInEventUserEmail, "Enter status",
+                new GeoPoint(0, 0), "https://firebasestorage.googleapis.com/v0/b/donde-4cda4" +
+                        ".appspot.com/o/avatar.webp?alt=media&token=9922bed2-de35-4690-bde2" +
+                        "-ca2dbe9762a3", false);
+
+
+    }
+
+    // required empty constructor
+    public InvitedInEventUserModel() {
+
+    }
 
     public String getInvitedInEventUserID() {
         return invitedInEventUserID;
@@ -68,34 +94,6 @@ public class InvitedInEventUserModel {
 
     public void setInvitedInEventUserIsGoing(boolean invitedInEventUserIsGoing) {
         this.invitedInEventUserIsGoing = invitedInEventUserIsGoing;
-    }
-
-    private boolean invitedInEventUserIsGoing;
-
-    public InvitedInEventUserModel(String invitedInEventUserID, String invitedInEventUserName,
-                                   String invitedInEventUserEmail, String invitedInEventUserStatus, GeoPoint invitedInEventUserCurrentLocation, String invitedInEventUserProfilePicURL, boolean invitedInEventUserIsGoing) {
-        this.invitedInEventUserID = invitedInEventUserID;
-        this.invitedInEventUserName = invitedInEventUserName;
-        this.invitedInEventUserEmail = invitedInEventUserEmail;
-        this.invitedInEventUserStatus = invitedInEventUserStatus;
-        this.invitedInEventUserCurrentLocation = invitedInEventUserCurrentLocation;
-        this.invitedInEventUserProfilePicURL = invitedInEventUserProfilePicURL;
-        this.invitedInEventUserIsGoing = invitedInEventUserIsGoing;
-    }
-
-    public InvitedInEventUserModel(String invitedInEventUserID, String invitedInEventUserName, String invitedInEventUserEmail) {
-        this(invitedInEventUserID, invitedInEventUserName, invitedInEventUserEmail, "Enter status",
-                new GeoPoint(0, 0), "https://firebasestorage.googleapis.com/v0/b/donde-4cda4" +
-                        ".appspot.com/o/avatar.webp?alt=media&token=9922bed2-de35-4690-bde2" +
-                        "-ca2dbe9762a3", true);
-
-
-    }
-
-
-    // required empty constructor
-    public InvitedInEventUserModel() {
-
     }
 
     // TODO: implement logic for isGoing
