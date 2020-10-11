@@ -5,6 +5,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -15,6 +16,7 @@ import com.example.donde.R;
 import com.example.donde.models.EventModel;
 import com.example.donde.models.InvitedInEventUserModel;
 import com.example.donde.recycle_views.events_recycler_view.EventsListViewModel;
+import com.example.donde.utils.OfflineManager;
 import com.example.donde.utils.ViewPagerAdapter;
 import com.example.donde.utils.map_utils.StatusDialog;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -27,6 +29,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.Transaction;
 import com.google.gson.Gson;
 
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 
 
@@ -49,18 +52,24 @@ public class EventActivity extends AppCompatActivity implements StatusDialog.Sta
     private String eventID;
     private int position;
     private EventModel eventModel;
+//    private OfflineManager offlineManager;
     //    private int position;
     private EventsListViewModel eventsListViewModel;
     private String TAG = "EventActivity";
     private ArrayList<InvitedInEventUserModel> invitedUserInEventModelList = new ArrayList<>();
-    public ArrayList<InvitedInEventUserModel> getInvitedUserInEventModelList() {
-        return invitedUserInEventModelList;
-    }
     private String currUserID;
     private int currentUserIndexInInvitedUsersList = 0; // current user is always at beginning
 
     public static String getStatus() {
         return status;
+    }
+
+    public static String getMyUserId() {
+        return myUserId;
+    }
+
+    public ArrayList<InvitedInEventUserModel> getInvitedUserInEventModelList() {
+        return invitedUserInEventModelList;
     }
 
     @Override
@@ -71,10 +80,8 @@ public class EventActivity extends AppCompatActivity implements StatusDialog.Sta
         initializeListeners();
         initializeInvitedUsersList();
         myUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
-    }
+        Toast.makeText(this, OfflineManager.getOfflineString(this), Toast.LENGTH_SHORT).show();
 
-    public static String getMyUserId() {
-        return myUserId;
     }
 
     private void initializeInvitedUsersList() {
@@ -94,7 +101,7 @@ public class EventActivity extends AppCompatActivity implements StatusDialog.Sta
                             String userId =
                                     documentSnapshot.getString(getString(R.string.ff_InvitedInEventUsers_invitedInEventUserID));
 
-                            if (TextUtils.equals(userId , currUserID)) {
+                            if (TextUtils.equals(userId, currUserID)) {
                                 invitedInEventUserModels.add(0,
                                         documentSnapshot.toObject(InvitedInEventUserModel.class));
                             } else {
@@ -104,7 +111,7 @@ public class EventActivity extends AppCompatActivity implements StatusDialog.Sta
 
 
                         }
-                        Log.d(TAG, "index 0: "+invitedInEventUserModels.get(0)
+                        Log.d(TAG, "index 0: " + invitedInEventUserModels.get(0)
                                 .getInvitedInEventUserName());
                         return invitedInEventUserModels;
                     }
@@ -144,13 +151,21 @@ public class EventActivity extends AppCompatActivity implements StatusDialog.Sta
         viewPager = findViewById(R.id.event_viewPager);
         eventID = getIntent().getStringExtra(getString(R.string.arg_event_id));
         position = getIntent().getIntExtra(getString(R.string.arg_position), -1);
-
         firebaseFirestore = FirebaseFirestore.getInstance();
 
         // get event object from intent
         Gson gson = new Gson();
         eventModel = gson.fromJson(getIntent().getStringExtra(getString(R.string.arg_event_model)),
                 EventModel.class);
+//        offlineManager =
+//                gson.fromJson(getIntent().getStringExtra(getString(R.string.arg_offline_manager))
+//                        , OfflineManager.class);
+//        try {
+//            String debugString = offlineManager.uploadDebug();
+//            Toast.makeText(this, "UPLOADED: " + debugString, Toast.LENGTH_SHORT).show();
+//        } catch (FileNotFoundException e) {
+//            e.printStackTrace();
+//        }
 
 
         viewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager(), eventID, position);

@@ -33,7 +33,7 @@ public class InvitedInUserEventModel {
                                    String invitedInUserEventLocationName,
                                    String invitedInUserEventCreatorName, Date invitedInUserEventModelTimeStarting) {
         this(invitedInUserEventId, invitedInUserEventName, invitedInUserEventLocationName,
-                invitedInUserEventCreatorName, true, invitedInUserEventModelTimeStarting);
+                invitedInUserEventCreatorName, false, invitedInUserEventModelTimeStarting);
     }
 
     // required public empty constructor

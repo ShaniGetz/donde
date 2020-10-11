@@ -31,11 +31,12 @@ import com.example.donde.activities.EventActivity;
 import com.example.donde.activities.MainActivity;
 import com.example.donde.models.EventModel;
 import com.example.donde.models.InvitedInUserEventModel;
-import com.example.donde.utils.OfflineDownloader;
+import com.example.donde.utils.OfflineManager;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
@@ -112,7 +113,8 @@ public class EventsFragment extends Fragment {
                     @Override
                     protected void onBindViewHolder(@NonNull EventsViewHolder holder, int position, @NonNull InvitedInUserEventModel model) {
                         DocumentReference eventRef = firebaseFirestore.collection(getString(R.string.ff_Events)).document(model.getInvitedInUserEventId());
-
+                        OfflineManager offlineManager = new OfflineManager(FirebaseAuth.getInstance().getCurrentUser(), model,
+                                getContext());
 
                         holder.textViewEventName.setText(String.format("Event name: %s",
                                 model.getInvitedInUserEventName()));
@@ -122,11 +124,9 @@ public class EventsFragment extends Fragment {
                                 "name: %s", model.getInvitedInUserEventLocationName()));
                         holder.textViewEventTimeStarting.setText(String.format("Time " +
                                 "starting: %s", model.getInvitedInUserEventTimeStarting()));
-                        setGotoEventButtonOnClick(holder, position, model, eventRef);
                         setEventDeleteButtonOnClick(holder, model);
-
-
-                        initializeIsGoingCheckbox(holder, model, eventRef);
+                        initializeIsGoingCheckbox(holder, model, eventRef, offlineManager);
+                        setGotoEventButtonOnClick(holder, position, model, eventRef, offlineManager);
                     }
 
 
@@ -153,7 +153,7 @@ public class EventsFragment extends Fragment {
 
     private void initializeIsGoingCheckbox(@NonNull EventsViewHolder holder,
                                            InvitedInUserEventModel model,
-                                           DocumentReference eventRef) {
+                                           DocumentReference eventRef, OfflineManager offlineManager) {
         // set checked to correspond to user's response
         holder.checkBoxEventIsGoing.setChecked(model.isInvitedInUserEventIsGoing());
 
@@ -162,24 +162,29 @@ public class EventsFragment extends Fragment {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 // update change in firestore
-                eventRef.update(getString(R.string.ff_InvitedInUserEvents_invitedInUserEventIsGoing), isChecked);
+                String currUID = FirebaseAuth.getInstance().getUid();
+                DocumentReference invitedInUserEventRef =
+                        firebaseFirestore.collection(getString(R.string.ff_Users)).document(currUID).collection(getString(R.string.ff_InvitedInUserEvents)).document(model.getInvitedInUserEventId());
+                invitedInUserEventRef.update(getString(R.string.ff_InvitedInUserEvents_invitedInUserEventIsGoing), isChecked);
                 // TODO: Handle update failure
                 if (isChecked) {
-                    acceptEventInvite();
+                    acceptEventInvite(model, offlineManager);
                 }
             }
         });
     }
 
-    private void acceptEventInvite() {
+    private void acceptEventInvite(InvitedInUserEventModel model, OfflineManager offlineManager) {
 
         //download event offline
+        offlineManager.downloadDebug();
+
 
     }
 
     private void setGotoEventButtonOnClick(@NonNull EventsViewHolder holder, int position,
                                            @NonNull InvitedInUserEventModel model,
-                                           DocumentReference eventRef) {
+                                           DocumentReference eventRef, OfflineManager offlineManager) {
         holder.buttonGotoEvent.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -196,6 +201,8 @@ public class EventsFragment extends Fragment {
                         Gson gson = new Gson();
                         String eventJson = gson.toJson(eventModel);
                         eventIntent.putExtra(getString(R.string.arg_event_model), eventJson);
+//                        String downloadManagerJson = gson.toJson(offlineManager);
+//                        eventIntent.putExtra(getString(R.string.arg_offline_manager), downloadManagerJson);
                         eventIntent.putExtra(getString(R.string.arg_event_id),
                                 eventModel.getEventID());
                         startActivity(eventIntent);
@@ -349,7 +356,7 @@ public class EventsFragment extends Fragment {
         private void acceptEventInvite(InvitedInUserEventModel eventAccepted) {
             FirebaseUser currUser = ((MainActivity) getActivity()).getmAuth().getCurrentUser();
 
-            OfflineDownloader offlineDownloader = new OfflineDownloader(currUser, eventAccepted, getContext());
+            OfflineManager offlineManager = new OfflineManager(currUser, eventAccepted, getContext());
         }
 
 

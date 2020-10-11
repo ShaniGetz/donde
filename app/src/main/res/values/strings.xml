@@ -18,5 +18,6 @@
     <string name="arg_event_name">eventName</string>
     <string name="arg_position">arg_position</string>
     <string name="arg_event_model">arg_event_model</string>
+    <string name="arg_offline_manager">arg_offline_manager</string>
 
 </resources>

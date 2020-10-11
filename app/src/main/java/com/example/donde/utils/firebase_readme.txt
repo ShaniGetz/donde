@@ -19,7 +19,7 @@ Updates (old to new):
 *Firebase Firestore*
 
 -   Events   [Collection]
--   -   eventName           [String]
+-   -   eventName           [String]o
 -   -   eventDescription    [String]
 -   -   eventCreatorUID      [String]
 -   -   eventCreatorName    [String]

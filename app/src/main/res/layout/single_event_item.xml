@@ -73,7 +73,7 @@
         android:id="@+id/event_item_checkBox_is_going"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:checked="true"
+        android:checked="false"
         app:layout_constraintBottom_toBottomOf="@id/event_item_textView_are_you_going"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@id/event_item_textView_are_you_going"
