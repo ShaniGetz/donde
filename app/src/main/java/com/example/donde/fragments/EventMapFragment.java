@@ -88,7 +88,7 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback {
                         Location location = locationList.get(locationList.size() - 1);
                         Log.i("MapsActivity", "Location: " + location.getLatitude() + " " + location.getLongitude());
                         mLastLocation = location;
-                        offlineDataTransfer.updateLocation(new GeoPoint(mLastLocation.getLatitude(), mLastLocation.getLongitude()));
+//                        offlineDataTransfer.updateLocation(new GeoPoint(mLastLocation.getLatitude(), mLastLocation.getLongitude()));
                         if (mCurrLocationMarker != null) {
                             mCurrLocationMarker.remove();
                         }

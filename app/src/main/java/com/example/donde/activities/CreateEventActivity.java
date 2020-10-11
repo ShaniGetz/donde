@@ -688,8 +688,8 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
 
     private void addInteractedEmailsToUser(DocumentReference userRef) {
 
-        userRef.update(getString(R.string.ff_Users_userInteractedUserEmails),
-                FieldValue.arrayUnion((Object) listViewInvitedUsersList.toArray(new String[listViewInvitedUsersList.size()])));
+//        userRef.update(getString(R.string.ff_Users_userInteractedUserEmails),
+//                FieldValue.arrayUnion((Object) listViewInvitedUsersList.toArray(new String[listViewInvitedUsersList.size()])));
     }
 
 
