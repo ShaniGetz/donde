@@ -94,9 +94,7 @@ public class EventActivity extends AppCompatActivity implements StatusDialog.Sta
                             String userId =
                                     documentSnapshot.getString(getString(R.string.ff_InvitedInEventUsers_invitedInEventUserID));
 
-                            Log.d(TAG, "checking if " + userId + "==" + currUserID);
                             if (TextUtils.equals(userId , currUserID)) {
-                                Log.d(TAG, "enteres");
                                 invitedInEventUserModels.add(0,
                                         documentSnapshot.toObject(InvitedInEventUserModel.class));
                             } else {
