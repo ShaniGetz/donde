@@ -109,14 +109,13 @@ public class OfflineDataTransfer{
     public void updateStatus(String status){
         myStatus = status;
     }
+
     public GeoPoint getOtherLocation(String name){
         return Location_dict.get(name);
 
     }
-
     public String getOtherStatus(String name){
         return Status_dict.get(name);
-
     }
 
 
@@ -185,11 +184,12 @@ public class OfflineDataTransfer{
     }
 
 
-
-
-    private void stopAdvertising() {
+    public void stopAll() {
         Nearby.getConnectionsClient(context).stopAdvertising();
+        Nearby.getConnectionsClient(context).stopAllEndpoints();
+        Nearby.getConnectionsClient(context).stopDiscovery();
     }
+
 
     public String getUser(){
         return myName + "#" + myStatus + "#" + geoPoint.getLatitude() + "#" + geoPoint.getLongitude();

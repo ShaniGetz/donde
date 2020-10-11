@@ -30,6 +30,7 @@ import androidx.fragment.app.FragmentActivity;
 import com.example.donde.R;
 import com.example.donde.activities.EventActivity;
 import com.example.donde.models.InvitedInEventUserModel;
+import com.example.donde.utils.OfflineDataTransfer;
 import com.example.donde.utils.map_utils.ClusterMarker;
 import com.example.donde.utils.map_utils.MyClusterManagerRenderer;
 import com.example.donde.utils.map_utils.OfflineTileProvider;
@@ -72,6 +73,7 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback {
     private GeoPoint geoPoint;
     private LatLng laLing;
     private MyClusterManagerRenderer mClusterManagerRenderer;
+    private OfflineDataTransfer offlineDataTransfer;
 
 
 
@@ -88,6 +90,7 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback {
                         Location location = locationList.get(locationList.size() - 1);
                         Log.i("MapsActivity", "Location: " + location.getLatitude() + " " + location.getLongitude());
                         mLastLocation = location;
+                        offlineDataTransfer.updateLocation(new GeoPoint(mLastLocation.getLatitude(), mLastLocation.getLongitude()));
                         if (mCurrLocationMarker != null) {
                             mCurrLocationMarker.remove();
                         }
@@ -103,6 +106,7 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback {
                         mGoogleMap.setMapType(GoogleMap.MAP_TYPE_NONE);
                         TileOverlay onlineTileOverlay = mGoogleMap.addTileOverlay(new TileOverlayOptions()
                                 .tileProvider(new OfflineTileProvider(myContext)));
+                        updateInfo();
                         addMapMarkers();
                     }
                 }
@@ -113,6 +117,7 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         geoPoint = ((EventActivity)getActivity()).getEvent().getEventLocation();
         laLing = new LatLng(geoPoint.getLatitude(), geoPoint.getLongitude());
+        offlineDataTransfer = ((EventActivity) getActivity()).getOfflineDataTransfer();
         return inflater.inflate(R.layout.fragment_event_map, container, false);
 
     }
@@ -197,6 +202,19 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback {
         }
     }
 
+    private void updateInfo(){
+        if (invitedUsersList != null) {
+
+            for (InvitedInEventUserModel user : invitedUsersList) {
+                String id = user.getInvitedInEventUserID();
+                String status = offlineDataTransfer.getOtherStatus(id);
+                GeoPoint location = offlineDataTransfer.getOtherLocation(id);
+                user.setInvitedInEventUserStatus(status);
+                user.setInvitedInEventUserCurrentLocation(location);
+            }
+        }
+
+        }
     private void addMapMarkers() {
         if (mGoogleMap != null) {
             if (mClusterManager == null) {
@@ -268,6 +286,7 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback {
                                     Toast.makeText(getContext(), " me clicked", Toast.LENGTH_LONG).show();
                                     openDialog();
                                     status = EventActivity.getStatus();
+                                    offlineDataTransfer.updateStatus(status);
                                     clusterItem.setSnippet(status);
                                 } else {
                                     return false;

@@ -86,6 +86,10 @@ public class EventActivity extends AppCompatActivity implements StatusDialog.Sta
         return invitedUserInEventModelList;
     }
 
+    public OfflineDataTransfer getOfflineDataTransfer(){
+        return offlineDataTransfer;
+    }
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -141,8 +145,7 @@ public class EventActivity extends AppCompatActivity implements StatusDialog.Sta
     @Override
     protected void onStop() {
         super.onStop();
-        Nearby.getConnectionsClient(this.getApplicationContext()).stopAdvertising();
-        Nearby.getConnectionsClient(this).stopAllEndpoints();
+        offlineDataTransfer.stopAll();
     }
 
 
