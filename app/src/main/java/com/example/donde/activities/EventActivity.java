@@ -1,6 +1,7 @@
 package com.example.donde.activities;
 
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
@@ -18,6 +19,7 @@ import com.example.donde.utils.ViewPagerAdapter;
 import com.example.donde.utils.map_utils.StatusDialog;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -26,7 +28,6 @@ import com.google.firebase.firestore.Transaction;
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
-import java.util.List;
 
 
 public class EventActivity extends AppCompatActivity implements StatusDialog.StatusDialogListener {
@@ -51,14 +52,15 @@ public class EventActivity extends AppCompatActivity implements StatusDialog.Sta
     private EventsListViewModel eventsListViewModel;
     private String TAG = "EventActivity";
     private ArrayList<InvitedInEventUserModel> invitedUserInEventModelList = new ArrayList<>();
-
-    public ArrayList<InvitedInEventUserModel> getInvitedUserInEventModelList() {
-        return invitedUserInEventModelList;
-    }
-
+    private String currUserID;
+    private int currentUserIndexInInvitedUsersList = 0; // current user is always at beginning
 
     public static String getStatus() {
         return status;
+    }
+
+    public ArrayList<InvitedInEventUserModel> getInvitedUserInEventModelList() {
+        return invitedUserInEventModelList;
     }
 
     @Override
@@ -84,8 +86,23 @@ public class EventActivity extends AppCompatActivity implements StatusDialog.Sta
                         for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
                             Log.d(TAG, String.format("Adding query snapshot name: %s",
                                     documentSnapshot.get(getString(R.string.ff_InvitedInEventUsers_invitedInEventUserName))));
-                            invitedInEventUserModels.add(documentSnapshot.toObject(InvitedInEventUserModel.class));
+                            String userId =
+                                    documentSnapshot.getString(getString(R.string.ff_InvitedInEventUsers_invitedInEventUserID));
+
+                            Log.d(TAG, "checking if " + userId + "==" + currUserID);
+                            if (TextUtils.equals(userId , currUserID)) {
+                                Log.d(TAG, "enteres");
+                                invitedInEventUserModels.add(0,
+                                        documentSnapshot.toObject(InvitedInEventUserModel.class));
+                            } else {
+
+                                invitedInEventUserModels.add(documentSnapshot.toObject(InvitedInEventUserModel.class));
+                            }
+
+
                         }
+                        Log.d(TAG, "index 0: "+invitedInEventUserModels.get(0)
+                                .getInvitedInEventUserName());
                         return invitedInEventUserModels;
                     }
                 }).addOnSuccessListener(new OnSuccessListener<ArrayList<InvitedInEventUserModel>>() {
@@ -137,6 +154,7 @@ public class EventActivity extends AppCompatActivity implements StatusDialog.Sta
         viewPager.setAdapter(viewPagerAdapter);
         // meaning all 3 screens will always be loaded
         viewPager.setOffscreenPageLimit(2);
+        currUserID = FirebaseAuth.getInstance().getUid();
 
 
     }

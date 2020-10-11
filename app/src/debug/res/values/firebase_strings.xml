@@ -6,6 +6,7 @@
     <string name="ff_Users_userEmail">userEmail </string>
     <string name="ff_Users_userProfilePicURL">userProfilePicURL </string>
     <string name="ff_Users_userInvitedEventIDs">userInvitedEventIDs </string>
+    <string name="ff_Users_userInteractedUserEmails">userInteractedUserEmails</string>
     <string name="ff_Users_InvitedInUserEvents">InvitedInUserEvents </string>
     <!--    InvitedInUserEvents subcollection-->
     <string name="ff_InvitedInUserEvents">InvitedInUserEvents</string>
