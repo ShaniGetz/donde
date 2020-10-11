@@ -1,6 +1,7 @@
 package com.example.donde.activities;
 
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
@@ -86,9 +87,11 @@ public class EventActivity extends AppCompatActivity implements StatusDialog.Sta
                             Log.d(TAG, String.format("Adding query snapshot name: %s",
                                     documentSnapshot.get(getString(R.string.ff_InvitedInEventUsers_invitedInEventUserName))));
                             String userId =
-                                    documentSnapshot.getString(getString(R.string.ff_InvitedInEventUsers_invitedInEventUserID);
+                                    documentSnapshot.getString(getString(R.string.ff_InvitedInEventUsers_invitedInEventUserID));
 
-                            if (userId == currUserID) {
+                            Log.d(TAG, "checking if " + userId + "==" + currUserID);
+                            if (TextUtils.equals(userId , currUserID)) {
+                                Log.d(TAG, "enteres");
                                 invitedInEventUserModels.add(0,
                                         documentSnapshot.toObject(InvitedInEventUserModel.class));
                             } else {
@@ -98,6 +101,8 @@ public class EventActivity extends AppCompatActivity implements StatusDialog.Sta
 
 
                         }
+                        Log.d(TAG, "index 0: "+invitedInEventUserModels.get(0)
+                                .getInvitedInEventUserName());
                         return invitedInEventUserModels;
                     }
                 }).addOnSuccessListener(new OnSuccessListener<ArrayList<InvitedInEventUserModel>>() {
