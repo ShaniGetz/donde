@@ -16,30 +16,47 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <TextView
-        android:id="@+id/textView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
-        android:text="Create Event"
-        android:textColor="#000000"
-        android:textSize="50sp"
-        android:textStyle="bold"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+    <!--    <TextView-->
+    <!--        android:id="@+id/textView"-->
+    <!--        android:layout_width="wrap_content"-->
+    <!--        android:layout_height="wrap_content"-->
+    <!--        android:layout_marginStart="16dp"-->
+    <!--        android:layout_marginTop="16dp"-->
+    <!--        android:text="Create Event"-->
+    <!--        android:textColor="#000000"-->
+    <!--        android:textSiבze="50sp"-->
+    <!--        android:textStyle="bold"-->
+    <!--        app:layout_constraintBottom_toTopOf="@id/create_editText_event_name"-->
+    <!--        app:layout_constraintStart_toStartOf="parent"-->
+    <!--        app:layout_constraintTop_toTopOf="parent" />-->
 
     <EditText
         android:id="@+id/create_editText_event_name"
+        style="@style/EventTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-
+        android:background="@color/fui_transparent"
+        android:gravity="left"
         android:hint="event name"
+        android:inputType="textCapWords"
+        android:paddingStart="8dp"
+        android:text="SAMPLE"
+
 
         app:layout_constraintBottom_toTopOf="@+id/create_editText_event_description"
-        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView" />
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ListView
+        android:id="@+id/create_listView_invited_users"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        app:layout_constraintBottom_toTopOf="@id/create_button_create"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/create_autoComplete_invited_users"
+
+        app:layout_constraintTop_toTopOf="@id/create_autoComplete_invited_users"
+        tools:listitem="@layout/listview_invited_users_single_item" />
 
     <EditText
         android:id="@+id/create_editText_event_description"
@@ -96,99 +113,71 @@
         android:id="@+id/create_mapView"
         android:name="com.google.android.gms.maps.SupportMapFragment"
         android:layout_width="wrap_content"
-        android:layout_height="250dp"
-        app:layout_constraintBottom_toTopOf="@id/create_editText_event_day"
+        android:layout_height="150dp"
+        app:layout_constraintBottom_toTopOf="@id/create_textView_event_time"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/create_searchView_location_search"
         tools:context=".map.MapsActivity" />
 
-    <EditText
-        android:id="@+id/create_editText_event_year"
+    <TextView
+        android:id="@+id/create_textView_event_time"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:hint="year"
-        app:layout_constraintEnd_toStartOf="@id/create_editText_event_hour"
-        app:layout_constraintStart_toEndOf="@id/create_editText_event_month"
-        app:layout_constraintTop_toTopOf="@id/create_editText_event_day" />
-
-
-    <EditText
-        android:id="@+id/create_editText_event_month"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:hint="month"
-        app:layout_constraintEnd_toStartOf="@id/create_editText_event_year"
-        app:layout_constraintStart_toEndOf="@id/create_editText_event_day"
-        app:layout_constraintTop_toTopOf="@id/create_editText_event_day" />
-
-    <EditText
-        android:id="@+id/create_editText_event_day"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:hint="day"
-        app:layout_constraintBottom_toTopOf="@id/create_editText_invited_user1"
-        app:layout_constraintEnd_toStartOf="@id/create_editText_event_month"
+        app:layout_constraintBottom_toTopOf="@id/create_autoComplete_invited_users"
+        app:layout_constraintEnd_toStartOf="@id/create_textView_event_date"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/create_mapView"
+        android:text="20:20" />
 
+    <TextView
+        android:id="@+id/create_textView_event_date"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="@id/create_textView_event_time"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/create_textView_event_time"
+        app:layout_constraintTop_toTopOf="@id/create_textView_event_time"
+        android:text="10/10/20" />
+
+    <!--    TODO: Implement pickers-->
+    <TimePicker
+        android:id="@+id/create_timePicker"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:timePickerMode="spinner"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@id/create_autoComplete_invited_users"
+        app:layout_constraintEnd_toStartOf="@id/create_datePicker"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/create_mapView" />
 
-    <EditText
-        android:id="@+id/create_editText_event_hour"
+    <DatePicker
+        android:id="@+id/create_datePicker"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:hint="hour (HH)"
-        app:layout_constraintEnd_toEndOf="@+id/create_editText_event_minute"
-        app:layout_constraintStart_toEndOf="@id/create_editText_event_year"
+        android:calendarViewShown="false"
+        android:datePickerMode="spinner"
+        android:spinnersShown="true"
 
-        app:layout_constraintTop_toTopOf="@id/create_editText_event_day" />
-
-    <EditText
-        android:id="@+id/create_editText_event_minute"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:hint="minute (mm)"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@id/create_timePicker"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@id/create_editText_event_hour"
-        app:layout_constraintTop_toTopOf="@id/create_editText_event_day" />
+        app:layout_constraintStart_toEndOf="@id/create_timePicker"
+        app:layout_constraintTop_toTopOf="@id/create_timePicker" />
 
-    <!--    <androidx.recyclerview.widget.RecyclerView-->
-    <!--        android:id="@+id/create_recyclerView_invited_users"-->
-    <!--        android:layout_width="match_parent"-->
-    <!--        android:layout_height="wrap_content"-->
-    <!--        app:layout_constraintBottom_toTopOf="@id/create_button_create"-->
-    <!--        app:layout_constraintTop_toBottomOf="@id/create_editText_event_day" />-->
-    <EditText
-        android:id="@+id/create_editText_invited_user1"
+
+    <AutoCompleteTextView
+        android:id="@+id/create_autoComplete_invited_users"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:hint="invited user 1"
+        android:hint="invited user4"
+        android:imeOptions="actionDone"
+        android:inputType="textEmailAddress"
         app:layout_constraintBottom_toTopOf="@id/create_button_create"
-        app:layout_constraintEnd_toStartOf="@+id/create_editText_invited_user2"
+        app:layout_constraintEnd_toStartOf="@id/create_listView_invited_users"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/create_editText_event_day" />
-
-    <EditText
-        android:id="@+id/create_editText_invited_user2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:hint="invited user 2"
-        app:layout_constraintBottom_toTopOf="@id/create_button_create"
-        app:layout_constraintEnd_toStartOf="@id/create_editText_invited_user3"
-        app:layout_constraintStart_toEndOf="@id/create_editText_invited_user1"
-        app:layout_constraintTop_toBottomOf="@id/create_editText_event_day" />
-
-
-    <EditText
-        android:id="@+id/create_editText_invited_user3"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:hint="invited user 3"
-        app:layout_constraintBottom_toTopOf="@id/create_button_create"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@id/create_editText_invited_user2"
-        app:layout_constraintTop_toBottomOf="@id/create_editText_event_day" />
-
+        app:layout_constraintTop_toBottomOf="@id/create_textView_event_time" />
 
     <Button
         android:id="@+id/create_button_create"
@@ -198,13 +187,14 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/create_editText_invited_user1" />
+        app:layout_constraintTop_toBottomOf="@id/create_listView_invited_users" />
 
     <Button
         android:id="@+id/create_button_debug_fill_default"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Debug:\nautofill"
+
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@id/create_button_create"
         app:layout_constraintTop_toTopOf="@id/create_button_create" />

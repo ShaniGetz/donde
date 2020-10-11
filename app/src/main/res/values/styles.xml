@@ -11,4 +11,8 @@
         <item name="android:textColorSecondary">@color/white</item>
     </style>
 
+    <style name="EventTitle" parent="Theme.AppCompat.Light">
+        <item name="android:textSize">40sp</item>
+
+    </style>
 </resources>

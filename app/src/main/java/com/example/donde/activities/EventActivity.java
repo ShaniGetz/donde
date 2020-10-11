@@ -27,7 +27,6 @@ import com.google.firebase.firestore.Transaction;
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
-import java.util.List;
 
 
 public class EventActivity extends AppCompatActivity implements StatusDialog.StatusDialogListener {
@@ -56,7 +55,8 @@ public class EventActivity extends AppCompatActivity implements StatusDialog.Sta
     public ArrayList<InvitedInEventUserModel> getInvitedUserInEventModelList() {
         return invitedUserInEventModelList;
     }
-
+    private String currUserID;
+    private int currentUserIndexInInvitedUsersList = 0; // current user is always at beginning
 
     public static String getStatus() {
         return status;
@@ -90,7 +90,18 @@ public class EventActivity extends AppCompatActivity implements StatusDialog.Sta
                         for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
                             Log.d(TAG, String.format("Adding query snapshot name: %s",
                                     documentSnapshot.get(getString(R.string.ff_InvitedInEventUsers_invitedInEventUserName))));
-                            invitedInEventUserModels.add(documentSnapshot.toObject(InvitedInEventUserModel.class));
+                            String userId =
+                                    documentSnapshot.getString(getString(R.string.ff_InvitedInEventUsers_invitedInEventUserID);
+
+                            if (userId == currUserID) {
+                                invitedInEventUserModels.add(0,
+                                        documentSnapshot.toObject(InvitedInEventUserModel.class));
+                            } else {
+
+                                invitedInEventUserModels.add(documentSnapshot.toObject(InvitedInEventUserModel.class));
+                            }
+
+
                         }
                         return invitedInEventUserModels;
                     }
@@ -143,6 +154,7 @@ public class EventActivity extends AppCompatActivity implements StatusDialog.Sta
         viewPager.setAdapter(viewPagerAdapter);
         // meaning all 3 screens will always be loaded
         viewPager.setOffscreenPageLimit(2);
+        currUserID = FirebaseAuth.getInstance().getUid();
 
 
     }
