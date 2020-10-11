@@ -18,9 +18,7 @@ public class ClusterMarker implements ClusterItem {
         this.iconPicture = iconPicture;
     }
 
-    public String getUserID() {
-        return userID;
-    }
+    public String getUserID() { return userID; }
 
     public int getIconPicture() {
         return iconPicture;
@@ -29,14 +27,6 @@ public class ClusterMarker implements ClusterItem {
     public void setIconPicture(int iconPicture) {
         this.iconPicture = iconPicture;
     }
-
-//    public User getUser() {
-//        return user;
-//    }
-//
-//    public void setUser(User user) {
-//        this.user = user;
-//    }
 
     public void setPosition(LatLng position) {
         this.position = position;

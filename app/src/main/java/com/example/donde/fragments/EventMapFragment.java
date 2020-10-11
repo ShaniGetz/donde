@@ -63,7 +63,7 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback {
     Location mLastLocation;
     Marker mCurrLocationMarker;
     ArrayList<InvitedInEventUserModel> invitedUsersList;
-    String curUserId;
+    private String myUserId;
     private String status;
     private FragmentActivity myContext;
     private ClusterManager mClusterManager;
@@ -218,11 +218,11 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback {
             if (invitedUsersList != null) {
                 Log.d(TAG, "not null and " + invitedUsersList.size());
                 for (InvitedInEventUserModel user : invitedUsersList) {
+                    myUserId = EventActivity.getMyUserId();
 //                    user.getInvitedInEventUserProfilePicURL()
                     try {
                         String snippet = "";
-                        if (user.getInvitedInEventUserID().equals(FirebaseAuth.getInstance().getCurrentUser().getUid())) {
-                            curUserId = user.getInvitedInEventUserID();
+                        if (user.getInvitedInEventUserID().equals(myUserId)) {
                             user.setInvitedInEventUserCurrentLocation(new GeoPoint(mLastLocation.getLatitude(), mLastLocation.getLongitude()));
                             Log.d(TAG, user.getInvitedInEventUserCurrentLocation().toString());
                             Log.d(TAG, mLastLocation.toString());
@@ -231,7 +231,7 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback {
                         } else {
                             snippet = "";
                         }
-                        int avatar = R.drawable.avatar; // set the default avatar
+                        int avatar = R.drawable.avatar2; // set the default avatar
                         try {
 //                        avatar = Integer.parseInt(user.setUserProfilePicURL());
                         } catch (NumberFormatException e) {
@@ -267,7 +267,7 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback {
                         new ClusterManager.OnClusterItemClickListener<ClusterMarker>() {
                             @Override
                             public boolean onClusterItemClick(ClusterMarker clusterItem) {
-                                if (clusterItem.getUserID().equals(curUserId)) {
+                                if (clusterItem.getUserID().equals(myUserId)) {
                                     Toast.makeText(getContext(), " me clicked", Toast.LENGTH_LONG).show();
                                     openDialog();
                                     status = EventActivity.getStatus();

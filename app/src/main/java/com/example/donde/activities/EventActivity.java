@@ -18,6 +18,7 @@ import com.example.donde.utils.ViewPagerAdapter;
 import com.example.donde.utils.map_utils.StatusDialog;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -31,6 +32,7 @@ import java.util.List;
 
 public class EventActivity extends AppCompatActivity implements StatusDialog.StatusDialogListener {
     private static String status;
+    private static String myUserId;
     final int INFO_TAB = 0;
     final int MAP_TAB = 1;
     final int CHAT_TAB = 2;
@@ -51,7 +53,6 @@ public class EventActivity extends AppCompatActivity implements StatusDialog.Sta
     private EventsListViewModel eventsListViewModel;
     private String TAG = "EventActivity";
     private ArrayList<InvitedInEventUserModel> invitedUserInEventModelList = new ArrayList<>();
-
     public ArrayList<InvitedInEventUserModel> getInvitedUserInEventModelList() {
         return invitedUserInEventModelList;
     }
@@ -68,6 +69,11 @@ public class EventActivity extends AppCompatActivity implements StatusDialog.Sta
         initializeFields();
         initializeListeners();
         initializeInvitedUsersList();
+        myUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+    }
+
+    public static String getMyUserId() {
+        return myUserId;
     }
 
     private void initializeInvitedUsersList() {
