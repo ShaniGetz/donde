@@ -78,10 +78,13 @@ import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 public class CreateEventActivity extends AppCompatActivity implements OnMapReadyCallback {
     public static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
@@ -395,6 +398,51 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
         Context createContext = this;
 
 
+        initializeTimePicker(createContext);
+        initializeDatePicker(createContext);
+
+    }
+
+
+    private void initializeDatePicker(Context createContext) {
+        textViewEventDate = findViewById(R.id.create_textView_event_date);
+        textViewEventDate.setOnClickListener(new View.OnClickListener() {
+
+
+            @Override
+            public void onClick(View v) {
+                // TODO Auto-generated method stub
+                Calendar mcurrentTime = Calendar.getInstance();
+                int day = mcurrentTime.get(Calendar.DAY_OF_MONTH);
+                int month = mcurrentTime.get(Calendar.MONTH);
+                int year = mcurrentTime.get(Calendar.YEAR);
+                DatePickerDialog mDatePicker;
+//                int resTheme = R.style.SpinnerTimePicker;
+
+                int resTheme = DatePickerDialog.THEME_HOLO_DARK;
+                mDatePicker = new DatePickerDialog(createContext, resTheme,
+                        new DatePickerDialog.OnDateSetListener() {
+                            @Override
+                            public void onDateSet(DatePicker view, int selectedYear,
+                                                  int selectedMonth,
+                                                  int selectedDayOfMonth) {
+                                textViewEventDate.setText(selectedDayOfMonth + "/" + selectedMonth +
+                                        "/" + selectedYear);
+
+                            }
+
+                        }, year, month, day);//Yes 24 hour time
+                mDatePicker.setTitle("Select Date");
+                mDatePicker.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+                mDatePicker.show();
+
+
+            }
+
+        });
+    }
+
+    private void initializeTimePicker(Context createContext) {
         textViewEventTime = findViewById(R.id.create_textView_event_time);
         textViewEventTime.setOnClickListener(new View.OnClickListener() {
 
@@ -424,42 +472,6 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
             }
 
         });
-
-        textViewEventDate = findViewById(R.id.create_textView_event_date);
-        textViewEventDate.setOnClickListener(new View.OnClickListener() {
-
-
-            @Override
-            public void onClick(View v) {
-                // TODO Auto-generated method stub
-                Calendar mcurrentTime = Calendar.getInstance();
-                int day = mcurrentTime.get(Calendar.DAY_OF_MONTH);
-                int month = mcurrentTime.get(Calendar.MONTH);
-                int year = mcurrentTime.get(Calendar.YEAR);
-                DatePickerDialog mDatePicker;
-//                int resTheme = R.style.SpinnerTimePicker;
-
-                int resTheme = DatePickerDialog.THEME_HOLO_DARK;
-                mDatePicker = new DatePickerDialog(createContext, resTheme,
-                        new DatePickerDialog.OnDateSetListener() {
-                            @Override
-                            public void onDateSet(DatePicker view, int selectedYear,
-                                                  int selectedMonth,
-                                                  int selectedDayOfMonth) {
-                                textViewEventTime.setText(selectedDayOfMonth + "/" + selectedMonth +
-                                        "/" + selectedYear);
-
-                            }
-
-                        }, year, month, day);//Yes 24 hour time
-                mDatePicker.setTitle("Select Date");
-                mDatePicker.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
-                mDatePicker.show();
-
-            }
-
-        });
-
     }
 
     private void initializeSearchQuery() {
@@ -770,7 +782,7 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
             toastErrorMessage = "Error setting creation time";
             // TODO: Time starting not working (giving weird times)
             // TODO: Fix time to be taken from time picker dialog
-        } else if (!setEventTimeStarting(10, 10, 2020, 10, 10)) {
+        } else if (!setEventTimeStarting()) {
             toastErrorMessage = "Fix time starting";
         }
         if (!TextUtils.isEmpty(toastErrorMessage)) {
@@ -866,18 +878,19 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
         return true;
     }
 
-    private boolean setEventTimeStarting(int day, int month, int year, int hour, int minute) {
-        Calendar cal = Calendar.getInstance();
-        Date startDate = new Date(year, month, day, hour, minute);
-        cal.setLenient(false);
-        cal.setTime(startDate);
+    private boolean setEventTimeStarting() {
+        SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy,HH:mm", Locale.ENGLISH);
+        Date date;
         try {
-            cal.getTime();
-            this.ffEventTimeStarting = startDate;
+            date = formatter.parse(String.format("%s,%s", textViewEventDate,
+                    textViewEventTime));
+            this.ffEventTimeStarting = date;
             return true;
-        } catch (Exception e) {
+        } catch (ParseException e) {
+            e.printStackTrace();
             return false;
         }
+
     }
 
     private boolean setInvitedUsers(ArrayList<String> userEmails) {
