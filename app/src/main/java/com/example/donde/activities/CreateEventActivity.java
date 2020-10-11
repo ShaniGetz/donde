@@ -21,11 +21,13 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.SearchView;
 import android.widget.TextView;
+import android.widget.TimePicker;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -103,6 +105,9 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
     private SearchView searchViewLocationSearch;
     private ListView listViewInvitedUsers;
     private AutoCompleteTextView autoCompleteInvitedUsers;
+
+    private TimePicker timePicker;
+    private DatePicker datePicker;
 
     // Utils
     private ArrayAdapter<String> autoCompleteInvitedUsersAdapter;
@@ -316,12 +321,16 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
         buttonCreateEvent = findViewById(R.id.create_button_create);
         buttonDebugAutofill = findViewById(R.id.create_button_debug_fill_default);
         progressBar = findViewById(R.id.create_progressBar);
-        editTextEventDay = findViewById(R.id.create_editText_event_day);
-        editTextEventMonth = findViewById(R.id.create_editText_event_month);
-        editTextEventYear = findViewById(R.id.create_editText_event_year);
-        editTextEventHour = findViewById(R.id.create_editText_event_hour);
-        editTextEventMinute = findViewById(R.id.create_editText_event_minute);
+//        editTextEventDay = findViewById(R.id.create_editText_event_day);
+//        editTextEventMonth = findViewById(R.id.create_editText_event_month);
+//        editTextEventYear = findViewById(R.id.create_editText_event_year);
+//        editTextEventHour = findViewById(R.id.create_editText_event_hour);
+//        editTextEventMinute = findViewById(R.id.create_editText_event_minute);
         searchViewLocationSearch = findViewById(R.id.create_searchView_location_search);
+        timePicker = findViewById(R.id.create_timePicker);
+        datePicker = findViewById(R.id.create_datePicker);
+        timePicker.setIs24HourView(true);
+
 
         // Firebase
         firebaseAuth = FirebaseAuth.getInstance();
@@ -499,6 +508,7 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
         if (isOnline()) {
 
             setContentView(R.layout.activity_create_event);
+
             initializeFields();
             initializeListeners();
         } else {
@@ -655,7 +665,7 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
     private void addInteractedEmailsToUser(DocumentReference userRef) {
 
         userRef.update(getString(R.string.ff_Users_userInteractedUserEmails),
-                FieldValue.arrayUnion(listViewInvitedUsersList.toArray(new String[listViewInvitedUsersList.size()])));
+                FieldValue.arrayUnion((Object)listViewInvitedUsersList.toArray(new String[listViewInvitedUsersList.size()])));
     }
 
 
