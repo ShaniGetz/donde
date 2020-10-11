@@ -20,6 +20,8 @@ import com.google.android.gms.nearby.connection.PayloadTransferUpdate;
 import com.google.android.gms.nearby.connection.PayloadTransferUpdate.Status;
 import com.google.android.gms.nearby.connection.Strategy;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.GeoPoint;
 
 import java.io.IOException;
@@ -36,9 +38,13 @@ public class OfflineDataTransfer{
     String EndpointId;
     String SERVICE_ID;
     ConnectionLifecycleCallback connectionLifecycleCallback;
+    ConnectionLifecycleCallback connectionLifecycleCallbackForChild;
+    boolean isConnected;
     PayloadCallback payloadCallback;
+    PayloadCallback payloadCallbackForChild;
     Hashtable<String, GeoPoint> Location_dict = new Hashtable<String, GeoPoint>();
     Hashtable<String, String> Status_dict = new Hashtable<String, String>();
+
 
     private static final Strategy STRATEGY = Strategy.P2P_CLUSTER;
 
@@ -49,6 +55,9 @@ public class OfflineDataTransfer{
         context = Context;
         myStatus = status;
         SERVICE_ID = context.getPackageName();
+        Location_dict.put(myName, geopoint);
+        Status_dict.put(myName, myStatus);
+        isConnected = false;
         payloadCallback = new PayloadCallback() {
                     @Override
                     public void onPayloadReceived(String endpointId, Payload payload) {
@@ -71,6 +80,7 @@ public class OfflineDataTransfer{
                         Nearby.getConnectionsClient(context).acceptConnection(endpointId, payloadCallback);
                         EndpointId = endpointId;
                         Log.d("OfflineDataTransfer", "Connection initiated : " + endpointId + " ," + connectionInfo.toString());
+
                     }
 
                     @Override
@@ -100,15 +110,82 @@ public class OfflineDataTransfer{
                     }
 
                 };
+
+        /**
+         * Methods for childNodes
+         */
+        payloadCallbackForChild = new PayloadCallback() {
+                    @Override
+                    public void onPayloadReceived(String endpointId, Payload payload) {
+                        // This always gets the full data of the payload. Will be null if it's not a BYTES
+                        // payload. You can check the payload type with payload.getType().
+                        byte[] receivedBytes = payload.asBytes();
+                    }
+
+                    @Override
+                    public void onPayloadTransferUpdate(String endpointId, PayloadTransferUpdate update) {
+                        // Bytes payloads are sent as a single chunk, so you'll receive a SUCCESS update immediately
+                        // after the call to onPayloadReceived().
+                    }
+                };
+
+        connectionLifecycleCallbackForChild = new ConnectionLifecycleCallback() {
+                    @Override
+                    public void onConnectionInitiated(String endpointId, ConnectionInfo connectionInfo) {
+                        Log.d("offline child ","Connection request from " + connectionInfo.getEndpointName());
+                        // Automatically accept the connection on both sides.
+                        Nearby.getConnectionsClient(context)
+                                .acceptConnection(endpointId, payloadCallbackForChild)
+                                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                    @Override
+                                    public void onSuccess(Void aVoid) {
+                                        stopAdvertising();
+                                    }
+                                })
+                                .addOnFailureListener(new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception e) {
+                                        Log.d("offline child ", "Child node can't get connected",e);
+                                    }
+                                });
+                    }
+
+                    @Override
+                    public void onConnectionResult(String endpointId, ConnectionResolution result) {
+                        switch (result.getStatus().getStatusCode()) {
+                            case ConnectionsStatusCodes.STATUS_OK:
+                                // We're connected! Can now start sending and receiving data.
+                                break;
+                            case ConnectionsStatusCodes.STATUS_CONNECTION_REJECTED:
+                                // The connection was rejected by one or both sides.
+                                break;
+                            case ConnectionsStatusCodes.STATUS_ERROR:
+                                // The connection broke before it was able to be accepted.
+                                break;
+                            default:
+                                // Unknown status code
+                        }
+                    }
+
+                    @Override
+                    public void onDisconnected(String endpointId) {
+                        // We've been disconnected from this endpoint. No more data can be
+                        // sent or received.
+                    }
+                };
     }
 
     public void updateLocation(GeoPoint geopoint){
         geoPoint = geopoint;
+        Location_dict.put(myName, geopoint);
     }
 
     public void updateStatus(String status){
         myStatus = status;
+        Status_dict.put(myName, myStatus);
+
     }
+
 
     public GeoPoint getOtherLocation(String name){
         return Location_dict.get(name);
@@ -116,6 +193,10 @@ public class OfflineDataTransfer{
     }
     public String getOtherStatus(String name){
         return Status_dict.get(name);
+    }
+
+    public void stopAdvertising(){
+        Nearby.getConnectionsClient(context).stopAdvertising();
     }
 
 
@@ -126,8 +207,9 @@ public class OfflineDataTransfer{
                     // An endpoint was found. We request a connection to it.
                     Log.d("OfflineDataTransfer", "Endpoint found : " + info.getEndpointName());
                     getNameAndStatus(info.getEndpointName());
+
                     Nearby.getConnectionsClient(context)
-                            .requestConnection(info.getEndpointName() + ".1", endpointId, connectionLifecycleCallback)
+                            .requestConnection(info.getEndpointName(), endpointId, connectionLifecycleCallback)
                             .addOnSuccessListener(
                                     (Void unused) -> {
                                         Log.d("OfflineDataTransfer", "Request a connection :" + info.getEndpointName());
@@ -137,7 +219,7 @@ public class OfflineDataTransfer{
                             .addOnFailureListener(
                                     (Exception e) -> {
                                         // Nearby Connections failed to request the connection.
-                                        Log.d("OfflineDataTransfer", "Nearby Connections failed to request the connection.");
+                                        Log.d("OfflineDataTransfer", e.toString());
                                     });
                 }
 
@@ -150,7 +232,7 @@ public class OfflineDataTransfer{
     public void startAdvertising() {
         AdvertisingOptions advertisingOptions =
                 new AdvertisingOptions.Builder().setStrategy(STRATEGY).build();
-        Nearby.getConnectionsClient(context).startAdvertising(getUser(), SERVICE_ID, connectionLifecycleCallback, advertisingOptions)
+        Nearby.getConnectionsClient(context).startAdvertising(getUser(), SERVICE_ID, connectionLifecycleCallbackForChild, advertisingOptions)
                 .addOnSuccessListener(
                         (Void unused) -> {
                             // We're advertising!
@@ -213,7 +295,7 @@ public class OfflineDataTransfer{
                     Name = string.substring(0, i);
 
                 } else if (!foundStat) {
-                    stat = string.substring(Name.length(), i);
+                    stat = string.substring(Name.length() + 1, i);
                     idx = i;
                     foundStat = true;
                     Status_dict.put(Name, stat);
@@ -223,6 +305,7 @@ public class OfflineDataTransfer{
                     geoPoint = new GeoPoint(Double.parseDouble(StringOfLatitude),
                             Double.parseDouble(string.substring(i + 1)));
                     Location_dict.put(Name, geoPoint);
+                    break;
 
                 }
             }
