@@ -380,12 +380,10 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
                 }
             }
         };
-
-
         setEventCreatorUID();
         setEventCreatorName();
-    }
 
+    }
 
     private void initializeSearchQuery() {
         searchViewLocationSearch.setOnQueryTextListener(new SearchView.OnQueryTextListener() {

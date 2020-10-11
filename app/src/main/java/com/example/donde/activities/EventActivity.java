@@ -40,16 +40,12 @@ import java.util.ArrayList;
 
 
 public class EventActivity extends AppCompatActivity implements StatusDialog.StatusDialogListener {
-
-
     private static String status;
-
+    private static String myUserId;
     final int INFO_TAB = 0;
     final int MAP_TAB = 1;
     final int CHAT_TAB = 2;
-
     FirebaseFirestore firebaseFirestore;
-
     private TextView textViewInfoLabel;
     private TextView textViewMapLabel;
     private TextView textViewChatLabel;
@@ -66,6 +62,9 @@ public class EventActivity extends AppCompatActivity implements StatusDialog.Sta
     private EventsListViewModel eventsListViewModel;
     private String TAG = "EventActivity";
     private ArrayList<InvitedInEventUserModel> invitedUserInEventModelList = new ArrayList<>();
+    public ArrayList<InvitedInEventUserModel> getInvitedUserInEventModelList() {
+        return invitedUserInEventModelList;
+    }
     private String currUserID;
     OfflineDataTransfer offlineDataTransfer;
     private int currentUserIndexInInvitedUsersList = 0; // current user is always at beginning
@@ -80,10 +79,6 @@ public class EventActivity extends AppCompatActivity implements StatusDialog.Sta
     private static final int REQUEST_CODE_REQUIRED_PERMISSIONS = 5432;
     public static String getStatus() {
         return status;
-    }
-
-    public ArrayList<InvitedInEventUserModel> getInvitedUserInEventModelList() {
-        return invitedUserInEventModelList;
     }
 
     public OfflineDataTransfer getOfflineDataTransfer(){
@@ -121,6 +116,11 @@ public class EventActivity extends AppCompatActivity implements StatusDialog.Sta
             recreate();
         }
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        myUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+    }
+
+    public static String getMyUserId() {
+        return myUserId;
     }
 
     public static boolean hasPermissions(Context context, String... permissions) {
@@ -275,7 +275,6 @@ public class EventActivity extends AppCompatActivity implements StatusDialog.Sta
             }
         });
     }
-
 
 //    private void initializeUsersList() {
 //        usersList = new ArrayList<>();
