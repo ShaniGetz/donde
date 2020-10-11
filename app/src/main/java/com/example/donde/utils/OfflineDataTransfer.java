@@ -70,7 +70,7 @@ public class OfflineDataTransfer{
                         // Automatically accept the connection on both sides.
                         Nearby.getConnectionsClient(context).acceptConnection(endpointId, payloadCallback);
                         EndpointId = endpointId;
-                        Log.d("TAGG", "Connection initiated : " + endpointId + " ," + connectionInfo.toString());
+                        Log.d("OfflineDataTransfer", "Connection initiated : " + endpointId + " ," + connectionInfo.toString());
                     }
 
                     @Override
@@ -78,12 +78,12 @@ public class OfflineDataTransfer{
                         switch (result.getStatus().getStatusCode()) {
                             case ConnectionsStatusCodes.STATUS_OK:
                                 // We're connected! Can now start sending and receiving data.
-                                Log.d("TAGG", "Connected : " + endpointId + " ," + result.toString());
+                                Log.d("OfflineDataTransfer", "Connected : " + endpointId + " ," + result.toString());
 //                            Nearby.getConnectionsClient(context).stopAdvertising();
                                 break;
                             case ConnectionsStatusCodes.STATUS_CONNECTION_REJECTED:
                                 // The connection was rejected by one or both sides.
-                                Log.d("TAGG", "Connection rejected : " + endpointId + " ," + result.toString());
+                                Log.d("OfflineDataTransfer", "Connection rejected : " + endpointId + " ," + result.toString());
                                 break;
                             case ConnectionsStatusCodes.STATUS_ERROR:
                                 // The connection broke before it was able to be accepted.
@@ -124,20 +124,20 @@ public class OfflineDataTransfer{
                 @Override
                 public void onEndpointFound(String endpointId, DiscoveredEndpointInfo info) {
                     // An endpoint was found. We request a connection to it.
-                    Log.d("TAGG", "Endpoint found : " + info.getEndpointName());
+                    Log.d("OfflineDataTransfer", "Endpoint found : " + info.getEndpointName());
                     getNameAndStatus(info.getEndpointName());
                     Nearby.getConnectionsClient(context)
                             .requestConnection(info.getEndpointName() + ".1", endpointId, connectionLifecycleCallback)
                             .addOnSuccessListener(
                                     (Void unused) -> {
-                                        Log.d("TAGG", "Request a connection :" + info.getEndpointName());
+                                        Log.d("OfflineDataTransfer", "Request a connection :" + info.getEndpointName());
                                         // We successfully requested a connection. Now both sides
                                         // must accept before the connection is established.
                                     })
                             .addOnFailureListener(
                                     (Exception e) -> {
                                         // Nearby Connections failed to request the connection.
-                                        Log.d("TAGG", "Nearby Connections failed to request the connection.");
+                                        Log.d("OfflineDataTransfer", "Nearby Connections failed to request the connection.");
                                     });
                 }
 
@@ -154,14 +154,14 @@ public class OfflineDataTransfer{
                 .addOnSuccessListener(
                         (Void unused) -> {
                             // We're advertising!
-                            Log.d("TAGG", "Advertising : " + getUser());
+                            Log.d("OfflineDataTransfer", "Advertising : " + getUser());
 
                         })
                 .addOnFailureListener(
                         (Exception e) -> {
                             // We were unable to start advertising.
 //                            Log.d("TAGG", "Unable to start advertising");
-                            Log.d("TAGG", e.toString());
+                            Log.d("OfflineDataTransfer", e.toString());
 
                         });
     }
@@ -173,12 +173,12 @@ public class OfflineDataTransfer{
                 .addOnSuccessListener(
                         (Void unused) -> {
                             // We're discovering!
-                            Log.d("TAGG", "Discovering...");
+                            Log.d("OfflineDataTransfer", "Discovering...");
                         })
                 .addOnFailureListener(
                         (Exception e) -> {
                             // We're unable to start discovering.
-                            Log.d("TAGG", "We're unable to start discovering");
+                            Log.d("OfflineDataTransfer", "We're unable to start discovering");
                         });
 
     }
@@ -213,15 +213,15 @@ public class OfflineDataTransfer{
                     Name = string.substring(0, i);
 
                 } else if (!foundStat) {
-                    stat = string.substring(0, i);
+                    stat = string.substring(Name.length(), i);
                     idx = i;
                     foundStat = true;
                     Status_dict.put(Name, stat);
                 } else if (!foundLatitude) {
-                    StringOfLatitude = string.substring(idx, i);
+                    StringOfLatitude = string.substring(idx + 1, i);
                     foundLatitude = true;
                     geoPoint = new GeoPoint(Double.parseDouble(StringOfLatitude),
-                            Double.parseDouble(string.substring(i)));
+                            Double.parseDouble(string.substring(i + 1)));
                     Location_dict.put(Name, geoPoint);
 
                 }
