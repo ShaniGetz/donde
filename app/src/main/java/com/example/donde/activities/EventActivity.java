@@ -1,27 +1,36 @@
 package com.example.donde.activities;
 
+import android.Manifest;
+import android.content.Context;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.viewpager.widget.ViewPager;
 
 import com.example.donde.R;
 import com.example.donde.models.EventModel;
 import com.example.donde.models.InvitedInEventUserModel;
 import com.example.donde.recycle_views.events_recycler_view.EventsListViewModel;
+import com.example.donde.utils.OfflineDataTransfer;
 import com.example.donde.utils.ViewPagerAdapter;
 import com.example.donde.utils.map_utils.StatusDialog;
+import com.google.android.gms.nearby.Nearby;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.Transaction;
@@ -31,11 +40,16 @@ import java.util.ArrayList;
 
 
 public class EventActivity extends AppCompatActivity implements StatusDialog.StatusDialogListener {
+
+
     private static String status;
+
     final int INFO_TAB = 0;
     final int MAP_TAB = 1;
     final int CHAT_TAB = 2;
+
     FirebaseFirestore firebaseFirestore;
+
     private TextView textViewInfoLabel;
     private TextView textViewMapLabel;
     private TextView textViewChatLabel;
@@ -53,8 +67,17 @@ public class EventActivity extends AppCompatActivity implements StatusDialog.Sta
     private String TAG = "EventActivity";
     private ArrayList<InvitedInEventUserModel> invitedUserInEventModelList = new ArrayList<>();
     private String currUserID;
+    OfflineDataTransfer offlineDataTransfer;
     private int currentUserIndexInInvitedUsersList = 0; // current user is always at beginning
-
+    private static final String[] REQUIRED_PERMISSIONS =
+            new String[]{
+                    Manifest.permission.BLUETOOTH,
+                    Manifest.permission.BLUETOOTH_ADMIN,
+                    Manifest.permission.ACCESS_WIFI_STATE,
+                    Manifest.permission.CHANGE_WIFI_STATE,
+                    Manifest.permission.ACCESS_COARSE_LOCATION,
+            };
+    private static final int REQUEST_CODE_REQUIRED_PERMISSIONS = 5432;
     public static String getStatus() {
         return status;
     }
@@ -70,7 +93,59 @@ public class EventActivity extends AppCompatActivity implements StatusDialog.Sta
         initializeFields();
         initializeListeners();
         initializeInvitedUsersList();
+        GeoPoint geoPoint = new GeoPoint(23.44, 88.88);
+        offlineDataTransfer = new OfflineDataTransfer(currUserID, geoPoint, this,"heyyyy");
+        offlineDataTransfer.startAdvertising();
+        offlineDataTransfer.startDiscovery();
     }
+
+
+    /**
+     * Called when the user has accepted (or denied) our permission request.
+     */
+    @Override
+    public void onRequestPermissionsResult(
+            int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (requestCode == REQUEST_CODE_REQUIRED_PERMISSIONS) {
+            for (int grantResult : grantResults) {
+                if (grantResult == PackageManager.PERMISSION_DENIED) {
+                    Toast.makeText(this, "error_missing_permissions", Toast.LENGTH_LONG).show();
+                    finish();
+                    return;
+                }
+            }
+            recreate();
+        }
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    }
+
+    public static boolean hasPermissions(Context context, String... permissions) {
+        for (String permission : permissions) {
+            if (ContextCompat.checkSelfPermission(context, permission)
+                    != PackageManager.PERMISSION_GRANTED) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if (!hasPermissions(this, REQUIRED_PERMISSIONS)) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                requestPermissions(REQUIRED_PERMISSIONS, REQUEST_CODE_REQUIRED_PERMISSIONS);
+            }
+        }
+    }
+    @Override
+    protected void onStop() {
+        super.onStop();
+        Nearby.getConnectionsClient(this.getApplicationContext()).stopAdvertising();
+        Nearby.getConnectionsClient(this).stopAllEndpoints();
+    }
+
+
 
     private void initializeInvitedUsersList() {
         firebaseFirestore.collection(getString(R.string.ff_Events)).document(eventID).collection(getString(R.string.ff_InvitedInEventUsers)).get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
@@ -197,6 +272,7 @@ public class EventActivity extends AppCompatActivity implements StatusDialog.Sta
             }
         });
     }
+
 
 //    private void initializeUsersList() {
 //        usersList = new ArrayList<>();
