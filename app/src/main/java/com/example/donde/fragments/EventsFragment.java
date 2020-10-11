@@ -15,6 +15,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -320,7 +321,25 @@ public class EventsFragment extends Fragment {
             checkBoxEventIsGoing = itemView.findViewById(R.id.event_item_checkBox_is_going);
             buttonGotoEvent = itemView.findViewById(R.id.event_item_button_goto_event);
             buttonDeleteEvent = itemView.findViewById(R.id.event_item_button_delete_event);
+            checkBoxEventIsGoing.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                    if (isChecked) {
+                        acceptEventInvite();
+                    }
+                }
+            });
         }
+
+        private void acceptEventInvite() {
+
+        }
+
+
     }
+
+
+
+
 
 }
