@@ -4,7 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".archive.EventInfoFragment">
+    tools:context=".archive.EventInfoFragment"
+    android:background="@drawable/bg_gradient">
 
     <TextView
         android:id="@+id/event_textView_info_label"
@@ -17,7 +18,8 @@
         android:textStyle="bold"
         app:layout_constraintEnd_toStartOf="@id/event_textView_map_label"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        />
 
     <TextView
         android:id="@+id/event_textView_map_label"
