@@ -203,8 +203,10 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback {
     }
 
     private void updateInfo(){
+        if(invitedUsersList == null){
+            invitedUsersList = ((EventActivity) getActivity()).getInvitedUserInEventModelList();
+        }
         if (invitedUsersList != null) {
-
             for (InvitedInEventUserModel user : invitedUsersList) {
                 String id = user.getInvitedInEventUserID();
                 String status = offlineDataTransfer.getOtherStatus(id);
