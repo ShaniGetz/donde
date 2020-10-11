@@ -91,7 +91,7 @@ public class EventActivity extends AppCompatActivity implements StatusDialog.Sta
                             Log.d(TAG, String.format("Adding query snapshot name: %s",
                                     documentSnapshot.get(getString(R.string.ff_InvitedInEventUsers_invitedInEventUserName))));
                             String userId =
-                                    documentSnapshot.getString(getString(R.string.ff_InvitedInEventUsers_invitedInEventUserID);
+                                    documentSnapshot.getString(getString(R.string.ff_InvitedInEventUsers_invitedInEventUserID));
 
                             if (userId == currUserID) {
                                 invitedInEventUserModels.add(0,

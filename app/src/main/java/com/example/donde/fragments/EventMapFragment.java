@@ -226,7 +226,6 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback {
                             user.setInvitedInEventUserCurrentLocation(new GeoPoint(mLastLocation.getLatitude(), mLastLocation.getLongitude()));
                             Log.d(TAG, user.getInvitedInEventUserCurrentLocation().toString());
                             Log.d(TAG, mLastLocation.toString());
-                            //TODO: also need to chang location in firestore
                             snippet = "Click to post your status";
                         } else {
                             snippet = "";
@@ -268,10 +267,15 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback {
                             @Override
                             public boolean onClusterItemClick(ClusterMarker clusterItem) {
                                 if (clusterItem.getUserID().equals(myUserId)) {
-                                    Toast.makeText(getContext(), " me clicked", Toast.LENGTH_LONG).show();
                                     openDialog();
                                     status = EventActivity.getStatus();
                                     clusterItem.setSnippet(status);
+                                    for (int i=0; i<mClusterMarkers.size(); i++){
+                                        if(mClusterMarkers.get(i).getUserID().equals(myUserId)){
+                                            mClusterMarkers.get(i).setSnippet(status);
+                                            mClusterManagerRenderer.setUpdateMarker(mClusterMarkers.get(i));
+                                        }
+                                    }
                                 } else {
                                     return false;
                                 }
