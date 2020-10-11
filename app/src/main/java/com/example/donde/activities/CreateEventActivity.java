@@ -2,6 +2,7 @@ package com.example.donde.activities;
 
 import android.Manifest;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -94,11 +95,7 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
     // Views
     private EditText editTextEventName;
     private EditText editTextEventDescription;
-    private EditText editTextEventDay;
-    private EditText editTextEventMonth;
-    private EditText editTextEventYear;
-    private EditText editTextEventHour;
-    private EditText editTextEventMinute;
+
     private Button buttonCreateEvent;
     private Button buttonDebugAutofill;
     private ProgressBar progressBar;
@@ -106,8 +103,12 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
     private ListView listViewInvitedUsers;
     private AutoCompleteTextView autoCompleteInvitedUsers;
 
+
+    private TextView textViewEventTime;
+    private TextView textViewEventDate;
     private TimePicker timePicker;
     private DatePicker datePicker;
+
 
     // Utils
     private ArrayAdapter<String> autoCompleteInvitedUsersAdapter;
@@ -138,6 +139,8 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
     private boolean didFinishSettingUsers;
 
     void checkForPermissions() {
+
+
         // Here, thisActivity is the current activity
         if (ContextCompat.checkSelfPermission(this,
                 Manifest.permission.WRITE_EXTERNAL_STORAGE)
@@ -340,6 +343,7 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
         eventsCollectionRef = firebaseFirestore.collection(getString(R.string.ff_Events));
         currUserDocumentRef = usersCollectionRef.document(firebaseUser.getUid());
 
+        initializeTimeAndDate();
         initializeListViewInvitedUsers();
         initializeAutocompleteInvitedUsers();
 
@@ -383,6 +387,33 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
         setEventCreatorUID();
         setEventCreatorName();
 
+    }
+
+    private void initializeTimeAndDate() {
+        Context createContext = this;
+        textViewEventTime = findViewById(R.id.create_textView_event_time);
+//        textViewEventTime.setOnClickListener(new View.OnClickListener() {
+//
+//
+//            @Override
+//            public void onClick(View v) {
+//                // TODO Auto-generated method stub
+//                Calendar mcurrentTime = Calendar.getInstance();
+//                int hour = mcurrentTime.get(Calendar.HOUR_OF_DAY);
+//                int minute = mcurrentTime.get(Calendar.MINUTE);
+//                TimePickerDialog mTimePicker;
+//                mTimePicker = new TimePickerDialog(createContext, new TimePickerDialog.OnTimeSetListener() {
+//                    @Override
+//                    public void onTimeSet(TimePicker timePicker, int selectedHour, int selectedMinute) {
+//                        textViewEventTime.setText(selectedHour + ":" + selectedMinute);
+//                    }
+//                }, hour, minute, true);//Yes 24 hour time
+//                mTimePicker.setTitle("Select Time");
+////                mTimePicker.mode
+//                mTimePicker.show();
+//
+//            }
+//        });
     }
 
     private void initializeSearchQuery() {
@@ -456,11 +487,6 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
             editTextEventName.setText("A Debug Event Name");
             editTextEventDescription.setText("A debug description for an event. This text is kind of long but" + " also not too long.");
             searchViewLocationSearch.setQuery("Ein Bokek", true);
-            editTextEventDay.setText("16");
-            editTextEventMonth.setText("10");
-            editTextEventYear.setText("2020");
-            editTextEventHour.setText("20");
-            editTextEventMinute.setText("30");
         });
     }
 
@@ -663,7 +689,7 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
     private void addInteractedEmailsToUser(DocumentReference userRef) {
 
         userRef.update(getString(R.string.ff_Users_userInteractedUserEmails),
-                FieldValue.arrayUnion((Object)listViewInvitedUsersList.toArray(new String[listViewInvitedUsersList.size()])));
+                FieldValue.arrayUnion((Object) listViewInvitedUsersList.toArray(new String[listViewInvitedUsersList.size()])));
     }
 
 
@@ -697,12 +723,8 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
         } else if (!setEventTimeCreated()) {
             toastErrorMessage = "Error setting creation time";
             // TODO: Time starting not working (giving weird times)
-        } else if (!setEventTimeStarting(
-                Integer.parseInt(editTextEventDay.getText().toString()),
-                Integer.parseInt(editTextEventMonth.getText().toString()),
-                Integer.parseInt(editTextEventYear.getText().toString()),
-                Integer.parseInt(editTextEventHour.getText().toString()),
-                Integer.parseInt(editTextEventMinute.getText().toString()))) {
+            // TODO: Fix time to be taken from time picker dialog
+        } else if (!setEventTimeStarting(10, 10, 2020, 10, 10)) {
             toastErrorMessage = "Fix time starting";
         }
         if (!TextUtils.isEmpty(toastErrorMessage)) {
