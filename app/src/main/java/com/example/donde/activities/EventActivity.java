@@ -49,9 +49,8 @@ import java.util.ArrayList;
 import static com.firebase.ui.auth.AuthUI.getApplicationContext;
 
 
-public class EventActivity extends AppCompatActivity implements StatusDialog.StatusDialogListener {
+public class EventActivity extends AppCompatActivity {
 
-    private static String status;
     private static String myUserId;
     final int INFO_TAB = 0;
     final int MAP_TAB = 1;
@@ -92,9 +91,7 @@ public class EventActivity extends AppCompatActivity implements StatusDialog.Sta
                     Manifest.permission.ACCESS_COARSE_LOCATION,
             };
     private static final int REQUEST_CODE_REQUIRED_PERMISSIONS = 5432;
-    public static String getStatus() {
-        return status;
-    }
+
 
     public OfflineDataTransfer getOfflineDataTransfer(){
         return offlineDataTransfer;
@@ -340,10 +337,6 @@ public class EventActivity extends AppCompatActivity implements StatusDialog.Sta
         subTab2.setTextSize(15);
     }
 
-    @Override
-    public void applyText(String status) {
-        this.status = status;
-    }
 
 //
 //    public void changeUriToBitmap(String uri) {
