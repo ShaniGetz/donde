@@ -31,7 +31,7 @@ import com.example.donde.activities.EventActivity;
 import com.example.donde.activities.MainActivity;
 import com.example.donde.models.EventModel;
 import com.example.donde.models.InvitedInUserEventModel;
-import com.example.donde.utils.OfflineManager;
+import com.example.donde.utils.offline_manager.OutputOfflineManager;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -113,8 +113,12 @@ public class EventsFragment extends Fragment {
                     @Override
                     protected void onBindViewHolder(@NonNull EventsViewHolder holder, int position, @NonNull InvitedInUserEventModel model) {
                         DocumentReference eventRef = firebaseFirestore.collection(getString(R.string.ff_Events)).document(model.getInvitedInUserEventId());
-                        OfflineManager offlineManager = new OfflineManager(FirebaseAuth.getInstance().getCurrentUser(), model,
-                                getContext());
+                        OutputOfflineManager offlineManager = null;
+                        try {
+                            offlineManager = new OutputOfflineManager(getContext());
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
 
                         holder.textViewEventName.setText(String.format("Event name: %s",
                                 model.getInvitedInUserEventName()));
@@ -153,7 +157,7 @@ public class EventsFragment extends Fragment {
 
     private void initializeIsGoingCheckbox(@NonNull EventsViewHolder holder,
                                            InvitedInUserEventModel model,
-                                           DocumentReference eventRef, OfflineManager offlineManager) {
+                                           DocumentReference eventRef, OutputOfflineManager offlineManager) {
         // set checked to correspond to user's response
         holder.checkBoxEventIsGoing.setChecked(model.isInvitedInUserEventIsGoing());
 
@@ -174,17 +178,17 @@ public class EventsFragment extends Fragment {
         });
     }
 
-    private void acceptEventInvite(InvitedInUserEventModel model, OfflineManager offlineManager) {
+    private void acceptEventInvite(InvitedInUserEventModel model, OutputOfflineManager offlineManager) {
 
         //download event offline
-        offlineManager.downloadDebug();
+        offlineManager.downloadEventToOffline(model);
 
 
     }
 
     private void setGotoEventButtonOnClick(@NonNull EventsViewHolder holder, int position,
                                            @NonNull InvitedInUserEventModel model,
-                                           DocumentReference eventRef, OfflineManager offlineManager) {
+                                           DocumentReference eventRef, OutputOfflineManager offlineManager) {
         holder.buttonGotoEvent.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -356,7 +360,11 @@ public class EventsFragment extends Fragment {
         private void acceptEventInvite(InvitedInUserEventModel eventAccepted) {
             FirebaseUser currUser = ((MainActivity) getActivity()).getmAuth().getCurrentUser();
 
-            OfflineManager offlineManager = new OfflineManager(currUser, eventAccepted, getContext());
+            try {
+                OutputOfflineManager offlineManager = new OutputOfflineManager(getContext());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
 
 

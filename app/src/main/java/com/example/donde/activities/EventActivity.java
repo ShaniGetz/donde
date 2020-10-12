@@ -1,5 +1,6 @@
 package com.example.donde.activities;
 
+import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
@@ -9,16 +10,18 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.viewpager.widget.ViewPager;
 
 import com.example.donde.R;
 import com.example.donde.models.EventModel;
 import com.example.donde.models.InvitedInEventUserModel;
+import com.example.donde.models.InvitedInUserEventModel;
 import com.example.donde.recycle_views.events_recycler_view.EventsListViewModel;
-import com.example.donde.utils.OfflineManager;
 import com.example.donde.utils.ViewPagerAdapter;
 import com.example.donde.utils.map_utils.StatusDialog;
+import com.example.donde.utils.offline_manager.InputOfflineManager;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
@@ -29,7 +32,6 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.Transaction;
 import com.google.gson.Gson;
 
-import java.io.FileNotFoundException;
 import java.util.ArrayList;
 
 
@@ -52,7 +54,7 @@ public class EventActivity extends AppCompatActivity implements StatusDialog.Sta
     private String eventID;
     private int position;
     private EventModel eventModel;
-//    private OfflineManager offlineManager;
+    //    private OfflineManager offlineManager;
     //    private int position;
     private EventsListViewModel eventsListViewModel;
     private String TAG = "EventActivity";
@@ -72,6 +74,7 @@ public class EventActivity extends AppCompatActivity implements StatusDialog.Sta
         return invitedUserInEventModelList;
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -80,7 +83,22 @@ public class EventActivity extends AppCompatActivity implements StatusDialog.Sta
         initializeListeners();
         initializeInvitedUsersList();
         myUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        Toast.makeText(this, OfflineManager.getOfflineString(this), Toast.LENGTH_SHORT).show();
+        testOfflineManager();
+
+
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    private void testOfflineManager() {
+        try {
+            InputOfflineManager offlineManager =
+                    new InputOfflineManager(this);
+            InvitedInUserEventModel offlineEventModel = offlineManager.getEventModel(this.eventModel.getEventName());
+            Toast.makeText(this, "Evene tfrmo offline is: " + offlineEventModel.getInvitedInUserEventName(),
+                    Toast.LENGTH_SHORT).show();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
     }
 
