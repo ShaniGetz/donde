@@ -20,6 +20,7 @@
         android:allowBackup="true"
         android:icon="@drawable/icon"
         android:label="Donde"
+
         android:roundIcon="@drawable/icon"
         android:supportsRtl="false"
         android:theme="@style/AppTheme">
@@ -34,7 +35,7 @@
         -->
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyAqVEnRRK2le4e6Mr4wod7RaYzSMvKH3_c"/>
+            android:value="AIzaSyAqVEnRRK2le4e6Mr4wod7RaYzSMvKH3_c" />
 
         <activity android:name=".activities.LoginActivity">
             <intent-filter>
@@ -46,7 +47,10 @@
         <activity android:name=".activities.MainActivity" />
         <activity android:name=".activities.RegisterActivity" />
         <activity android:name=".activities.AccountActivity" />
-        <activity android:name=".activities.CreateEventActivity" />
+        <activity
+            android:name=".activities.CreateEventActivity"
+            android:theme="@style/Theme.AppCompat.NoActionBar"
+            android:windowSoftInputMode="adjustPan" />
         <activity android:name=".activities.EventActivity" />
     </application>
 
