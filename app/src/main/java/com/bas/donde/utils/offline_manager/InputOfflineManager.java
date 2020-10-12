@@ -1,4 +1,4 @@
-package com.example.donde.utils.offline_manager;
+package com.bas.donde.utils.offline_manager;
 
 import android.content.Context;
 import android.os.Build;
@@ -6,8 +6,8 @@ import android.util.Log;
 
 import androidx.annotation.RequiresApi;
 
-import com.example.donde.models.EventModel;
-import com.example.donde.models.InvitedInUserEventModel;
+import com.bas.donde.models.EventModel;
+import com.bas.donde.models.InvitedInUserEventModel;
 import com.google.gson.Gson;
 
 import java.io.File;
@@ -16,7 +16,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
-public class InputOfflineManager extends OfflineManager {
+public class InputOfflineManager extends com.example.donde.utils.offline_manager.OfflineManager {
 
     private File currUserBaseDir;
     private File currUserEventDir;

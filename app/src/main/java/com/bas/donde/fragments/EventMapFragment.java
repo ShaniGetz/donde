@@ -37,7 +37,6 @@ import com.bas.donde.utils.OfflineDataTransfer;
 import com.bas.donde.utils.map_utils.ClusterMarker;
 import com.bas.donde.utils.map_utils.MyClusterManagerRenderer;
 import com.bas.donde.utils.map_utils.OfflineTileProvider;
-import com.bas.donde.utils.map_utils.StatusDialog;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
@@ -48,8 +47,6 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.maps.model.TileOverlay;
 import com.google.android.gms.maps.model.TileOverlayOptions;
 import com.google.firebase.firestore.GeoPoint;
 import com.google.maps.android.clustering.ClusterManager;
@@ -62,7 +59,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class EventMapFragment extends Fragment implements OnMapReadyCallback, StatusDialog.StatusDialogListener {
+public class EventMapFragment extends Fragment implements OnMapReadyCallback {
     public static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
     public static final int currentUserIndex = 0;
     public static final int locationUpdateInterval = 300;
@@ -71,7 +68,7 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback, St
     GoogleMap mGoogleMap;
     FusedLocationProviderClient mFusedLocationClient;
     Location mLastLocation;
-    Marker mCurrLocationMarker;
+    //    Marker mCurrLocationMarker;
     ArrayList<InvitedInEventUserModel> invitedUsersList;
     private String myUserId;
     private String status = "";
@@ -90,15 +87,39 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback, St
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        geoPoint = ((EventActivity) getActivity()).getEvent().getEventLocation();
-        laLing = new LatLng(geoPoint.getLatitude(), geoPoint.getLongitude());
-        offlineDataTransfer = ((EventActivity) getActivity()).getOfflineDataTransfer();
+        // TODO: Should this go in onviewcreated?
+        initializeFields();
+
         return inflater.inflate(R.layout.fragment_event_map, container, false);
 
     }
 
+    private void setOnLocationCallback() {
+        mLocationCallback = new LocationCallback() {
+            @Override
+            public void onLocationResult(LocationResult locationResult) {
+                super.onLocationResult(locationResult);
+                List<Location> locationList = locationResult.getLocations();
+                if (locationList.size() <= 0) {
+                    return;
+                }
+                //The last location in the list is the newest
+                Location location = locationList.get(locationList.size() - 1);
+                mLastLocation = location;
+                offlineDataTransfer.updateLocation(new GeoPoint(location.getLatitude(), location.getLongitude()));
+                LatLng localLatling = new LatLng(location.getLatitude(), location.getLongitude());
+                mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(localLatling,
+                        17));
+                offlineDataTransfer.connect();
+
+            }
+        };
+    }
+
     private void initializeClusterMarkers() {
         mClusterMarkers = new ArrayList<>();
+
+
         // TODO: This wasn't a field but rather a local variable
         mLocationCallback = new LocationCallback() {
             @Override
@@ -113,20 +134,17 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback, St
                     //to update the location we have
                     offlineDataTransfer.updateLocation(new GeoPoint(location.getLatitude(), location.getLongitude()));
 
-                    if (mCurrLocationMarker != null) {
-                        mCurrLocationMarker.remove();
-                    }
-                    //move map camera
-//                        mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 11));
-                    LatLng localLatling = new LatLng(location.getLatitude(), location.getLongitude());
-                    mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(localLatling, 17));
+//                    if (mCurrLocationMarker != null) {
+//                        mCurrLocationMarker.remove();
+//                    }
 
-                    Log.d("onLocationResult", laLing.latitude + " " + laLing.longitude);
-                    mGoogleMap.setMapType(GoogleMap.MAP_TYPE_NONE);
+                    LatLng localLatling = new LatLng(location.getLatitude(), location.getLongitude());
+                    mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(localLatling,
+                            17));
 
 
                     // TODO: Bottleneck #1
-                    TileOverlay onlineTileOverlay = mGoogleMap.addTileOverlay(new TileOverlayOptions()
+                    mGoogleMap.addTileOverlay(new TileOverlayOptions()
                             .tileProvider(new OfflineTileProvider(myContext)));
 
                     offlineDataTransfer.connect();
@@ -138,6 +156,9 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback, St
     }
 
     private void initializeFields() {
+        geoPoint = ((EventActivity) getActivity()).getEvent().getEventLocation();
+        laLing = new LatLng(geoPoint.getLatitude(), geoPoint.getLongitude());
+        offlineDataTransfer = ((EventActivity) getActivity()).getOfflineDataTransfer();
         initializeClusterMarkers();
         mFusedLocationClient =
                 LocationServices.getFusedLocationProviderClient(getActivity());
@@ -145,12 +166,12 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback, St
         initializeClusterMarkers();
         setClusterMarkerOnClick();
 
+
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        initializeFields();
 
 
     }
@@ -191,6 +212,8 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback, St
 //        if (status != null) {
 //            offlineDataTransfer.updateStatus(status);
 //        }
+
+
         if (ContextCompat.checkSelfPermission(getContext(),
                 Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED) {
@@ -214,6 +237,10 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback, St
     private void initializeGoogleMap(GoogleMap googleMap) {
         mGoogleMap = googleMap;
         mGoogleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+        // TODO: Bottleneck #1 (does this load offline map?)
+        mGoogleMap.addTileOverlay(new TileOverlayOptions()
+                .tileProvider(new OfflineTileProvider(myContext)));
+
     }
 
     private void updateInfo() {
@@ -452,10 +479,6 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback, St
         return null;
     }
 
-    @Override
-    public void applyText(String status) {
-        this.status = status;
-    }
 
 }
 

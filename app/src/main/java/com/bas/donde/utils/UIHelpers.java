@@ -11,7 +11,7 @@ import android.util.Log;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
-import com.example.donde.activities.CreateEventActivity;
+import com.bas.donde.activities.CreateEventActivity;
 
 import java.util.Calendar;
 

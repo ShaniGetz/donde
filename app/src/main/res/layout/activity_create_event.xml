@@ -13,7 +13,6 @@
         android:background="@drawable/bg_gradient"
         tools:context=".activities.CreateEventActivity">
 
-
         <ProgressBar
             android:id="@+id/create_progressBar"
             android:layout_width="wrap_content"
