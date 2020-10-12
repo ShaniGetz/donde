@@ -108,12 +108,10 @@ public class EventsFragment extends Fragment {
 
                     @Override
                     protected void onBindViewHolder(@NonNull EventsViewHolder holder, int position, @NonNull InvitedInUserEventModel model) {
-                        holder.textViewEventName.setText(String.format("Event name: %s",
-                                model.getInvitedInUserEventName()));
+                        holder.textViewEventName.setText(String.format(model.getInvitedInUserEventName()));
                         holder.textViewEventCreatorName.setText(String.format("Creator name: %s",
                                 model.getInvitedInUserEventCreatorName()));
-                        holder.textViewEventLocationName.setText(String.format("Location " +
-                                "name: %s", model.getInvitedInUserEventLocationName()));
+                        holder.textViewEventLocationName.setText(String.format("Location: %s", model.getInvitedInUserEventLocationName()));
                         holder.textViewEventTimeStarting.setText(String.format("Time " +
                                 "starting: %s", model.getInvitedInUserEventTimeStarting()));
                         holder.buttonGotoEvent.setOnClickListener(new View.OnClickListener() {

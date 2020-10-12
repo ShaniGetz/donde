@@ -46,24 +46,12 @@
             android:layout_height="wrap_content"
             android:textSize="7pt"
             android:gravity="center"
-            app:layout_constraintBottom_toTopOf="@id/info_textView_creator_name"
+            app:layout_constraintBottom_toTopOf="@id/info_textView_time_starting"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/info_textView_event_description"
             tools:text="Fake Location" />
 
-
-        <TextView
-            android:id="@+id/info_textView_creator_name"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="7pt"
-            android:gravity="center"
-            app:layout_constraintBottom_toTopOf="@id/info_textView_time_starting"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/info_textView_location_name"
-            tools:text="Fake Creator username" />
 
         <TextView
             android:id="@+id/info_textView_time_starting"
@@ -74,7 +62,7 @@
             app:layout_constraintBottom_toTopOf="@id/info_textView_time_created"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/info_textView_creator_name"
+            app:layout_constraintTop_toBottomOf="@id/info_textView_location_name"
             tools:text="Aug 10" />
 
         <TextView
@@ -83,11 +71,23 @@
             android:layout_height="wrap_content"
             android:textSize="7pt"
             android:gravity="center"
-            app:layout_constraintBottom_toTopOf="@id/info_recyclerView_invited_users"
+            app:layout_constraintBottom_toTopOf="@id/info_textView_creator_name"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/info_textView_time_starting"
             tools:text="Aug 5" />
+
+        <TextView
+            android:id="@+id/info_textView_creator_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="7pt"
+            android:gravity="center"
+            app:layout_constraintBottom_toTopOf="@id/info_recyclerView_invited_users"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/info_textView_time_created"
+            tools:text="Fake Creator username" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/info_recyclerView_invited_users"

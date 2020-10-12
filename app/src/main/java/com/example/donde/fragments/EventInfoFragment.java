@@ -59,12 +59,11 @@ public class EventInfoFragment extends Fragment {
     }
 
     private void initializeViews() {
-        textViewEventName.setText(String.format("Event name: %s", event.getEventName()));
-        textViewEventDescription.setText(String.format("Event description: %s",
-                event.getEventDescription()));
-        textViewEventLocationName.setText(String.format("Event location name: %s",
+        textViewEventName.setText(String.format(event.getEventName()));
+        textViewEventDescription.setText(String.format(event.getEventDescription()));
+        textViewEventLocationName.setText(String.format("Location:" + "\n"+ "%s",
                 event.getEventLocationName()));
-        textViewEventCreatorName.setText(String.format("Event creator name: %s",
+        textViewEventCreatorName.setText(String.format("Creator name: %s",
                 event.getEventCreatorName()));
         textViewEventTimeStarting.setText(String.format("Event time starting: %s",
                 event.getEventTimeStarting()));
