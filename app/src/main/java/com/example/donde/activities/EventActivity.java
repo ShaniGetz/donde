@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -34,9 +35,18 @@ import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.Transaction;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 import com.google.gson.Gson;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
+
+import static com.firebase.ui.auth.AuthUI.getApplicationContext;
 
 
 public class EventActivity extends AppCompatActivity implements StatusDialog.StatusDialogListener {
@@ -67,6 +77,7 @@ public class EventActivity extends AppCompatActivity implements StatusDialog.Sta
     }
     private String currUserID;
     OfflineDataTransfer offlineDataTransfer;
+
     private int currentUserIndexInInvitedUsersList = 0; // current user is always at beginning
     private static final String[] REQUIRED_PERMISSIONS =
             new String[]{

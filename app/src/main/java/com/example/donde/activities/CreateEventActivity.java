@@ -460,25 +460,18 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
 
     private void initializeTimePicker(Context createContext) {
         textViewEventTime = findViewById(R.id.create_textView_event_time);
-        Date currDate = Calendar.getInstance().getTime();
-        textViewEventTime.setText(currDate.toString());
-        int hour = 10;
-        int minute = 60;
-
         textViewEventTime.setOnClickListener(new View.OnClickListener() {
+
+
             @Override
             public void onClick(View v) {
-//                String mcurrentTime = textViewEventTime.getText().toString();
-//                int hour = -1;
-//                int minute = -1;
-//                for(int i = 0; i < mcurrentTime.length(); i++){
-//                    if(mcurrentTime.charAt(i) == ':'){
-//                        hour = Integer.parseInt(mcurrentTime.substring((i-3), (i-1)));
-//                        minute = Integer.parseInt(mcurrentTime.substring((i+1), (i+3)));
-//                    }
-//                }
+                // TODO Auto-generated method stub
+                Calendar mcurrentTime = Calendar.getInstance();
+                int hour = mcurrentTime.get(Calendar.HOUR_OF_DAY);
+                int minute = mcurrentTime.get(Calendar.MINUTE);
                 TimePickerDialog mTimePicker;
 //                int resTheme = R.style.SpinnerTimePicker;
+
                 int resTheme =
                         TimePickerDialog.THEME_HOLO_DARK;
                 mTimePicker = new TimePickerDialog(createContext, resTheme,

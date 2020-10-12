@@ -79,6 +79,9 @@ public class InvitedInEventUserModel {
         this.invitedInEventUserEmail = invitedInEventUserEmail;
         this.invitedInEventUserStatus = invitedInEventUserStatus;
         this.invitedInEventUserCurrentLocation = invitedInEventUserCurrentLocation;
+        if(invitedInEventUserCurrentLocation == null){
+            this.invitedInEventUserCurrentLocation = new GeoPoint(0, 0);
+        }
         this.invitedInEventUserProfilePicURL = invitedInEventUserProfilePicURL;
         this.invitedInEventUserIsGoing = invitedInEventUserIsGoing;
     }

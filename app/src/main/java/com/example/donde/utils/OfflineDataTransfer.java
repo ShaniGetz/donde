@@ -125,6 +125,9 @@ public class OfflineDataTransfer{
     }
 
     public GeoPoint getOtherLocation(String name){
+        if(Location_dict.get(name)== null){
+            return new GeoPoint(0,0);
+        }
         return Location_dict.get(name);
 
     }

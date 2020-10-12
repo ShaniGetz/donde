@@ -1,6 +1,7 @@
 package com.example.donde.activities;
 
 import android.app.Activity;
+import android.content.ContentResolver;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -23,6 +24,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -55,14 +57,27 @@ public class AccountActivity extends Activity {
     Button buttonChangeProfilePic;
     ImageView profileImage;
 
+
+    Uri DEFAULT_PROFILE_PIC_URI;
+
+
+//            parse("android.resource://com.example.donde/drawable/avatar2.png");
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_account);
-
         initializeFields();
         initializeListeners();
         retrieveAccountDetails();
+        // TODO: Default pic shoud not upload on account edit
+        DEFAULT_PROFILE_PIC_URI=(new Uri.Builder())
+                .scheme(ContentResolver.SCHEME_ANDROID_RESOURCE)
+                .authority(getResources().getResourcePackageName(R.drawable.avatar2))
+                .appendPath(getResources().getResourceTypeName(R.drawable.avatar2))
+                .appendPath(getResources().getResourceEntryName(R.drawable.avatar2))
+                .build();
+        setProfilePic();
 
     }
 
@@ -150,31 +165,14 @@ public class AccountActivity extends Activity {
                 Uri imageUri = data.getData();
 //                profileImage.setImageURI(imageUri);
                 uploadImageToFirebase(imageUri);
-
             }
         }
     }
 
     private void uploadImageToFirebase(Uri imageUri) {
         //upload image to firebase storage
-        StorageReference fileRef = storageReference.child("users/"+fAuth.getCurrentUser().getUid()+".jpg");
-        fileRef.putFile(imageUri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-            @Override
-            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                fileRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                    @Override
-                    public void onSuccess(Uri uri) {
-                        Picasso.get().load(uri).into(profileImage);
-                        userProfilePicURL = uri.toString();
-                    };
-                });
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                Toast.makeText(AccountActivity.this, "Failed", Toast.LENGTH_SHORT);
-            }
-        });
+//        userProfilePicURL = "avatar2.png";
+        setProfilePic(imageUri);
     }
 
     private void setButtonCancelOnClick() {
@@ -232,6 +230,33 @@ public class AccountActivity extends Activity {
 
     }
 
+    private void setProfilePic(){
+        setProfilePic(DEFAULT_PROFILE_PIC_URI);
+    }
+
+    private void setProfilePic(Uri imageUri) {
+        Toast.makeText(this, "`adding deafult pic", Toast.LENGTH_SHORT).show();
+        StorageReference fileRef = storageReference.child(fAuth.getCurrentUser().getUid() + ".jpg");
+        fileRef.putFile(imageUri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                fileRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                    @Override
+                    public void onSuccess(Uri uri) {
+                        Picasso.get().load(uri).into(profileImage);
+                        userProfilePicURL = fAuth.getCurrentUser().getUid()+".jpg";
+                        Toast.makeText(AccountActivity.this, "`added default pic", Toast.LENGTH_SHORT).show();
+                    };
+                });
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Toast.makeText(AccountActivity.this, "Failed", Toast.LENGTH_SHORT);
+            }
+        });
+    }
+
 
     private void setButtonSaveOnClick() {
         buttonSave.setOnClickListener(new View.OnClickListener() {
@@ -242,18 +267,19 @@ public class AccountActivity extends Activity {
                 if (isSaveFieldsValid(sUserName)) {
                     //show progress
                     progressBar.setVisibility(View.VISIBLE);
+                    // TODO: check if this finishes before saving user
                     // get user ID for current user
-                    HashMap<String, String> userMap = new HashMap<>();
+                    HashMap<String, Object> userMap = new HashMap<>();
                     userMap.put(getString(R.string.ff_Users_userID), userID);
                     userMap.put(getString(R.string.ff_Users_userEmail), userEmail);
                     userMap.put(getString(R.string.ff_Users_userName), sUserName);
                     userMap.put("userProfilePicURL", userProfilePicURL);
+                    userMap.put("userTimeCreatedProfile", Timestamp.now());
                     usersCollectionRef.document(userID).set(userMap).addOnCompleteListener(new OnCompleteListener<Void>() {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
                             // account save successful
                             if (task.isSuccessful()) {
-
                                 Toast.makeText(AccountActivity.this, "Account updated successfully",
                                         Toast.LENGTH_LONG).show();
                                 gotoMainActivity();
