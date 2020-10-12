@@ -90,6 +90,7 @@ public class EventsListAdapter extends RecyclerView.Adapter<EventsListAdapter.Ev
         private TextView listTimeStarting;
         private Button listGotoEvent;
 
+
         private String eventID;
 
         public EventViewHolder(@NonNull View itemView) {
@@ -105,6 +106,7 @@ public class EventsListAdapter extends RecyclerView.Adapter<EventsListAdapter.Ev
 //            listTimeCreated = itemView.findViewById(R.id.list_time_created);
             listTimeStarting = itemView.findViewById(R.id.event_item_textView_event_time_starting);
             listGotoEvent = itemView.findViewById(R.id.event_item_button_goto_event);
+
 
             listGotoEvent.setOnClickListener(this);
         }
