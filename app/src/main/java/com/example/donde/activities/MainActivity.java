@@ -1,10 +1,12 @@
 package com.example.donde.activities;
 
 import android.content.Intent;
+import android.graphics.PixelFormat;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -22,6 +24,7 @@ public class MainActivity extends AppCompatActivity {
     public FirebaseAuth getFirebaseAuth() {
         return mAuth;
     }
+
     private void initializeFields() {
         mAuth = FirebaseAuth.getInstance();
         fabCreateEvent = findViewById(R.id.main_create_fab);
@@ -64,6 +67,9 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+//        getWindow().setFormat(PixelFormat.RGBA_8888);
+//        getWindow().addFlags(WindowManager.LayoutParams.FLAG_DITHER);
+
         setContentView(R.layout.activity_main);
         initializeFields();
         initializeListeners();
