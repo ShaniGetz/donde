@@ -5,7 +5,6 @@ BATSHEVAAA
 package com.bas.donde.fragments;
 
 import android.Manifest;
-import android.app.Activity;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.DialogInterface;
@@ -15,7 +14,6 @@ import android.graphics.BitmapFactory;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.Looper;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,7 +26,6 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentActivity;
 
 import com.bas.donde.R;
 import com.bas.donde.activities.EventActivity;
@@ -48,7 +45,11 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.TileOverlayOptions;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.GeoPoint;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 import com.google.maps.android.clustering.ClusterManager;
 
 import java.io.File;
@@ -72,10 +73,7 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback {
     ArrayList<InvitedInEventUserModel> invitedUsersList;
     private String myUserId;
     private String status = "";
-    private FragmentActivity myContext;
     private ClusterManager mClusterManager;
-    private GeoPoint geoPoint;
-    private LatLng laLing;
     private MyClusterManagerRenderer mClusterManagerRenderer;
     private OfflineDataTransfer offlineDataTransfer;
 
@@ -115,91 +113,58 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback {
                         17));
                 offlineDataTransfer.connect();
 
-                updateInfo();
-                updateMarkers();
+                updateUsersData();
             }
         };
     }
 
-    private void updateUserData() {
+    private void updateUsersData() {
+        assert invitedUsersList != null;
 
         for (int i = 0; i < invitedUsersList.size(); i++) {
             InvitedInEventUserModel user = invitedUsersList.get(i);
             LatLng updatedLocation = new LatLng(user.getInvitedInEventUserCurrentLocation().getLatitude(), user.getInvitedInEventUserCurrentLocation().getLongitude());
             mClusterMarkers.get(i).setPosition(updatedLocation);
             mClusterManagerRenderer.setUpdateMarker(mClusterMarkers.get(i));
-        }
 
-
-        // TODO: Bottleneck #2
-        // TODO: Make all these changed irrelevant by requiring them in EventActivity
-
-        for (InvitedInEventUserModel user : invitedUsersList) {
-            // TODO: getUserAvater should retrieve avatar from list already in fragment
-            Bitmap avatar = getUserAvatar(user);
-            if (mClusterMarkers.contains(user)) {
-                LatLng updatedLocation = new LatLng(user.getInvitedInEventUserCurrentLocation().getLatitude(), user.getInvitedInEventUserCurrentLocation().getLongitude());
-                mClusterMarkers.get(user_index).setPosition(updatedLocation);
-                mClusterManagerRenderer.setUpdateMarker(mClusterMarkers.get(user_index));
-                return;
-            }
-            ClusterMarker newClusterMarker = new ClusterMarker(
-                    user.getInvitedInEventUserID(), new LatLng(user.getInvitedInEventUserCurrentLocation().getLatitude(),
-                    user.getInvitedInEventUserCurrentLocation().getLongitude()),
-                    user.getInvitedInEventUserName(),
-                    user.getInvitedInEventUserStatus(),
-                    avatar);
-            mClusterManager.addItem(newClusterMarker);
-            mClusterMarkers.add(newClusterMarker);
-
-            initializeMarkerStatus(user);
+            // update user in users list
+            String id = user.getInvitedInEventUserID();
+            String status = offlineDataTransfer.getOtherStatus(id);
+            GeoPoint location = offlineDataTransfer.getOtherLocation(id);
+            user.setInvitedInEventUserStatus(status);
+            user.setInvitedInEventUserCurrentLocation(location);
 
         }
-        // TODO: Should this be in user loop? or outside?
+        // update cluster
         mClusterManager.cluster();
-        setClusterMarkerOnClick();
+
     }
 
-    private void initializeClusterMarkers() {
-        mClusterMarkers = new ArrayList<>();
-        initializeMapMarkers();
-    }
 
     private void initializeFields() {
-        myUserId = EventActivity.getMyUserId();
-        geoPoint = ((EventActivity) getActivity()).getEvent().getEventLocation();
-        laLing = new LatLng(geoPoint.getLatitude(), geoPoint.getLongitude());
-        offlineDataTransfer = ((EventActivity) getActivity()).getOfflineDataTransfer();
-        initializeClusterMarkers();
-        mFusedLocationClient =
-                LocationServices.getFusedLocationProviderClient(getActivity());
         // TODO: What should be the order of these?
-        initializeUsersBitmaps();
+        myUserId = EventActivity.getMyUserId();
+        offlineDataTransfer = ((EventActivity) getActivity()).getOfflineDataTransfer();
+        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(getActivity());
+        initializeInvitedUsersList();
+        initializeUsersData();
+        initializeClusterFields();
         setOnLocationCallback();
         initializeMapFragment();
-        initializeClusterMarkers();
         setClusterMarkerOnClick();
-
-
     }
 
-    private void initializeUsersBitmaps() {
-
-    }
-
-    @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-
+    private void initializeInvitedUsersList() {
+        invitedUsersList = ((EventActivity) getActivity()).getInvitedUserInEventModelList();
+        assert invitedUsersList != null;
 
     }
 
     private void initializeMapFragment() {
         SupportMapFragment mapFragment =
                 (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map_mapView);
-        if (mapFragment != null) {
-            mapFragment.getMapAsync(this);
-        }
+        assert mapFragment != null;
+        mapFragment.getMapAsync(this);
     }
 
     @Override
@@ -209,7 +174,6 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback {
         if (mFusedLocationClient != null) {
             mFusedLocationClient.removeLocationUpdates(mLocationCallback);
         }
-
     }
 
     /**
@@ -225,12 +189,6 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback {
     public void onMapReady(GoogleMap googleMap) {
         initializeGoogleMap(googleMap);
         initializeLocationRequest();
-
-        // TODO: Why is this here?
-//        if (status != null) {
-//            offlineDataTransfer.updateStatus(status);
-//        }
-
 
         if (ContextCompat.checkSelfPermission(getContext(),
                 Manifest.permission.ACCESS_FINE_LOCATION)
@@ -255,81 +213,72 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback {
     private void initializeGoogleMap(GoogleMap googleMap) {
         mGoogleMap = googleMap;
         mGoogleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-        // TODO: Bottleneck #1 (does this load offline map?)
         mGoogleMap.addTileOverlay(new TileOverlayOptions()
-                .tileProvider(new OfflineTileProvider(myContext)));
+                .tileProvider(new OfflineTileProvider(getContext())));
 
     }
 
-    private void updateInfo() {
-        if (invitedUsersList == null) {
-            invitedUsersList = ((EventActivity) getActivity()).getInvitedUserInEventModelList();
-        }
-        if (invitedUsersList != null) {
-            for (InvitedInEventUserModel user : invitedUsersList) {
-                String id = user.getInvitedInEventUserID();
-                String status = offlineDataTransfer.getOtherStatus(id);
-                GeoPoint location = offlineDataTransfer.getOtherLocation(id);
-                user.setInvitedInEventUserStatus(status);
-                user.setInvitedInEventUserCurrentLocation(location);
-            }
-        }
-
-    }
 
     private void initializeUsersData() {
-
+        assert invitedUsersList != null;
         for (int i = 0; i < invitedUsersList.size(); i++) {
             InvitedInEventUserModel user = invitedUsersList.get(i);
-            // initialize user bitmap
-            // TODO: getUserAvater should retrieve avatar from list already in fragment
-            Bitmap userBitmap = getUserAvatar(user);
-//            mUsersBitmaps.add(userBitmap);
-
-            // initialize user cluster marker
-            LatLng updatedLocation = new LatLng(user.getInvitedInEventUserCurrentLocation().getLatitude(), user.getInvitedInEventUserCurrentLocation().getLongitude());
-            ClusterMarker userClusterMarker = new ClusterMarker(
-                    user.getInvitedInEventUserID(), new LatLng(user.getInvitedInEventUserCurrentLocation().getLatitude(),
-                    user.getInvitedInEventUserCurrentLocation().getLongitude()),
-                    user.getInvitedInEventUserName(),
-                    user.getInvitedInEventUserStatus(),
-                    userBitmap);
-            mClusterMarkers.add(userClusterMarker);
-            mClusterManager.addItem(userClusterMarker);
-
+            initializeMapMarkers(user);
             initializeMarkerStatus(user);
-
         }
     }
 
-    private void initializeMapMarkers() {
+    private void initializeClusterFields() {
+        mClusterManager = new ClusterManager<ClusterMarker>(getContext(), mGoogleMap);
+        mClusterManagerRenderer = new MyClusterManagerRenderer(getContext(), mGoogleMap, mClusterManager);
+        mClusterManager.setRenderer(mClusterManagerRenderer);
+
+    }
+
+    private void initializeMapMarkers(InvitedInEventUserModel user) {
         // TODO: Bottleneck #2
         // TODO: Make all these changed irrelevant by requiring them in EventActivity
-        if (mGoogleMap == null) {
-            return;
-        }
+        assert mGoogleMap != null;
+        assert mClusterManager != null;
+        assert mClusterManagerRenderer != null;
+        assert invitedUsersList != null;
 
-        if (mClusterManager == null) {
-            mClusterManager =
-                    new ClusterManager<ClusterMarker>(getContext(), mGoogleMap);
-        }
-        if (mClusterManagerRenderer == null) {
-            mClusterManagerRenderer = new MyClusterManagerRenderer(getContext(), mGoogleMap, mClusterManager);
-            mClusterManager.setRenderer(mClusterManagerRenderer);
-        }
 
-        Log.d(TAG, "getting list");
-        if (invitedUsersList == null) {
-            invitedUsersList = ((EventActivity) getActivity()).getInvitedUserInEventModelList();
-        }
-        if (invitedUsersList == null) {
-            return;
-        }
-
+        // initialize user cluster marker
+        Bitmap userBitmap = getUserAvatar(user);
+        ClusterMarker userClusterMarker = new ClusterMarker(
+                user.getInvitedInEventUserID(), new LatLng(user.getInvitedInEventUserCurrentLocation().getLatitude(),
+                user.getInvitedInEventUserCurrentLocation().getLongitude()),
+                user.getInvitedInEventUserName(),
+                user.getInvitedInEventUserStatus(),
+                userBitmap);
+        mClusterMarkers.add(userClusterMarker);
+        mClusterManager.addItem(userClusterMarker);
 
         // TODO: Should this be in user loop? or outside?
         mClusterManager.cluster();
-        setClusterMarkerOnClick();
+    }
+
+    private Bitmap getUserAvatar(InvitedInEventUserModel user) {
+        final Bitmap[] avatar = new Bitmap[1];
+        FirebaseStorage storage = FirebaseStorage.getInstance();
+        StorageReference imageRef = storage.getReference().child(user.getInvitedInEventUserID() + ".jpg");
+//                        StorageReference gsReference = storage.getReferenceFromUrl(user.getInvitedInEventUserProfilePicURL());
+        imageRef.getBytes(1024 * 1024).addOnSuccessListener(new OnSuccessListener<byte[]>() {
+            @Override
+            public void onSuccess(byte[] bytes) {
+                Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+                String dir = saveToInternalStorage(bitmap);
+                avatar[0] = loadImageFromStorage(dir);
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                // TODO: Implement default avatar
+//                avatar = defaultAvatar();
+            }
+        });
+        return null;
     }
 
 
@@ -344,7 +293,6 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback {
                         // else: clicked on my user marker
                         showStatusDialog();
 
-                        Log.d("onClusterItemClick", status);
                         //update my stats also in list
                         clusterItem.setSnippet(status);
                         invitedUsersList.get(currentUserIndex).setInvitedInEventUserStatus(status);
@@ -392,12 +340,6 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback {
         alertDialog.show();
     }
 
-
-    @Override
-    public void onAttach(Activity activity) {
-        myContext = this.getActivity();
-        super.onAttach(activity);
-    }
 
     private void checkLocationPermission() {
         if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION)
@@ -506,6 +448,3 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback {
 
 
 }
-
-
-//        ((EventActivity)getActivity()).getInvitedUsersList()
