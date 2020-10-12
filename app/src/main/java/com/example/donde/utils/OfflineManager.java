@@ -17,15 +17,13 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.gson.Gson;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+
+import static com.google.firebase.auth.FirebaseAuth.getInstance;
 
 public class OfflineManager {
     private static final String DEBUG_FILENAME = "test0";
@@ -41,20 +39,25 @@ public class OfflineManager {
     // file dir of the current app on phone
     private File fileDir;
     private String debugString = "Testing if this gets saved offline";
+    private String currUserID;
+    private File currUserBaseDir;
+    private File currUserEventDir;
     ;
 
-
-    public OfflineManager(FirebaseUser userDownloading,
-                          InvitedInUserEventModel eventToDownload, Context context) {
-        this.context = context;
-        this.eventToDownload = eventToDownload;
-        this.userDownloading = userDownloading;
-        this.fileDir = context.getFilesDir();
-
-
-    }
+//
+//    public OfflineManager(FirebaseUser userDownloading,
+//                          InvitedInUserEventModel eventToDownload, Context context) {
+//        Log.d(TAG, "in OfflineManager constructor");
+//        this.context = context;
+//        this.eventToDownload = eventToDownload;
+//        this.userDownloading = userDownloading;
+//        this.fileDir = context.getFilesDir();
+//
+//
+//    }
 
     public OfflineManager(Context context) {
+        Log.d(TAG, "in OfflineManager constructor");
         this.context = context;
     }
 
@@ -70,48 +73,77 @@ public class OfflineManager {
         // iterate over invited users
         // download each user's profile pic from FirebaseStorage to phone
 
-        gson.toJson()
+//        gson.toJson()
     }
 
-    public String getOfflineString(Context context) {
-        try {
-            return uploadDebug(context);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-            return "NULL";
-        }
+//    public String getOfflineString(Context context) {
+//        try {
+//            return uploadDebug(context);
+//        } catch (FileNotFoundException e) {
+//            e.printStackTrace();
+//            return "NULL";
+//        }
+//    }
+
+//}
+//
+//    public String uploadDebug(Context context) throws FileNotFoundException {
+//        FileInputStream fis = context.openFileInput(DEBUG_FILENAME);
+//        InputStreamReader inputStreamReader =
+//                new InputStreamReader(fis, StandardCharsets.UTF_8);
+//        StringBuilder stringBuilder = new StringBuilder();
+//        try (BufferedReader reader = new BufferedReader(inputStreamReader)) {
+//            String line = reader.readLine();
+//            while (line != null) {
+//                stringBuilder.append(line).append('\n');
+//                line = reader.readLine();
+//            }
+//        } catch (IOException e) {
+//            // Error occurred when opening raw file for reading.
+//        } finally {
+//            String contents = stringBuilder.toString();
+//            return contents;
+//        }
+//    }
+
+    private boolean isLoggedIn() {
+        return FirebaseAuth.getInstance().getCurrentUser() != null;
     }
 
-}
+    /*
+    Event downloaded in the following hierarchy:
 
-    public String uploadDebug(Context context) throws FileNotFoundException {
-        FileInputStream fis = context.openFileInput(DEBUG_FILENAME);
-        InputStreamReader inputStreamReader =
-                new InputStreamReader(fis, StandardCharsets.UTF_8);
-        StringBuilder stringBuilder = new StringBuilder();
-        try (BufferedReader reader = new BufferedReader(inputStreamReader)) {
-            String line = reader.readLine();
-            while (line != null) {
-                stringBuilder.append(line).append('\n');
-                line = reader.readLine();
-            }
-        } catch (IOException e) {
-            // Error occurred when opening raw file for reading.
-        } finally {
-            String contents = stringBuilder.toString();
-            return contents;
-        }
-    }
-
+    -   Base application dir
+    -   -   User dir (name = userID)
+    -   -   User-Event dir (name = eventID)
+    -   -   -   User-Event-Details dir  (name = "details")
+    -   -   -   -   User-Event-Details file (name = "details, type = .json)
+    -   -   -   -   User-Event-Map file (name = "map")
+    -   -   -   User-Event-Invited-Users dir (name = "invited_users")
+    -   -   -   -   User-Event-Invited-User dir (name = invitedUserID)
+    -   -   -   -   -   User-Event-Invited-User-Details file (name = details, type = .json)
+    -   -   -   -   -   User-Event-Invited-User-Profile-Pic file (name = profile_pic, type = .jpg)
+     */
     public void downloadEventToOffline(EventModel eventModel) {
-        String userDirName = FirebaseAuth.getInstance().getUid();
-        File currUserDir = context.getDir(userDirName, context.MODE_PRIVATE);
-        FileOutputStream outputStreamWriter = new FileOutputStream()
+        Log.d(TAG, "in OfflineManager downloadEventToOffline");
 
-        downloadInvitedInEventUsers(currUserDir, eventModel);
-        downloadEventGuestsNames(currUserDir);
-        downloadEventMap();
-        downloadEventGuestsProfilePics();
+        if (!isLoggedIn()) {
+            Toast.makeText(context, "Error, you seem to have been logged out", Toast.LENGTH_SHORT).show();
+        } else {
+
+            currUserID = FirebaseAuth.getInstance().getUid();
+            currUserBaseDir = context.getDir(currUserID, Context.MODE_PRIVATE);
+            currUserEventDir = new File(currUserBaseDir, eventModel.getEventID());
+
+
+//            FileOutputStream outputStreamWriter = new FileOutputStream()
+
+            downloadInvitedInEventUsers(currUserDir, eventModel);
+            downloadEventGuestsNames(currUserDir);
+            downloadEventMap();
+            downloadEventGuestsProfilePics();
+
+        }
     }
 
     private void downloadInvitedInEventUsers(File currUserDir, EventModel eventModel) {
@@ -133,7 +165,7 @@ public class OfflineManager {
                     String userId =
                             documentSnapshot.getString(context.getString(R.string.ff_InvitedInEventUsers_invitedInEventUserID));
 
-                    if (TextUtils.equals(userId, FirebaseAuth.getInstance().getUid())) {
+                    if (TextUtils.equals(userId, getInstance().getUid())) {
                         invitedInEventUserModels.add(0,
                                 documentSnapshot.toObject(InvitedInEventUserModel.class));
                     } else {
@@ -182,15 +214,15 @@ public class OfflineManager {
         });
     }
 
-    public void downloadDebug() {
-//        File debugFile = new File(fileDir, DEBUG_FILENAME);
-        try (FileOutputStream fos = context.openFileOutput(DEBUG_FILENAME, Context.MODE_PRIVATE)) {
-            fos.write(debugString.getBytes());
-            Toast.makeText(context, "Successfully downloaded file", Toast.LENGTH_SHORT).show();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
+//    public void downloadDebug() {
+////        File debugFile = new File(fileDir, DEBUG_FILENAME);
+//        try (FileOutputStream fos = context.openFileOutput(DEBUG_FILENAME, Context.MODE_PRIVATE)) {
+//            fos.write(debugString.getBytes());
+//            Toast.makeText(context, "Successfully downloaded file", Toast.LENGTH_SHORT).show();
+//        } catch (FileNotFoundException e) {
+//            e.printStackTrace();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//    }
 }
