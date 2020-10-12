@@ -94,8 +94,8 @@ public class EventActivity extends AppCompatActivity implements StatusDialog.Sta
         initializeInvitedUsersList();
         GeoPoint geoPoint = new GeoPoint(0, 0);
 //        GeoPoint geoPoint = new GeoPoint(31.768161300000003, 35.2127055);
-        offlineDataTransfer = new OfflineDataTransfer(currUserID, geoPoint, this,"");
 //        offlineDataTransfer.startDiscovery();
+        offlineDataTransfer = new OfflineDataTransfer(currUserID, geoPoint, this,"write something...");
         offlineDataTransfer.startAdvertising();
         myUserId = currUserID;
 

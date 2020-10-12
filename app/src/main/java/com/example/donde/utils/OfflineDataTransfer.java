@@ -42,8 +42,8 @@ public class OfflineDataTransfer{
     Hashtable<String, GeoPoint> Location_dict = new Hashtable<String, GeoPoint>();
     Hashtable<String, String> Status_dict = new Hashtable<String, String>();
     private static final Strategy STRATEGY = Strategy.P2P_CLUSTER;
-    public boolean isAdvertising;
-    public boolean isDiscovering;
+    public boolean isAdvertising = false;
+    public boolean isDiscovering = false;
 
 
     public OfflineDataTransfer(String name, GeoPoint geopoint, Context Context, String status) {
@@ -56,17 +56,9 @@ public class OfflineDataTransfer{
         Status_dict.put(myName, myStatus);
         payloadCallback = new PayloadCallback() {
                     @Override
-                    public void onPayloadReceived(String endpointId, Payload payload) {
-                        // This always gets the full data of the payload. Will be null if it's not a BYTES
-                        // payload. You can check the payload type with payload.getType().
-                        byte[] receivedBytes = payload.asBytes();
-                    }
-
+                    public void onPayloadReceived(String endpointId, Payload payload) { }
                     @Override
-                    public void onPayloadTransferUpdate(String endpointId, PayloadTransferUpdate update) {
-                        // Bytes payloads are sent as a single chunk, so you'll receive a SUCCESS update immediately
-                        // after the call to onPayloadReceived().
-                    }
+                    public void onPayloadTransferUpdate(String endpointId, PayloadTransferUpdate update) {}
                 };
 
         connectionLifecycleCallback = new ConnectionLifecycleCallback() {
@@ -75,17 +67,18 @@ public class OfflineDataTransfer{
                         // Automatically accept the connection on both sides.
                         Nearby.getConnectionsClient(context).acceptConnection(endpointId, payloadCallback);
                         EndpointId = endpointId;
-                        Log.d("OfflineDataTransfer", "Connection initiated : " + endpointId + " ," + connectionInfo.toString());
-
+                        Log.d("OfflineDataTransfer", "Connection initiated : " +
+                                endpointId + " ," + connectionInfo.toString());
                     }
-
                     @Override
                     public void onConnectionResult(String endpointId, ConnectionResolution result) {
                         switch (result.getStatus().getStatusCode()) {
                             case ConnectionsStatusCodes.STATUS_OK:
                                 // We're connected! Can now start sending and receiving data.
                                 Log.d("OfflineDataTransfer", "Connected : " + endpointId + " ," + result.toString());
-//                            Nearby.getConnectionsClient(context).stopAdvertising();
+                                //once connected disconnect and try again
+                                stopAll();
+                                connect();
                                 break;
                             case ConnectionsStatusCodes.STATUS_CONNECTION_REJECTED:
                                 // The connection was rejected by one or both sides.
@@ -100,11 +93,7 @@ public class OfflineDataTransfer{
                     }
 
                     @Override
-                    public void onDisconnected(String endpointId) {
-                        // We've been disconnected from this endpoint. No more data can be
-                        // sent or received.
-                    }
-
+                    public void onDisconnected(String endpointId) {}
                 };
     }
 
@@ -115,24 +104,24 @@ public class OfflineDataTransfer{
             Location_dict.put(myName, geopoint);
             startAdvertising();
         }else{
+            isDiscovering = true;
             geoPoint = geopoint;
             Location_dict.put(myName, geopoint);
         }
     }
 
     public void updateStatus(String status){
-        if(isAdvertising){
-            stopAdvertising();
-            myStatus = status;
-            if(myStatus != null) {
+        if(myStatus != null) {
+            if (isAdvertising) {
+                stopAdvertising();
+                myStatus = status;
+                Status_dict.put(myName, myStatus);
+                startAdvertising();
+            } else {
+                myStatus = status;
                 Status_dict.put(myName, myStatus);
             }
-            startAdvertising();
-        }else {
-            myStatus = status;
-            Status_dict.put(myName, myStatus);
         }
-
     }
 
     public GeoPoint getOtherLocation(String name){
@@ -144,7 +133,7 @@ public class OfflineDataTransfer{
     }
 
     public void stopAdvertising(){
-                isAdvertising = false;
+        isAdvertising = false;
         Nearby.getConnectionsClient(context).stopAdvertising();
     }
     public void stopDiscovering(){
@@ -160,7 +149,6 @@ public class OfflineDataTransfer{
                     // An endpoint was found. We request a connection to it.
                     Log.d("OfflineDataTransfer", "Endpoint found : " + info.getEndpointName());
                     getNameAndStatus(info.getEndpointName());
-
                     Nearby.getConnectionsClient(context)
                             .requestConnection(info.getEndpointName(), endpointId, connectionLifecycleCallback)
                             .addOnSuccessListener(
@@ -186,16 +174,14 @@ public class OfflineDataTransfer{
 
     public void startAdvertising() {
         isAdvertising = true;
-        stopDiscovering();
-        isDiscovering = false;
         AdvertisingOptions advertisingOptions =
                 new AdvertisingOptions.Builder().setStrategy(STRATEGY).build();
-        Nearby.getConnectionsClient(context).startAdvertising(getUser(), SERVICE_ID, connectionLifecycleCallback, advertisingOptions)
+        String name = getUser();
+        Nearby.getConnectionsClient(context).startAdvertising(name, SERVICE_ID, connectionLifecycleCallback, advertisingOptions)
                 .addOnSuccessListener(
                         (Void unused) -> {
                             // We're advertising!
                             Log.d("OfflineDataTransfer", "Advertising : " + getUser());
-
                         })
                 .addOnFailureListener(
                         (Exception e) -> {
@@ -208,8 +194,6 @@ public class OfflineDataTransfer{
 
     public void startDiscovery() {
         isDiscovering = true;
-        stopAdvertising();
-        isAdvertising = false;
         DiscoveryOptions discoveryOptions = new DiscoveryOptions.Builder().setStrategy(STRATEGY).build();
         Nearby.getConnectionsClient(context)
                 .startDiscovery(SERVICE_ID, endpointDiscoveryCallback, discoveryOptions)
@@ -223,6 +207,21 @@ public class OfflineDataTransfer{
                             // We're unable to start discovering.
                             Log.d("OfflineDataTransfer", e.toString());
                         });
+    }
+
+    public void connect(){
+        if(isDiscovering){
+            stopDiscovering();
+            isDiscovering = false;
+            startAdvertising();
+            isAdvertising = true;
+        }else{
+            stopAdvertising();
+            isAdvertising = false;
+            startDiscovery();
+            isDiscovering = true;
+
+        }
     }
 
 

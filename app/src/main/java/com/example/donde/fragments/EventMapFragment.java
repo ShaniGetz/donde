@@ -91,12 +91,6 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback {
                         mLastLocation = location;
                         //to update the location we have
                         offlineDataTransfer.updateLocation(new GeoPoint(location.getLatitude(), location.getLongitude()));
-
-                        if(offlineDataTransfer.isAdvertising){
-                            offlineDataTransfer.startDiscovery();
-                        }else{
-                            offlineDataTransfer.startAdvertising();
-                        }
                         if (mCurrLocationMarker != null) {
                             mCurrLocationMarker.remove();
                         }
@@ -112,6 +106,8 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback {
                         mGoogleMap.setMapType(GoogleMap.MAP_TYPE_NONE);
                         TileOverlay onlineTileOverlay = mGoogleMap.addTileOverlay(new TileOverlayOptions()
                                 .tileProvider(new OfflineTileProvider(myContext)));
+
+                        offlineDataTransfer.connect();
                         updateInfo();
                         addMapMarkers();
                     }
@@ -171,8 +167,10 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback {
         updateButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                offlineDataTransfer.stopAdvertising();
-                offlineDataTransfer.startDiscovery();
+                if(!offlineDataTransfer.isDiscovering) {
+                    offlineDataTransfer.stopAdvertising();
+                    offlineDataTransfer.startDiscovery();
+                }
             }
         });
 //        String tilesDir = getContext().getFilesDir().toString();
@@ -186,6 +184,9 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback {
         mLocationRequest.setFastestInterval(70);
         mLocationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
 
+        if(status != null){
+            offlineDataTransfer.updateStatus(status);
+        }
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (ContextCompat.checkSelfPermission(getContext(),
                     Manifest.permission.ACCESS_FINE_LOCATION)
@@ -266,7 +267,9 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback {
                             Log.d(TAG, user.getInvitedInEventUserCurrentLocation().toString());
                             Log.d(TAG, mLastLocation.toString());
                             snippet = "Click to post your status";
-                        } else {
+                        }
+
+                        else {
                             snippet = "";
                         }
                         int avatar = R.drawable.avatar2; // set the default avatar
@@ -307,8 +310,7 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback {
                             public boolean onClusterItemClick(ClusterMarker clusterItem) {
                                 if (clusterItem.getUserID().equals(myUserId)) {
                                     openDialog();
-                                    status = EventActivity.getStatus();
-                                    offlineDataTransfer.updateStatus(status);
+//                                    status = EventActivity.getStatus();
                                     clusterItem.setSnippet(status);
                                     for (int i=0; i<mClusterMarkers.size(); i++){
                                         if(mClusterMarkers.get(i).getUserID().equals(myUserId)){
