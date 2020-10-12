@@ -3,6 +3,9 @@ todo events frag layout redo
 todo event upper tab not showing
 todo event info frag layout redo
 todo map frag rounded corners
+todo remove chat frag
+todo remove toasts and debugging logs
+todo upload to google store
 //////////////
 
 MID PRIORITY:
@@ -14,5 +17,7 @@ todo user can enter map when location isnt on
 LOW PRIORITY:
 todo remove event isGoing checkbox
 todo edit event
+todo add splash screen
+todo make download logic in splash screen
 /////////////
 
