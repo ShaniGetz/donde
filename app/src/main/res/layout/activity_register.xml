@@ -26,8 +26,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="80dp"
+        android:layout_marginBottom="10dp"
         android:visibility="invisible"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/register_editText_email"
         app:layout_constraintHorizontal_bias="0.493"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -59,6 +61,7 @@
         android:textColorHint="@color/gray_light"
         android:textColorLink="@color/green"
         android:textSize="8pt"
+        android:layout_marginBottom="5dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView2"
@@ -81,10 +84,11 @@
 
     <Button
         android:id="@+id/register_button_register"
-        android:layout_width="wrap_content"
+        android:layout_width="150dp"
         android:layout_height="wrap_content"
         android:layout_marginBottom="20dp"
         android:text="REGISTER"
+        android:textSize="7pt"
         android:layout_marginTop="20dp"
         app:layout_constraintBottom_toTopOf="@id/register_button_goto_login"
         app:layout_constraintEnd_toEndOf="parent"
@@ -93,9 +97,10 @@
 
     <Button
         android:id="@+id/register_button_goto_login"
-        android:layout_width="wrap_content"
+        android:layout_width="150dp"
         android:layout_height="wrap_content"
-        android:text="Back to Login"
+        android:text="BACK TO LOGIN"
+        android:textSize="7pt"
         android:layout_marginBottom="400dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
