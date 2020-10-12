@@ -16,6 +16,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.TextUtils;
+import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
@@ -396,44 +397,57 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
 
     private void initializeTimeAndDate() {
         Context createContext = this;
-
-
         initializeTimePicker(createContext);
         initializeDatePicker(createContext);
 
     }
 
+    private void updateCurrentDate(){
+        textViewEventDate = findViewById(R.id.create_textView_event_date);
+        Date currDate = Calendar.getInstance().getTime();
+        String day          = (String) DateFormat.format("dd",   currDate); // 20
+        String monthNumber  = (String) DateFormat.format("MM",   currDate); // 06
+        String year         = (String) DateFormat.format("yyyy", currDate); // 2013
+        textViewEventDate.setText(day + "/" + monthNumber + "/" + year);
+    }
+
 
     private void initializeDatePicker(Context createContext) {
-        textViewEventDate = findViewById(R.id.create_textView_event_date);
+        updateCurrentDate();
+
         textViewEventDate.setOnClickListener(new View.OnClickListener() {
-
-
             //TODO: Hide soft keyboard when choosing items in craeteevent
             @Override
             public void onClick(View v) {
-                // TODO: on click show currently selected date, not current date
-                Calendar mcurrentTime = Calendar.getInstance();
-                int day = mcurrentTime.get(Calendar.DAY_OF_MONTH);
-                int month = mcurrentTime.get(Calendar.MONTH);
-                int year = mcurrentTime.get(Calendar.YEAR);
+                String date= textViewEventDate.getText().toString();
+                int day = -1;
+                int month =-1;
+                int year = -1;
+                int idx = 0;
+                for(int i =0; i <date.length(); i++){
+                    if(date.charAt(i) == '/'){
+                       if(day ==-1){
+                           day = Integer.parseInt(date.substring(0, i));
+                           idx = i;
+                       }else if(month == -1){
+                           month = Integer.parseInt(date.substring(idx + 1, i));
+                           year = Integer.parseInt(date.substring(i +1));
+                       }
+                    }
+                }
+                textViewEventDate.setText(day + "/" + month + "/" + year);
+
                 DatePickerDialog mDatePicker;
 //                int resTheme = R.style.SpinnerTimePicker;
-
                 int resTheme = DatePickerDialog.THEME_HOLO_DARK;
                 mDatePicker = new DatePickerDialog(createContext, resTheme,
                         new DatePickerDialog.OnDateSetListener() {
                             @Override
-                            public void onDateSet(DatePicker view, int selectedYear,
-                                                  int selectedMonth,
-                                                  int selectedDayOfMonth) {
-                                int correctMonth = selectedMonth + 1;
-                                textViewEventDate.setText(selectedDayOfMonth + "/" + correctMonth +
-                                        "/" + selectedYear);
-
+                            public void onDateSet(DatePicker view, int selectedYear, int selectedMonth, int selectedDayOfMonth) {
+//                                int correctMonth = selectedMonth + 1;
+                                textViewEventDate.setText(selectedDayOfMonth + "/" + selectedMonth + "/" + selectedYear);
                             }
-
-                        }, year, month, day);//Yes 24 hour time
+                        },  year, month, day);//Yes 24 hour time
                 mDatePicker.setTitle("Select Date");
                 mDatePicker.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
                 mDatePicker.show();
@@ -446,18 +460,23 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
 
     private void initializeTimePicker(Context createContext) {
         textViewEventTime = findViewById(R.id.create_textView_event_time);
+        Date currDate = Calendar.getInstance().getTime();
+        textViewEventTime.setText(currDate.toString());
+
         textViewEventTime.setOnClickListener(new View.OnClickListener() {
-
-
             @Override
             public void onClick(View v) {
-                // TODO Auto-generated method stub
-                Calendar mcurrentTime = Calendar.getInstance();
-                int hour = mcurrentTime.get(Calendar.HOUR_OF_DAY);
-                int minute = mcurrentTime.get(Calendar.MINUTE);
+                String mcurrentTime = textViewEventTime.getText().toString();
+                int hour = -1;
+                int minute = -1;
+                for(int i = 0; i < mcurrentTime.length(); i++){
+                    if(mcurrentTime.charAt(i) == ':'){
+                        hour = Integer.parseInt(mcurrentTime.substring((i-3), (i-1)));
+                        minute = Integer.parseInt(mcurrentTime.substring((i+1), (i+3)));
+                    }
+                }
                 TimePickerDialog mTimePicker;
 //                int resTheme = R.style.SpinnerTimePicker;
-
                 int resTheme =
                         TimePickerDialog.THEME_HOLO_DARK;
                 mTimePicker = new TimePickerDialog(createContext, resTheme,

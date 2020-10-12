@@ -31,6 +31,7 @@
         android:supportsRtl="false"
         android:theme="@style/AppTheme">
 
+
         <!--
              The API key for Google Maps-based APIs is defined as a string resource.
              (See the file "res/values/google_maps_api.xml").
@@ -43,10 +44,10 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyAqVEnRRK2le4e6Mr4wod7RaYzSMvKH3_c"/>
 
-        <activity android:name=".activities.LoginActivity">
+        <activity android:name=".activities.LoginActivity"
+            android:windowSoftInputMode="stateHidden|adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
