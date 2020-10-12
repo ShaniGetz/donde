@@ -45,11 +45,10 @@ public class EventsListAdapter extends RecyclerView.Adapter<EventsListAdapter.Ev
         Log.e("EventListAdapter", "in onBindViewHolder");
 
         EventModel currentEvent = eventsListModels.get(position);
-
         holder.listName.setText("Name: " + currentEvent.getEventName());
         holder.listDesc.setText("Description:\n" + currentEvent.getEventDescription());
         holder.listLocationName.setText("Location name: " + currentEvent.getEventLocationName());
-        holder.listTimeStarting.setText("Time starting: "+currentEvent.getEventTimeStarting());
+        holder.listTimeStarting.setText("Time starting: "+ timeFormatting(currentEvent.getEventTimeStarting().toString()));
         holder.listCreatorUserName.setText("Creator username: "+currentEvent.getEventCreatorUID());
         holder.setEventID(currentEvent.getEventID());
 //        long milliseconds = currentEvent.getTime_starting().toDate().getTime();
@@ -62,6 +61,24 @@ public class EventsListAdapter extends RecyclerView.Adapter<EventsListAdapter.Ev
 //        firebaseFirestore.collection("Users").document(currentEvent.getCreator_id()).get;
 //        holder.listCreatorUserName.setText(currentEvent.getCreator_username());
         holder.setCreatorName();
+    }
+
+    private String timeFormatting(String data){
+        String hour = "";
+        String minute = "";
+        String date = "";
+        String Year = data.substring((data.length()-4));
+
+        for(int i = 0; i < data.length(); i++){
+            if(data.charAt(i)== ':'){
+                date = data.substring(0, i-3);
+                hour = data.substring(i-2,i);
+                minute = data.substring(i+1, i + 3);
+                break;
+            }
+        }
+        Log.d("TIMEER", ( date + "/" + Year + "    " +hour + ":" + minute));
+        return ( date + "/" + Year + "    " +hour + ":" + minute);
     }
 
     @Override

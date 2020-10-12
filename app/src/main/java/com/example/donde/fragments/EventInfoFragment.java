@@ -23,6 +23,10 @@ import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 public class EventInfoFragment extends Fragment {
 
     // Firebase
@@ -59,6 +63,7 @@ public class EventInfoFragment extends Fragment {
     }
 
     private void initializeViews() {
+
         textViewEventName.setText(String.format("Event name: %s", event.getEventName()));
         textViewEventDescription.setText(String.format("Event description: %s",
                 event.getEventDescription()));
@@ -66,10 +71,25 @@ public class EventInfoFragment extends Fragment {
                 event.getEventLocationName()));
         textViewEventCreatorName.setText(String.format("Event creator name: %s",
                 event.getEventCreatorName()));
-        textViewEventTimeStarting.setText(String.format("Event time starting: %s",
-                event.getEventTimeStarting()));
-        textViewEventTimeCreated.setText(String.format("Event time created: %s",
-                event.getEventTimeCreated()));
+        textViewEventTimeStarting.setText("Event Starting at " +TimeHandMade(event.getEventTimeStarting().toString()));
+        textViewEventTimeCreated.setText("Event Created at " + TimeHandMade(event.getEventTimeCreated().toString()));
+    }
+
+    private String TimeHandMade(String allDate)  {
+        String hour = "";
+        String minute = "";
+        String date = "";
+        String Year = allDate.substring((allDate.length()-4));
+
+        for(int i = 0; i < allDate.length(); i++){
+            if(allDate.charAt(i)== ':'){
+                date = allDate.substring(0, i-3);
+                hour = allDate.substring(i-2,i);
+                minute = allDate.substring(i+1, i + 3);
+                break;
+            }
+        }
+        return ( date + "/" + Year + "    " +hour + ":" + minute);
     }
 
     @Nullable
