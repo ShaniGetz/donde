@@ -1,33 +1,52 @@
 package com.example.donde.activities;
 
+import android.Manifest;
+import android.content.Context;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.viewpager.widget.ViewPager;
 
 import com.example.donde.R;
 import com.example.donde.models.EventModel;
 import com.example.donde.models.InvitedInEventUserModel;
 import com.example.donde.recycle_views.events_recycler_view.EventsListViewModel;
+import com.example.donde.utils.OfflineDataTransfer;
 import com.example.donde.utils.ViewPagerAdapter;
 import com.example.donde.utils.map_utils.StatusDialog;
+import com.google.android.gms.nearby.Nearby;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.Transaction;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 import com.google.gson.Gson;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
+
+import static com.firebase.ui.auth.AuthUI.getApplicationContext;
 
 
 public class EventActivity extends AppCompatActivity implements StatusDialog.StatusDialogListener {
@@ -57,19 +76,28 @@ public class EventActivity extends AppCompatActivity implements StatusDialog.Sta
     private EventsListViewModel eventsListViewModel;
     private String TAG = "EventActivity";
     private ArrayList<InvitedInEventUserModel> invitedUserInEventModelList = new ArrayList<>();
+    public ArrayList<InvitedInEventUserModel> getInvitedUserInEventModelList() {
+        return invitedUserInEventModelList;
+    }
     private String currUserID;
-    private int currentUserIndexInInvitedUsersList = 0; // current user is always at beginning
+    OfflineDataTransfer offlineDataTransfer;
 
+    private int currentUserIndexInInvitedUsersList = 0; // current user is always at beginning
+    private static final String[] REQUIRED_PERMISSIONS =
+            new String[]{
+                    Manifest.permission.BLUETOOTH,
+                    Manifest.permission.BLUETOOTH_ADMIN,
+                    Manifest.permission.ACCESS_WIFI_STATE,
+                    Manifest.permission.CHANGE_WIFI_STATE,
+                    Manifest.permission.ACCESS_COARSE_LOCATION,
+            };
+    private static final int REQUEST_CODE_REQUIRED_PERMISSIONS = 5432;
     public static String getStatus() {
         return status;
     }
 
-    public static String getMyUserId() {
-        return myUserId;
-    }
-
-    public ArrayList<InvitedInEventUserModel> getInvitedUserInEventModelList() {
-        return invitedUserInEventModelList;
+    public OfflineDataTransfer getOfflineDataTransfer(){
+        return offlineDataTransfer;
     }
 
     @Override
@@ -79,10 +107,67 @@ public class EventActivity extends AppCompatActivity implements StatusDialog.Sta
         initializeFields();
         initializeListeners();
         initializeInvitedUsersList();
-        myUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
-//        changeUriToBitmap("profile.jpg");
-//        b = loadImageFromStorage(path);
+        GeoPoint geoPoint = new GeoPoint(0, 0);
+//        GeoPoint geoPoint = new GeoPoint(31.768161300000003, 35.2127055);
+//        offlineDataTransfer.startDiscovery();
+        offlineDataTransfer = new OfflineDataTransfer(currUserID, geoPoint, this,"write something...");
+        offlineDataTransfer.startAdvertising();
+        myUserId = currUserID;
+
     }
+
+
+
+    /**
+     * Called when the user has accepted (or denied) our permission request.
+     */
+    @Override
+    public void onRequestPermissionsResult(
+            int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (requestCode == REQUEST_CODE_REQUIRED_PERMISSIONS) {
+            for (int grantResult : grantResults) {
+                if (grantResult == PackageManager.PERMISSION_DENIED) {
+                    Toast.makeText(this, "error_missing_permissions", Toast.LENGTH_LONG).show();
+                    finish();
+                    return;
+                }
+            }
+            recreate();
+        }
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+//        myUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+    }
+
+    public static String getMyUserId() {
+        return myUserId;
+    }
+
+    public static boolean hasPermissions(Context context, String... permissions) {
+        for (String permission : permissions) {
+            if (ContextCompat.checkSelfPermission(context, permission)
+                    != PackageManager.PERMISSION_GRANTED) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if (!hasPermissions(this, REQUIRED_PERMISSIONS)) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                requestPermissions(REQUIRED_PERMISSIONS, REQUEST_CODE_REQUIRED_PERMISSIONS);
+            }
+        }
+    }
+    @Override
+    protected void onStop() {
+        super.onStop();
+        offlineDataTransfer.stopAll();
+    }
+
+
 
     private void initializeInvitedUsersList() {
         firebaseFirestore.collection(getString(R.string.ff_Events)).document(eventID).collection(getString(R.string.ff_InvitedInEventUsers)).get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
@@ -171,6 +256,7 @@ public class EventActivity extends AppCompatActivity implements StatusDialog.Sta
 
     }
 
+
     private void initializeListeners() {
         textViewInfoLabel.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -209,6 +295,18 @@ public class EventActivity extends AppCompatActivity implements StatusDialog.Sta
         });
     }
 
+//    private void initializeUsersList() {
+//        usersList = new ArrayList<>();
+//        FirebaseUser myUser = FirebaseAuth.getInstance().getCurrentUser();
+//        String myUserId = myUser.getUid();
+//        UserModel myUserModel = new UserModel(myUserId, myUser.)
+//        usersList.add(myUserModel);
+//        Query invitedUsersQuery =
+//                firebaseFirestore.collection(getString(R.string.ff_events_collection)).document(getEventID()).collection(getString(R.string.ff_eventInvitedUsers_collection));
+//        FirestoreRecyclerOptions<InvitedUserModel> invitedUsersOptions =
+//                new FirestoreRecyclerOptions.Builder<InvitedUserModel>().setQuery(invitedUsersQuery, InvitedUserModel.class).build();
+//
+//    }
 
     private void changeTabs(int position) {
         TextView mainTab;

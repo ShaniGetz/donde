@@ -20,6 +20,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -33,6 +34,7 @@ import androidx.fragment.app.FragmentActivity;
 import com.example.donde.R;
 import com.example.donde.activities.EventActivity;
 import com.example.donde.models.InvitedInEventUserModel;
+import com.example.donde.utils.OfflineDataTransfer;
 import com.example.donde.utils.map_utils.ClusterMarker;
 import com.example.donde.utils.map_utils.MyClusterManagerRenderer;
 import com.example.donde.utils.map_utils.OfflineTileProvider;
@@ -85,14 +87,11 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback {
     private GeoPoint geoPoint;
     private LatLng laLing;
     private MyClusterManagerRenderer mClusterManagerRenderer;
-
+    private OfflineDataTransfer offlineDataTransfer;
 
 
     private ArrayList<ClusterMarker> mClusterMarkers = new ArrayList<>();
-    LocationCallback mLocationCallback = new
-
-            LocationCallback() {
-
+    LocationCallback mLocationCallback = new LocationCallback() {
                 @Override
                 public void onLocationResult(LocationResult locationResult) {
                     List<Location> locationList = locationResult.getLocations();
@@ -101,21 +100,25 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback {
                         Location location = locationList.get(locationList.size() - 1);
                         Log.i("MapsActivity", "Location: " + location.getLatitude() + " " + location.getLongitude());
                         mLastLocation = location;
+
+                        //to update the location we have
+                        offlineDataTransfer.updateLocation(new GeoPoint(location.getLatitude(), location.getLongitude()));
+
                         if (mCurrLocationMarker != null) {
                             mCurrLocationMarker.remove();
                         }
-                        //Place current location marker
-//                        LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
-                        //add marker pic
-                        Log.d(TAG, "Calling add map markers");
-
                         //move map camera
 //                        mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 11));
-                        mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(laLing, 17));
+                        LatLng localLatling = new LatLng(location.getLatitude(), location.getLongitude());
+                        mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(localLatling, 17));
+
                         Log.d("onLocationResult", laLing.latitude + " " + laLing.longitude);
                         mGoogleMap.setMapType(GoogleMap.MAP_TYPE_NONE);
                         TileOverlay onlineTileOverlay = mGoogleMap.addTileOverlay(new TileOverlayOptions()
                                 .tileProvider(new OfflineTileProvider(myContext)));
+
+                        offlineDataTransfer.connect();
+                        updateInfo();
                         addMapMarkers();
                     }
                 }
@@ -126,6 +129,7 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         geoPoint = ((EventActivity)getActivity()).getEvent().getEventLocation();
         laLing = new LatLng(geoPoint.getLatitude(), geoPoint.getLongitude());
+        offlineDataTransfer = ((EventActivity) getActivity()).getOfflineDataTransfer();
         return inflater.inflate(R.layout.fragment_event_map, container, false);
 
     }
@@ -177,10 +181,13 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback {
 
         mGoogleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
         mLocationRequest = new LocationRequest();
-        mLocationRequest.setInterval(20);
-        mLocationRequest.setFastestInterval(20);
+        mLocationRequest.setInterval(300);
+        mLocationRequest.setFastestInterval(300);
         mLocationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
 
+        if(status != null){
+            offlineDataTransfer.updateStatus(status);
+        }
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (ContextCompat.checkSelfPermission(getContext(),
                     Manifest.permission.ACCESS_FINE_LOCATION)
@@ -210,6 +217,21 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback {
         }
     }
 
+    private void updateInfo(){
+        if(invitedUsersList == null){
+            invitedUsersList = ((EventActivity) getActivity()).getInvitedUserInEventModelList();
+        }
+        if (invitedUsersList != null) {
+            for (InvitedInEventUserModel user : invitedUsersList) {
+                String id = user.getInvitedInEventUserID();
+                String status = offlineDataTransfer.getOtherStatus(id);
+                GeoPoint location = offlineDataTransfer.getOtherLocation(id);
+                user.setInvitedInEventUserStatus(status);
+                user.setInvitedInEventUserCurrentLocation(location);
+            }
+        }
+
+        }
     private void addMapMarkers() {
         if (mGoogleMap != null) {
             if (mClusterManager == null) {
@@ -236,18 +258,21 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback {
                     myUserId = EventActivity.getMyUserId();
 //                    user.getInvitedInEventUserProfilePicURL()
 //                    try {
-                        if (user.getInvitedInEventUserID().equals(myUserId)) {
-                            user.setInvitedInEventUserCurrentLocation(new GeoPoint(mLastLocation.getLatitude(), mLastLocation.getLongitude()));
-                            Log.d(TAG, user.getInvitedInEventUserCurrentLocation().toString());
-                            Log.d(TAG, mLastLocation.toString());
-                            user.setInvitedInEventUserStatus("Click to post your status");
-                        } else {
-                            user.setInvitedInEventUserStatus("");
-                        }
+//                        if (user.getInvitedInEventUserID().equals(myUserId)) {
+//                            if(mLastLocation ==null){
+//                                Log.d("ERROR", "youre location is null at row 265");
+//                            }
+//                            user.setInvitedInEventUserCurrentLocation(new GeoPoint(mLastLocation.getLatitude(), mLastLocation.getLongitude()));
+//                            Log.d(TAG, user.getInvitedInEventUserCurrentLocation().toString());
+//                            Log.d(TAG, mLastLocation.toString());
+//                            user.setInvitedInEventUserStatus("Click to post your status");
+//                            offlineDataTransfer.updateStatus("Click to post your status");
+//                        } else {
+//                            user.setInvitedInEventUserStatus("");
+//                        }
 //                        int avatar = R.drawable.avatar2; // set the default avatar
-                        FirebaseStorage storage = FirebaseStorage.getInstance();
-
-                        StorageReference imageRef = storage.getReference().child(user.getInvitedInEventUserID()+".jpg");
+                    FirebaseStorage storage = FirebaseStorage.getInstance();
+                    StorageReference imageRef = storage.getReference().child(user.getInvitedInEventUserID()+".jpg");
 //                        StorageReference gsReference = storage.getReferenceFromUrl(user.getInvitedInEventUserProfilePicURL());
                     imageRef.getBytes(1024 * 1024).addOnSuccessListener(new OnSuccessListener<byte[]>() {
                             @Override
@@ -257,11 +282,6 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback {
                                 Log.i("download photo", dir);
                                 Bitmap b = loadImageFromStorage(dir);
                                 Bitmap avatar = b;
-//                                try {
-////                                  avatar = Integer.parseInt(user.setUserProfilePicURL());
-//                                } catch (NumberFormatException e) {
-//                                    Log.d(TAG, "addMapMarkers: no avatar for " + user.getInvitedInEventUserName() + ", setting default.");
-//                                }
                                 boolean exist = false;
                                 for (int i = 0; i < mClusterMarkers.size(); i++) {
                                     if (mClusterMarkers.get(i).getUserID().equals(user.getInvitedInEventUserID())) {
@@ -272,21 +292,23 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback {
                                     }
                                 }
                                 if (!exist) {
+                                    if (user.getInvitedInEventUserID().equals(myUserId)) {
+                                        user.setInvitedInEventUserCurrentLocation(new GeoPoint(mLastLocation.getLatitude(), mLastLocation.getLongitude()));
+                                        user.setInvitedInEventUserStatus("Click to post your status");
+                                        offlineDataTransfer.updateStatus("Click to post your status");
+                                        } else {
+                                            user.setInvitedInEventUserStatus("");
+                                            offlineDataTransfer.updateStatus("");
+                                    }
                                     ClusterMarker newClusterMarker = new ClusterMarker(
-                                            user.getInvitedInEventUserID(),
-                                            new LatLng(user.getInvitedInEventUserCurrentLocation().getLatitude(),
-                                                    user.getInvitedInEventUserCurrentLocation().getLongitude()),
+                                            user.getInvitedInEventUserID(), new LatLng(user.getInvitedInEventUserCurrentLocation().getLatitude(),
+                                            user.getInvitedInEventUserCurrentLocation().getLongitude()),
                                             user.getInvitedInEventUserName(),
                                             user.getInvitedInEventUserStatus(),
-                                            avatar
-                                    );
+                                            avatar);
                                     mClusterManager.addItem(newClusterMarker);
                                     mClusterMarkers.add(newClusterMarker);
                                 }
-
-//                            } catch (NullPointerException e) {
-//                                Log.e(TAG, "addMapMarkers: NullPointerException: " + e.getMessage());
-//                            }
                             }
                         }).addOnFailureListener(new OnFailureListener() {
                             @Override
@@ -301,18 +323,20 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback {
                                         if (clusterItem.getUserID().equals(myUserId)) {
                                             openDialog();
                                             status = EventActivity.getStatus();
+
+                                            //update my stats also in list
                                             clusterItem.setSnippet(status);
-                                            for (int i=0; i<invitedUsersList.size(); i++){
-                                                if (invitedUsersList.get(i).getInvitedInEventUserID().equals(myUserId)){
-                                                    invitedUsersList.get(i).setInvitedInEventUserStatus(status);
-                                                }
-                                            }
+                                            offlineDataTransfer.updateStatus(status);
+                                            invitedUsersList.get(0).setInvitedInEventUserStatus(status);
+
+                                            //update inner status in mClusterMarkers
                                             for (int i = 0; i < mClusterMarkers.size(); i++) {
                                                 if (mClusterMarkers.get(i).getUserID().equals(myUserId)) {
                                                     mClusterMarkers.get(i).setSnippet(status);
                                                     mClusterManagerRenderer.setUpdateMarker(mClusterMarkers.get(i));
                                                 }
                                             }
+
                                         } else {
                                             return false;
                                         }
@@ -328,7 +352,6 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback {
             }
         }
     }
-
 
 
     public void openDialog() {
@@ -401,25 +424,6 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback {
             // permissions this app might request
         }
     }
-
-//
-//    public void changeUriToBitmap(String uri) {
-//        FirebaseStorage storage = FirebaseStorage.getInstance();
-//        StorageReference imageRef = storage.getReference().child(uri);
-//        imageRef.getBytes(1024 * 1024).addOnSuccessListener(new OnSuccessListener<byte[]>() {
-//            @Override
-//            public void onSuccess(byte[] bytes) {
-//                Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
-//                String dir = saveToInternalStorage(bitmap);
-//                Log.i("download photo", dir);
-//            }
-//        }).addOnFailureListener(new OnFailureListener() {
-//            @Override
-//            public void onFailure(@NonNull Exception e) {
-//                Log.e("download photo", e.toString());
-//            }
-//        });
-//    }
 
 
     private String saveToInternalStorage(Bitmap bitmapImage){

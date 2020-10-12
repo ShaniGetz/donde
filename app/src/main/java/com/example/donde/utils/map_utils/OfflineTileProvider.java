@@ -36,14 +36,14 @@ public class OfflineTileProvider implements TileProvider {
         super();
         this.context = context;
         tilesDir = context.getApplicationContext().getFilesDir().toString();
-        Log.d("TAG", tilesDir);
+//        Log.d("TAG", tilesDir);
 
     }
 
     @Override
     public Tile getTile(int x, int y, int z) {
 
-        Log.d("TAG", "OfflineTileProvider.getTile(" + x + ", " + y + ", " + z + ")");
+//        Log.d("TAG", "OfflineTileProvider.getTile(" + x + ", " + y + ", " + z + ")");
         try {
             byte[] data;
             //
@@ -53,7 +53,7 @@ public class OfflineTileProvider implements TileProvider {
 //            Log.d("getTile", tilesDir + x +"_"+y+ ".png");
             if (fileOne.exists()) {
                 data = readTile(new FileInputStream(fileOne), BUFFER_SIZE_FILE);
-                Log.d("reading from file", tilesDir + x +"_"+y+ ".png");
+//                Log.d("reading from file", tilesDir + x +"_"+y+ ".png");
 
             } else {
                 if (connectivityManager == null) {
@@ -62,16 +62,16 @@ public class OfflineTileProvider implements TileProvider {
                 }
                 NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
                 if (activeNetworkInfo == null || !activeNetworkInfo.isConnected()) {
-                    Log.w("TAG", "No network");
+//                    Log.w("TAG", "No network");
                     return NO_TILE;
                 }
 
-                Log.d("TAG", "Downloading tile");
+//                Log.d("TAG", "Downloading tile");
                 data = readTile(new URL("https://a.tile.openstreetmap.org/" +
                                 z + "/" + x + "/" + y + ".png").openStream(),
                         BUFFER_SIZE_NETWORK);
 
-                Log.d("TAG", tilesDir);
+//                Log.d("TAG", tilesDir);
 
 
                 try (OutputStream out = new BufferedOutputStream(new FileOutputStream(fileOne))) {
