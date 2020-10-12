@@ -1,0 +1,75 @@
+FILE HIERARCHY INNER API:
+
+This is how the file hierarchy looks like (and is created when a user downloads an event for
+offline):
+
+-   Base application dir (name = Context.getFilesDir())
+    -   -   User dir (name = userID)
+    -   -   -   User-Event dir (name = eventID)
+    -   -   -   -   User-Event-Details dir  (name = "details")
+    -   -   -   -   -   User-Event-Details file (name = "details, type = .json)
+    -   -   -   -   User-Event-Map dir (name = "map")
+    -   -   -   -   -   User-Event-Map file (name = "map" (Or something else...))
+    -   -   -   -   User-Event-Invited-Users dir (name = "invited_users")
+    -   -   -   -   -   User-Event-Invited-User dir (name = invitedUserID)
+    -   -   -   -   -   -   User-Event-Invited-User-Details file (name = details, type = .json)
+    -   -   -   -   -   -   User-Event-Invited-User-Profile-Pic file (name = profile_pic, type = .jpg)
+
+
+
+/////////////////////////////////////////////////////////
+
+
+
+FIREBASE INNER API:
+
+*General comments*
+- Collections are named using (upper) CamelCase (e.g. 'Users', 'Events')
+- Document fields are named using (lower) camelCase, starting with the collection name (e.g.
+'eventName', 'userEmail')
+- Notice that (sub-) collections that are in documents are named using (upper) CamelCase (e.g.
+'EventInvitedUsers' sub-collection inside an event document)
+
+
+*Firebase Authentication*
+
+-   -
+
+*Firebase Firestore*
+
+-   Events   [Collection]
+-   -   eventName           [String]o
+-   -   eventDescription    [String]
+-   -   eventCreatorUID      [String]
+-   -   eventCreatorName    [String]
+-   -   eventTimeCreated    [Timestamp]
+-   -   eventTimeStarting   [Timefstamp]
+-   -   eventLocationName   [String]
+-   -   eventLocation       [Geopoint]
+-   -   InvitedInEventUsers [Collection]        //document ID corresponds to userID
+-   -   -   invitedInEventUserID              [String]    //references user document ID in Users collection
+-   -   -   invitedInEventUserStatus          [String]
+-   -   -   invitedInEventUserCurrentLocation [Geopoint]
+-   -   -   invitedInEventUserProfilePicURL   [String]
+-   -   -   invitedInEventUserName            [String]
+-   -   -   invitedInEventUserIsGoing         [boolean]
+
+-   Users   [Collection]                    //corresponds to userID
+-   -   userName            [String]
+-   -   userID              [String]        //references user ID as it appears in Firebase Authentication
+-   -   userEmail           [String]
+-   -   userProfilePicURL   [String]        //URL for the profile pic inside Firebase Storage
+-   -   userInvitedEventIDs [Array<String>]
+-   -   userInteracted
+-   -   InvitedInUserEvents   [Collection]
+-   -   -   invitedInUserEventID              [String]    //references event document ID in Events collection
+-   -   -   invitedInUserEventName            [String]
+-   -   -   invitedInUserEventLocationName    [String]
+-   -   -   invitedInUserEventCreatorName     [String]
+-   -   -   invitedInUserEventIsGoing         [boolean]
+-   -   -   invitedInUserEventTimeStarting    [Timestamp]
+-   -   DEPRECATED:
+-   -   UserInteractedUsers [Collection]    //users that the user interacted with
+-   -   -   userInteractedUserID    [String]    //references the userID field as it appears in Users
+-   -   -   userInteractedUserName  [String]
+-   -   -   userInteractedUserEmail [String]

@@ -4,31 +4,32 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".archive.EventInfoFragment"
-    android:background="@drawable/bg_gradient">
+    android:background="@drawable/bg_gradient"
+    tools:context=".activities.EventActivity">
 
     <TextView
         android:id="@+id/event_textView_info_label"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Info"
-        android:layout_marginTop="20dp"
         android:layout_marginLeft="20dp"
+        android:layout_marginTop="20dp"
+        android:text="Info"
+        android:textSize="8pt"
         android:textColor="@color/green"
-        android:textStyle="bold"
+        app:layout_constraintBottom_toTopOf="@id/event_viewPager"
         app:layout_constraintEnd_toStartOf="@id/event_textView_map_label"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/event_textView_map_label"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Map"
-        android:layout_marginTop="20dp"
         android:layout_marginLeft="20dp"
-        android:textColor="@color/white"
+        android:layout_marginTop="20dp"
+        android:text="Map"
+        android:textSize="8pt"
+        android:textColor="@color/green"
         app:layout_constraintBottom_toBottomOf="@id/event_textView_info_label"
         app:layout_constraintEnd_toStartOf="@id/event_textView_chat_label"
         app:layout_constraintStart_toEndOf="@+id/event_textView_info_label"
@@ -38,10 +39,11 @@
         android:id="@+id/event_textView_chat_label"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Chat"
-        android:layout_marginTop="20dp"
         android:layout_marginLeft="20dp"
-        android:textColor="@color/white"
+        android:layout_marginTop="20dp"
+        android:text="Chat"
+        android:textSize="8pt"
+        android:textColor="@color/green"
         app:layout_constraintBottom_toBottomOf="@id/event_textView_info_label"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@id/event_textView_map_label"
@@ -52,90 +54,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="parent"
-
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-    <!--    <TextView-->
-    <!--        android:id="@+id/info_title"-->
-    <!--        android:layout_width="wrap_content"-->
-    <!--        android:layout_height="wrap_content"-->
-    <!--        android:layout_marginStart="16dp"-->
-    <!--        android:layout_marginTop="16dp"-->
-    <!--        android:text="Event Info"-->
-    <!--        android:textColor="#000000"-->
-    <!--        android:textSize="50sp"-->
-    <!--        android:textStyle="bold"-->
-    <!--        app:layout_constraintStart_toStartOf="parent"-->
-    <!--        app:layout_constraintTop_toTopOf="parent" />-->
-
-    <!--    <TextView-->
-    <!--        android:id="@+id/event_textView_event_name"-->
-    <!--        android:layout_width="wrap_content"-->
-    <!--        android:layout_height="wrap_content"-->
-    <!--        app:layout_constraintBottom_toTopOf="@id/event_textView_location_name"-->
-    <!--        app:layout_constraintEnd_toEndOf="parent"-->
-    <!--        app:layout_constraintStart_toStartOf="parent"-->
-    <!--        app:layout_constraintTop_toBottomOf="@+id/info_title"-->
-
-    <!--        tools:text="Fake concert!! Wooho" />-->
-
-    <!--    <TextView-->
-    <!--        android:id="@+id/event_textView_event_description"-->
-    <!--        android:layout_width="wrap_content"-->
-    <!--        android:layout_height="wrap_content"-->
-    <!--        app:layout_constraintBottom_toTopOf="@id/event_textView_location_name"-->
-    <!--        app:layout_constraintEnd_toEndOf="parent"-->
-    <!--        app:layout_constraintStart_toStartOf="parent"-->
-    <!--        app:layout_constraintTop_toBottomOf="@id/event_textView_event_name"-->
-    <!--        tools:text="Fake description describing a descriptive description" />-->
-
-    <!--    <TextView-->
-    <!--        android:id="@+id/event_textView_location_name"-->
-    <!--        android:layout_width="wrap_content"-->
-    <!--        android:layout_height="wrap_content"-->
-    <!--        app:layout_constraintBottom_toTopOf="@id/event_textView_creator_name"-->
-    <!--        app:layout_constraintEnd_toEndOf="parent"-->
-    <!--        app:layout_constraintStart_toStartOf="parent"-->
-    <!--        app:layout_constraintTop_toBottomOf="@id/event_textView_event_description"-->
-    <!--        tools:text="Fake Location" />-->
-
-
-    <!--    <TextView-->
-    <!--        android:id="@+id/event_textView_creator_name"-->
-    <!--        android:layout_width="wrap_content"-->
-    <!--        android:layout_height="wrap_content"-->
-    <!--        app:layout_constraintEnd_toEndOf="parent"-->
-    <!--        app:layout_constraintStart_toStartOf="parent"-->
-    <!--        app:layout_constraintTop_toBottomOf="@id/event_textView_location_name"-->
-    <!--        tools:text="Fake Creator username" />-->
-
-    <!--    <Button-->
-    <!--        android:id="@+id/event_button_goto_events"-->
-    <!--        android:layout_width="wrap_content"-->
-    <!--        android:layout_height="wrap_content"-->
-    <!--        android:text="Go to All Events"-->
-    <!--        app:layout_constraintBottom_toTopOf="@id/event_button_goto_chat"-->
-    <!--        app:layout_constraintEnd_toEndOf="parent"-->
-    <!--        app:layout_constraintStart_toStartOf="parent" />-->
-
-    <!--    <Button-->
-    <!--        android:id="@+id/event_button_goto_map"-->
-    <!--        android:layout_width="wrap_content"-->
-    <!--        android:layout_height="wrap_content"-->
-    <!--        android:text="Go to Map"-->
-    <!--        app:layout_constraintBottom_toBottomOf="parent"-->
-
-    <!--        app:layout_constraintEnd_toEndOf="parent"-->
-    <!--        app:layout_constraintStart_toStartOf="parent" />-->
-
-    <!--    <Button-->
-    <!--        android:id="@+id/event_button_goto_chat"-->
-    <!--        android:layout_width="wrap_content"-->
-    <!--        android:layout_height="wrap_content"-->
-    <!--        android:text="Go to Chat"-->
-    <!--        app:layout_constraintBottom_toTopOf="@id/event_button_goto_map"-->
-    <!--        app:layout_constraintEnd_toEndOf="parent"-->
-    <!--        app:layout_constraintStart_toStartOf="parent" />-->
+        app:layout_constraintTop_toBottomOf="@id/event_textView_info_label" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

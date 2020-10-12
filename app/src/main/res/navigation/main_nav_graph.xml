@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/eventsFragment"
-        android:name="com.example.donde.fragments.EventsFragment"
+        android:name="com.bas.donde.fragments.EventsFragment"
         android:label="fragment_events"
         tools:layout="@layout/fragment_events">
         <action
@@ -19,7 +19,7 @@
     </fragment>
     <fragment
         android:id="@+id/eventInfoFragment"
-        android:name="com.example.donde.archive.EventInfoFragment"
+        android:name="com.bas.donde.archive.EventInfoFragment"
         android:label="fragment_event_info"
         tools:layout="@layout/fragment_event_info">
         <argument
@@ -38,7 +38,7 @@
     </fragment>
     <fragment
         android:id="@+id/addEventFragment"
-        android:name="com.example.donde.archive.AddEventFragment"
+        android:name="com.bas.donde.archive.AddEventFragment"
         android:label="fragment_add_event"
         tools:layout="@layout/fragment_add_event">
         <action
@@ -50,7 +50,7 @@
     </fragment>
     <fragment
         android:id="@+id/chatFragment"
-        android:name="com.example.donde.archive.ChatFragment"
+        android:name="com.bas.donde.archive.ChatFragment"
         android:label="fragment_chat"
         tools:layout="@layout/fragment_chat">
         <action
@@ -65,7 +65,7 @@
     </fragment>
     <fragment
         android:id="@+id/mapFragment"
-        android:name="com.example.donde.archive.MapFragment"
+        android:name="com.bas.donde.archive.MapFragment"
         android:label="fragment_map"
         tools:layout="@layout/fragment_map">
         <action
