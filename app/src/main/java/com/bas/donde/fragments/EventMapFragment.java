@@ -81,6 +81,7 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback {
 
 
     private ArrayList<ClusterMarker> mClusterMarkers;
+    private ArrayList<Bitmap> mUsersBitmaps;
 
     private LocationCallback mLocationCallback;
 
@@ -95,6 +96,8 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback {
     }
 
     private void setOnLocationCallback() {
+        // TODO: This wasn't a field but rather a local variable
+
         mLocationCallback = new LocationCallback() {
             @Override
             public void onLocationResult(LocationResult locationResult) {
@@ -112,60 +115,75 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback {
                         17));
                 offlineDataTransfer.connect();
 
+                updateInfo();
+                updateMarkers();
             }
         };
+    }
+
+    private void updateUserData() {
+
+        for (int i = 0; i < invitedUsersList.size(); i++) {
+            InvitedInEventUserModel user = invitedUsersList.get(i);
+            LatLng updatedLocation = new LatLng(user.getInvitedInEventUserCurrentLocation().getLatitude(), user.getInvitedInEventUserCurrentLocation().getLongitude());
+            mClusterMarkers.get(i).setPosition(updatedLocation);
+            mClusterManagerRenderer.setUpdateMarker(mClusterMarkers.get(i));
+        }
+
+
+        // TODO: Bottleneck #2
+        // TODO: Make all these changed irrelevant by requiring them in EventActivity
+
+        for (InvitedInEventUserModel user : invitedUsersList) {
+            // TODO: getUserAvater should retrieve avatar from list already in fragment
+            Bitmap avatar = getUserAvatar(user);
+            if (mClusterMarkers.contains(user)) {
+                LatLng updatedLocation = new LatLng(user.getInvitedInEventUserCurrentLocation().getLatitude(), user.getInvitedInEventUserCurrentLocation().getLongitude());
+                mClusterMarkers.get(user_index).setPosition(updatedLocation);
+                mClusterManagerRenderer.setUpdateMarker(mClusterMarkers.get(user_index));
+                return;
+            }
+            ClusterMarker newClusterMarker = new ClusterMarker(
+                    user.getInvitedInEventUserID(), new LatLng(user.getInvitedInEventUserCurrentLocation().getLatitude(),
+                    user.getInvitedInEventUserCurrentLocation().getLongitude()),
+                    user.getInvitedInEventUserName(),
+                    user.getInvitedInEventUserStatus(),
+                    avatar);
+            mClusterManager.addItem(newClusterMarker);
+            mClusterMarkers.add(newClusterMarker);
+
+            initializeMarkerStatus(user);
+
+        }
+        // TODO: Should this be in user loop? or outside?
+        mClusterManager.cluster();
+        setClusterMarkerOnClick();
     }
 
     private void initializeClusterMarkers() {
         mClusterMarkers = new ArrayList<>();
-
-
-        // TODO: This wasn't a field but rather a local variable
-        mLocationCallback = new LocationCallback() {
-            @Override
-            public void onLocationResult(LocationResult locationResult) {
-                List<Location> locationList = locationResult.getLocations();
-                if (locationList.size() > 0) {
-                    //The last location in the list is the newest
-                    Location location = locationList.get(locationList.size() - 1);
-                    Log.i("MapsActivity", "Location: " + location.getLatitude() + " " + location.getLongitude());
-                    mLastLocation = location;
-
-                    //to update the location we have
-                    offlineDataTransfer.updateLocation(new GeoPoint(location.getLatitude(), location.getLongitude()));
-
-//                    if (mCurrLocationMarker != null) {
-//                        mCurrLocationMarker.remove();
-//                    }
-
-                    LatLng localLatling = new LatLng(location.getLatitude(), location.getLongitude());
-                    mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(localLatling,
-                            17));
-
-
-                    // TODO: Bottleneck #1
-                    mGoogleMap.addTileOverlay(new TileOverlayOptions()
-                            .tileProvider(new OfflineTileProvider(myContext)));
-
-                    offlineDataTransfer.connect();
-                    updateInfo();
-                    addMapMarkers();
-                }
-            }
-        };
+        initializeMapMarkers();
     }
 
     private void initializeFields() {
+        myUserId = EventActivity.getMyUserId();
         geoPoint = ((EventActivity) getActivity()).getEvent().getEventLocation();
         laLing = new LatLng(geoPoint.getLatitude(), geoPoint.getLongitude());
         offlineDataTransfer = ((EventActivity) getActivity()).getOfflineDataTransfer();
         initializeClusterMarkers();
         mFusedLocationClient =
                 LocationServices.getFusedLocationProviderClient(getActivity());
+        // TODO: What should be the order of these?
+        initializeUsersBitmaps();
+        setOnLocationCallback();
         initializeMapFragment();
         initializeClusterMarkers();
         setClusterMarkerOnClick();
 
+
+    }
+
+    private void initializeUsersBitmaps() {
 
     }
 
@@ -259,8 +277,32 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback {
 
     }
 
+    private void initializeUsersData() {
 
-    private void addMapMarkers() {
+        for (int i = 0; i < invitedUsersList.size(); i++) {
+            InvitedInEventUserModel user = invitedUsersList.get(i);
+            // initialize user bitmap
+            // TODO: getUserAvater should retrieve avatar from list already in fragment
+            Bitmap userBitmap = getUserAvatar(user);
+//            mUsersBitmaps.add(userBitmap);
+
+            // initialize user cluster marker
+            LatLng updatedLocation = new LatLng(user.getInvitedInEventUserCurrentLocation().getLatitude(), user.getInvitedInEventUserCurrentLocation().getLongitude());
+            ClusterMarker userClusterMarker = new ClusterMarker(
+                    user.getInvitedInEventUserID(), new LatLng(user.getInvitedInEventUserCurrentLocation().getLatitude(),
+                    user.getInvitedInEventUserCurrentLocation().getLongitude()),
+                    user.getInvitedInEventUserName(),
+                    user.getInvitedInEventUserStatus(),
+                    userBitmap);
+            mClusterMarkers.add(userClusterMarker);
+            mClusterManager.addItem(userClusterMarker);
+
+            initializeMarkerStatus(user);
+
+        }
+    }
+
+    private void initializeMapMarkers() {
         // TODO: Bottleneck #2
         // TODO: Make all these changed irrelevant by requiring them in EventActivity
         if (mGoogleMap == null) {
@@ -285,28 +327,6 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback {
         }
 
 
-        for (InvitedInEventUserModel user : invitedUsersList) {
-            myUserId = EventActivity.getMyUserId();
-            // TODO: getUserAvater should retrieve avatar from list already in fragment
-            Bitmap avatar = getUserAvatar(user);
-            if (mClusterMarkers.contains(user)) {
-                LatLng updatedLocation = new LatLng(user.getInvitedInEventUserCurrentLocation().getLatitude(), user.getInvitedInEventUserCurrentLocation().getLongitude());
-                mClusterMarkers.get(user_index).setPosition(updatedLocation);
-                mClusterManagerRenderer.setUpdateMarker(mClusterMarkers.get(user_index));
-                return;
-            }
-            ClusterMarker newClusterMarker = new ClusterMarker(
-                    user.getInvitedInEventUserID(), new LatLng(user.getInvitedInEventUserCurrentLocation().getLatitude(),
-                    user.getInvitedInEventUserCurrentLocation().getLongitude()),
-                    user.getInvitedInEventUserName(),
-                    user.getInvitedInEventUserStatus(),
-                    avatar);
-            mClusterManager.addItem(newClusterMarker);
-            mClusterMarkers.add(newClusterMarker);
-
-            initializeMarkerStatus(user);
-
-        }
         // TODO: Should this be in user loop? or outside?
         mClusterManager.cluster();
         setClusterMarkerOnClick();
@@ -387,20 +407,8 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback {
                 // Show an explanation to the user *asynchronously* -- don't block
                 // this thread waiting for the user's response! After the user
                 // sees the explanation, try again to request the permission.
-                new AlertDialog.Builder(getContext())
-                        .setTitle("Location Permission Needed")
-                        .setMessage("This app needs the Location permission, please accept to use location functionality")
-                        .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                //Prompt the user once explanation has been shown
-                                ActivityCompat.requestPermissions(getActivity(),
-                                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                                        MY_PERMISSIONS_REQUEST_LOCATION);
-                            }
-                        })
-                        .create()
-                        .show();
+
+                showMarkerDialog();
             } else {
                 // No explanation needed, we can request the permission.
                 ActivityCompat.requestPermissions(getActivity(),
@@ -408,6 +416,23 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback {
                         MY_PERMISSIONS_REQUEST_LOCATION);
             }
         }
+    }
+
+    private void showMarkerDialog() {
+        new AlertDialog.Builder(getContext())
+                .setTitle("Location Permission Needed")
+                .setMessage("This app needs the Location permission, please accept to use location functionality")
+                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        //Prompt the user once explanation has been shown
+                        ActivityCompat.requestPermissions(getActivity(),
+                                new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                                MY_PERMISSIONS_REQUEST_LOCATION);
+                    }
+                })
+                .create()
+                .show();
     }
 
     @Override
