@@ -14,6 +14,7 @@ import android.graphics.BitmapFactory;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.Looper;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -60,6 +61,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.bas.donde.utils.CodeHelpers.myAssert;
+
 public class EventMapFragment extends Fragment implements OnMapReadyCallback {
     public static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
     public static final int currentUserIndex = 0;
@@ -86,14 +89,22 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        // TODO: Should this go in onviewcreated?
-        initializeFields();
+        Log.d(TAG, "in onCreateView");
 
         return inflater.inflate(R.layout.fragment_event_map, container, false);
 
     }
 
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        Log.d(TAG, "in onViewCreated");
+        initializeFields();
+
+    }
+
     private void setOnLocationCallback() {
+        Log.d(TAG, "in setOnLocationCallback");
         // TODO: This wasn't a field but rather a local variable
 
         mLocationCallback = new LocationCallback() {
@@ -119,6 +130,8 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback {
     }
 
     private void updateUsersData() {
+        Log.d(TAG, "in updateUsersData");
+
         assert invitedUsersList != null;
 
         for (int i = 0; i < invitedUsersList.size(); i++) {
@@ -142,34 +155,41 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback {
 
 
     private void initializeFields() {
+        Log.d(TAG, "in initializeFields");
         // TODO: What should be the order of these?
         myUserId = EventActivity.getMyUserId();
         offlineDataTransfer = ((EventActivity) getActivity()).getOfflineDataTransfer();
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(getActivity());
+        initializeMapFragment();
         initializeInvitedUsersList();
         initializeUsersData();
-        initializeClusterFields();
         setOnLocationCallback();
-        initializeMapFragment();
-        setClusterMarkerOnClick();
+
+
     }
 
+
     private void initializeInvitedUsersList() {
+        Log.d(TAG, "in initializeInvitedUsersList");
         invitedUsersList = ((EventActivity) getActivity()).getInvitedUserInEventModelList();
-        assert invitedUsersList != null;
+        myAssert(invitedUsersList != null, "invitedUsersList is null");
+        myAssert(invitedUsersList.size() > 0,"invitedUsersList size is 0");
 
     }
 
     private void initializeMapFragment() {
+        Log.d(TAG, "in initializeMapFragment");
         SupportMapFragment mapFragment =
                 (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map_mapView);
         assert mapFragment != null;
         mapFragment.getMapAsync(this);
+
     }
 
     @Override
     public void onPause() {
         super.onPause();
+        Log.d(TAG, "in onPause");
         //stop location updates when Activity is no longer active
         if (mFusedLocationClient != null) {
             mFusedLocationClient.removeLocationUpdates(mLocationCallback);
@@ -187,8 +207,12 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback {
      */
     @Override
     public void onMapReady(GoogleMap googleMap) {
+        Log.d(TAG, "in onMapReady");
         initializeGoogleMap(googleMap);
         initializeLocationRequest();
+
+        initializeClusterFields();
+        setClusterMarkerOnClick();
 
         if (ContextCompat.checkSelfPermission(getContext(),
                 Manifest.permission.ACCESS_FINE_LOCATION)
@@ -204,6 +228,7 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback {
     }
 
     private void initializeLocationRequest() {
+        Log.d(TAG, "in initializeLocationRequest");
         mLocationRequest = new LocationRequest();
         mLocationRequest.setInterval(locationUpdateInterval);
         mLocationRequest.setFastestInterval(locationUpdateInterval);
@@ -211,6 +236,7 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback {
     }
 
     private void initializeGoogleMap(GoogleMap googleMap) {
+        Log.d(TAG, "in initializeGoogleMap");
         mGoogleMap = googleMap;
         mGoogleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
         mGoogleMap.addTileOverlay(new TileOverlayOptions()
@@ -220,28 +246,32 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback {
 
 
     private void initializeUsersData() {
-        assert invitedUsersList != null;
+        Log.d(TAG, "in initializeUsersData");
+        myAssert(invitedUsersList != null, "invitedUserList is null");
         for (int i = 0; i < invitedUsersList.size(); i++) {
             InvitedInEventUserModel user = invitedUsersList.get(i);
-            initializeMapMarkers(user);
+            initializeMapMarker(user);
             initializeMarkerStatus(user);
         }
     }
 
     private void initializeClusterFields() {
+        Log.d(TAG, "in initializeClusterFields");
+        myAssert(mGoogleMap != null, "mGoogleMap is null");
         mClusterManager = new ClusterManager<ClusterMarker>(getContext(), mGoogleMap);
         mClusterManagerRenderer = new MyClusterManagerRenderer(getContext(), mGoogleMap, mClusterManager);
         mClusterManager.setRenderer(mClusterManagerRenderer);
 
     }
 
-    private void initializeMapMarkers(InvitedInEventUserModel user) {
+    private void initializeMapMarker(InvitedInEventUserModel user) {
+        Log.d(TAG, "in initializeMapMarker for " + user.getInvitedInEventUserName());
         // TODO: Bottleneck #2
         // TODO: Make all these changed irrelevant by requiring them in EventActivity
-        assert mGoogleMap != null;
-        assert mClusterManager != null;
-        assert mClusterManagerRenderer != null;
-        assert invitedUsersList != null;
+        myAssert(mGoogleMap != null, "googleMap is null");
+        myAssert(mClusterManager != null, "clusterManager is null");
+        myAssert(mClusterManagerRenderer != null, "clusterManagerRenderer is null");
+        myAssert(invitedUsersList != null, "invitedUserList is null");
 
 
         // initialize user cluster marker
@@ -260,6 +290,7 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback {
     }
 
     private Bitmap getUserAvatar(InvitedInEventUserModel user) {
+        Log.d(TAG, "in getUserAvatar for " + user.getInvitedInEventUserName());
         final Bitmap[] avatar = new Bitmap[1];
         FirebaseStorage storage = FirebaseStorage.getInstance();
         StorageReference imageRef = storage.getReference().child(user.getInvitedInEventUserID() + ".jpg");
@@ -283,6 +314,7 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback {
 
 
     private void setClusterMarkerOnClick() {
+        Log.d(TAG, "in setClusterMarkerOnClick");
         mClusterManager.setOnClusterItemClickListener(
                 new ClusterManager.OnClusterItemClickListener<ClusterMarker>() {
                     @Override
@@ -307,6 +339,7 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback {
     }
 
     private void initializeMarkerStatus(InvitedInEventUserModel user) {
+        Log.d(TAG, "in initializeMarkerStatus");
         if (user.getInvitedInEventUserID().equals(myUserId)) {
             user.setInvitedInEventUserCurrentLocation(new GeoPoint(mLastLocation.getLatitude(), mLastLocation.getLongitude()));
             user.setInvitedInEventUserStatus("Click to post your status");
@@ -342,6 +375,7 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback {
 
 
     private void checkLocationPermission() {
+        Log.d(TAG, "in checkLocationPermission");
         if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
             if (ActivityCompat.shouldShowRequestPermissionRationale(getActivity(),
@@ -350,7 +384,7 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback {
                 // this thread waiting for the user's response! After the user
                 // sees the explanation, try again to request the permission.
 
-                showMarkerDialog();
+                showLocationPermissionRequestDialog();
             } else {
                 // No explanation needed, we can request the permission.
                 ActivityCompat.requestPermissions(getActivity(),
@@ -360,7 +394,7 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback {
         }
     }
 
-    private void showMarkerDialog() {
+    private void showLocationPermissionRequestDialog() {
         new AlertDialog.Builder(getContext())
                 .setTitle("Location Permission Needed")
                 .setMessage("This app needs the Location permission, please accept to use location functionality")

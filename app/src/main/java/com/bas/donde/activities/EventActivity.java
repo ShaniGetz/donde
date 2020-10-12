@@ -20,11 +20,8 @@ import androidx.viewpager.widget.ViewPager;
 import com.bas.donde.R;
 import com.bas.donde.models.EventModel;
 import com.bas.donde.models.InvitedInEventUserModel;
-import com.bas.donde.recycle_views.events_recycler_view.EventsListViewModel;
 import com.bas.donde.utils.OfflineDataTransfer;
 import com.bas.donde.utils.ViewPagerAdapter;
-import com.bas.donde.utils.map_utils.StatusDialog;
-import com.google.android.gms.nearby.Nearby;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
@@ -41,37 +38,6 @@ import java.util.ArrayList;
 
 public class EventActivity extends AppCompatActivity {
 
-    private static String myUserId;
-    final int INFO_TAB = 0;
-    final int MAP_TAB = 1;
-    final int CHAT_TAB = 2;
-    FirebaseFirestore firebaseFirestore;
-    private TextView textViewInfoLabel;
-    private TextView textViewMapLabel;
-    private TextView textViewChatLabel;
-
-    private TextView infoEventName;
-    private TextView infoDescription;
-    private TextView infoLocationName;
-    private TextView infoCreatorUsername;
-
-    private ViewPager viewPager;
-    private ViewPagerAdapter viewPagerAdapter;
-
-    private String eventID;
-    private int position;
-    private EventModel eventModel;
-    //    private int position;
-    private EventsListViewModel eventsListViewModel;
-    private String TAG = "EventActivity";
-    private ArrayList<InvitedInEventUserModel> invitedUserInEventModelList = new ArrayList<>();
-    public ArrayList<InvitedInEventUserModel> getInvitedUserInEventModelList() {
-        return invitedUserInEventModelList;
-    }
-    private String currUserID;
-    OfflineDataTransfer offlineDataTransfer;
-
-    private int currentUserIndexInInvitedUsersList = 0; // current user is always at beginning
     private static final String[] REQUIRED_PERMISSIONS =
             new String[]{
                     Manifest.permission.BLUETOOTH,
@@ -81,9 +47,49 @@ public class EventActivity extends AppCompatActivity {
                     Manifest.permission.ACCESS_COARSE_LOCATION,
             };
     private static final int REQUEST_CODE_REQUIRED_PERMISSIONS = 5432;
+    private static String myUserId;
+    final int INFO_TAB = 0;
+    final int MAP_TAB = 1;
+    final int CHAT_TAB = 2;
+    FirebaseFirestore firebaseFirestore;
+    OfflineDataTransfer offlineDataTransfer;
+    private TextView textViewInfoLabel;
+    private TextView textViewMapLabel;
+    private TextView textViewChatLabel;
+    private TextView infoEventName;
+    private TextView infoDescription;
+    private TextView infoLocationName;
+    private TextView infoCreatorUsername;
+    private ViewPager viewPager;
+    private ViewPagerAdapter viewPagerAdapter;
+    private String eventID;
+    private int position;
+    private EventModel eventModel;
+    //    private int position;
+    private String TAG = "EventActivity";
+    private ArrayList<InvitedInEventUserModel> invitedUserInEventModelList = new ArrayList<>();
+    private String currUserID;
+    private int currentUserIndexInInvitedUsersList = 0; // current user is always at beginning
 
+    public static String getMyUserId() {
+        return myUserId;
+    }
 
-    public OfflineDataTransfer getOfflineDataTransfer(){
+    public static boolean hasPermissions(Context context, String... permissions) {
+        for (String permission : permissions) {
+            if (ContextCompat.checkSelfPermission(context, permission)
+                    != PackageManager.PERMISSION_GRANTED) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public ArrayList<InvitedInEventUserModel> getInvitedUserInEventModelList() {
+        return invitedUserInEventModelList;
+    }
+
+    public OfflineDataTransfer getOfflineDataTransfer() {
         return offlineDataTransfer;
     }
 
@@ -95,15 +101,11 @@ public class EventActivity extends AppCompatActivity {
         initializeListeners();
         initializeInvitedUsersList();
         GeoPoint geoPoint = new GeoPoint(0, 0);
-//        GeoPoint geoPoint = new GeoPoint(31.768161300000003, 35.2127055);
-//        offlineDataTransfer.startDiscovery();
-        offlineDataTransfer = new OfflineDataTransfer(currUserID, geoPoint, this,"write something...");
+        offlineDataTransfer = new OfflineDataTransfer(currUserID, geoPoint, this, "write something...");
         offlineDataTransfer.startAdvertising();
         myUserId = currUserID;
 
     }
-
-
 
     /**
      * Called when the user has accepted (or denied) our permission request.
@@ -125,20 +127,6 @@ public class EventActivity extends AppCompatActivity {
 //        myUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
     }
 
-    public static String getMyUserId() {
-        return myUserId;
-    }
-
-    public static boolean hasPermissions(Context context, String... permissions) {
-        for (String permission : permissions) {
-            if (ContextCompat.checkSelfPermission(context, permission)
-                    != PackageManager.PERMISSION_GRANTED) {
-                return false;
-            }
-        }
-        return true;
-    }
-
     @Override
     protected void onStart() {
         super.onStart();
@@ -148,12 +136,12 @@ public class EventActivity extends AppCompatActivity {
             }
         }
     }
+
     @Override
     protected void onStop() {
         super.onStop();
         offlineDataTransfer.stopAll();
     }
-
 
 
     private void initializeInvitedUsersList() {
@@ -282,18 +270,6 @@ public class EventActivity extends AppCompatActivity {
         });
     }
 
-//    private void initializeUsersList() {
-//        usersList = new ArrayList<>();
-//        FirebaseUser myUser = FirebaseAuth.getInstance().getCurrentUser();
-//        String myUserId = myUser.getUid();
-//        UserModel myUserModel = new UserModel(myUserId, myUser.)
-//        usersList.add(myUserModel);
-//        Query invitedUsersQuery =
-//                firebaseFirestore.collection(getString(R.string.ff_events_collection)).document(getEventID()).collection(getString(R.string.ff_eventInvitedUsers_collection));
-//        FirestoreRecyclerOptions<InvitedUserModel> invitedUsersOptions =
-//                new FirestoreRecyclerOptions.Builder<InvitedUserModel>().setQuery(invitedUsersQuery, InvitedUserModel.class).build();
-//
-//    }
 
     private void changeTabs(int position) {
         TextView mainTab;
