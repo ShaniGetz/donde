@@ -458,22 +458,38 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
         });
     }
 
-    private void initializeTimePicker(Context createContext) {
+    private void updateTime(){
         textViewEventTime = findViewById(R.id.create_textView_event_time);
+        Calendar cal  = Calendar.getInstance();
+        String time = cal.getTime().toString();
+        String hour = "";
+        String minute = "";
+        for(int i = 0; i < time.length(); i++){
+            if(time.charAt(i)== ':'){
+                hour = time.substring(i-2,i);
+                minute = time.substring(i+1, i + 3);
+                break;
+            }
+        }
+        textViewEventTime.setText(hour +":"+ minute);
+    }
+    private void initializeTimePicker(Context createContext) {
+        updateTime();
         textViewEventTime.setOnClickListener(new View.OnClickListener() {
-
-
             @Override
             public void onClick(View v) {
-                // TODO Auto-generated method stub
-                Calendar mcurrentTime = Calendar.getInstance();
-                int hour = mcurrentTime.get(Calendar.HOUR_OF_DAY);
-                int minute = mcurrentTime.get(Calendar.MINUTE);
+                int hour = -1;
+                int minute = -1;
+                String time = textViewEventTime.getText().toString();
+                for(int i = 0; i < time.length(); i++){
+                    if(time.charAt(i)== ':'){
+                        hour = Integer.parseInt(time.substring(i-2,i));
+                        minute = Integer.parseInt(time.substring(i+1, i + 3));
+                        break;
+                    }
+                }
                 TimePickerDialog mTimePicker;
-//                int resTheme = R.style.SpinnerTimePicker;
-
-                int resTheme =
-                        TimePickerDialog.THEME_HOLO_DARK;
+                int resTheme = TimePickerDialog.THEME_HOLO_DARK;
                 mTimePicker = new TimePickerDialog(createContext, resTheme,
                         new TimePickerDialog.OnTimeSetListener() {
                             @Override
