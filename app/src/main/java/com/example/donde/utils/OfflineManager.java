@@ -1,35 +1,26 @@
 package com.example.donde.utils;
 
 import android.content.Context;
-import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.example.donde.R;
 import com.example.donde.models.EventModel;
-import com.example.donde.models.InvitedInEventUserModel;
 import com.example.donde.models.InvitedInUserEventModel;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
 import com.google.gson.Gson;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-
-import static com.google.firebase.auth.FirebaseAuth.getInstance;
 
 public class OfflineManager {
+    public static final String EVENT_DETAILS_FILE = "event_details.json";
+    public static final String EVENT_DETAILS_DIR = "event_details_dir";
     private static final String DEBUG_FILENAME = "test0";
     private static final Gson gson = new Gson();
     private static final String TAG = "tagOfflineManager";
-
     // the user who is requesting the download
     private FirebaseUser userDownloading;
     // the event that needs to be downloaded
@@ -42,6 +33,9 @@ public class OfflineManager {
     private String currUserID;
     private File currUserBaseDir;
     private File currUserEventDir;
+    private EventModel eventModel;
+    private File eventDetailsDir;
+    private File eventDetailsFile;
     ;
 
 //
@@ -61,20 +55,20 @@ public class OfflineManager {
         this.context = context;
     }
 
-    private static void downloadEventMap() {
-
-    }
-
-    private static void downloadEventGuestsNames() {
-
-    }
-
-    private static void downloadEventGuestsProfilePics() {
-        // iterate over invited users
-        // download each user's profile pic from FirebaseStorage to phone
-
-//        gson.toJson()
-    }
+//    private static void downloadEventMap() {
+//
+//    }
+//
+//    private static void downloadEventGuestsNames() {
+//
+//    }
+//
+//    private static void downloadEventGuestsProfilePics() {
+//        // iterate over invited users
+//        // download each user's profile pic from FirebaseStorage to phone
+//
+////        gson.toJson()
+//    }
 
 //    public String getOfflineString(Context context) {
 //        try {
@@ -110,20 +104,6 @@ public class OfflineManager {
         return FirebaseAuth.getInstance().getCurrentUser() != null;
     }
 
-    /*
-    Event downloaded in the following hierarchy:
-
-    -   Base application dir
-    -   -   User dir (name = userID)
-    -   -   User-Event dir (name = eventID)
-    -   -   -   User-Event-Details dir  (name = "details")
-    -   -   -   -   User-Event-Details file (name = "details, type = .json)
-    -   -   -   -   User-Event-Map file (name = "map")
-    -   -   -   User-Event-Invited-Users dir (name = "invited_users")
-    -   -   -   -   User-Event-Invited-User dir (name = invitedUserID)
-    -   -   -   -   -   User-Event-Invited-User-Details file (name = details, type = .json)
-    -   -   -   -   -   User-Event-Invited-User-Profile-Pic file (name = profile_pic, type = .jpg)
-     */
     public void downloadEventToOffline(EventModel eventModel) {
         Log.d(TAG, "in OfflineManager downloadEventToOffline");
 
@@ -134,95 +114,139 @@ public class OfflineManager {
             currUserID = FirebaseAuth.getInstance().getUid();
             currUserBaseDir = context.getDir(currUserID, Context.MODE_PRIVATE);
             currUserEventDir = new File(currUserBaseDir, eventModel.getEventID());
+            makeDir(currUserEventDir);
+            this.eventModel = eventModel;
 
-
-//            FileOutputStream outputStreamWriter = new FileOutputStream()
-
-            downloadInvitedInEventUsers(currUserDir, eventModel);
-            downloadEventGuestsNames(currUserDir);
+            downloadEventDetails();
             downloadEventMap();
-            downloadEventGuestsProfilePics();
-
+            downloadInvitedUsers();
         }
     }
 
-    private void downloadInvitedInEventUsers(File currUserDir, EventModel eventModel) {
-        String invitedInEventUsersDirName = "invited_in_event_users_dir";
-        File invitedInEventsUsersDir = context.getDir(invitedInEventUsersDirName, Context.MODE_PRIVATE);
-        FirebaseFirestore.getInstance().collection(context.getString(R.string.ff_Events)).document(eventModel.getEventID()).collection(context.getString(R.string.ff_InvitedInEventUsers)).get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-            @Override
-            public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+    private void makeDir(File dirToMake) {
+        Log.d(TAG, "in OfflineManager makeDir");
 
-//                FirebaseFirestore.getInstance().runTransaction(new Transaction.Function<ArrayList<InvitedInEventUserModel>>() {
+        if (dirToMake.mkdir()) {
+            Log.d(TAG, String.format("Directory %s has been created.",
+                    dirToMake.getAbsolutePath()));
 
-//                    @Nullable
-//                    @Override
-//                    public ArrayList<InvitedInEventUserModel> apply(@NonNull Transaction transaction) throws FirebaseFirestoreException {
-                ArrayList<InvitedInEventUserModel> invitedInEventUserModels = new ArrayList<>();
-                for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
-                    Log.d(TAG, String.format("Adding query snapshot name: %s",
-                            documentSnapshot.get(context.getString(R.string.ff_InvitedInEventUsers_invitedInEventUserName))));
-                    String userId =
-                            documentSnapshot.getString(context.getString(R.string.ff_InvitedInEventUsers_invitedInEventUserID));
+        } else if (dirToMake.isDirectory()) {
+            Log.d(TAG, String.format("Directory %s has already been created.",
+                    dirToMake.getAbsolutePath()));
 
-                    if (TextUtils.equals(userId, getInstance().getUid())) {
-                        invitedInEventUserModels.add(0,
-                                documentSnapshot.toObject(InvitedInEventUserModel.class));
-                    } else {
-
-                        InvitedInEventUserModel invitedInEventUserModel =
-                                documentSnapshot.toObject(InvitedInEventUserModel.class);
-                        String userJson = gson.toJson(invitedInEventUserModel,
-                                InvitedInEventUserModel.class);
-                        String userFileName = invitedInEventUserModel.getInvitedInEventUserID();
-                        File userFile = new File(invitedInEventsUsersDir, userFileName);
-                        try {
-                            FileOutputStream outputStreamWriter = new FileOutputStream(userFile);
-                            outputStreamWriter.write(userJson.getBytes());
-                        } catch (FileNotFoundException e) {
-                            e.printStackTrace();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-
-//                                invitedInEventUserModels.add(documentSnapshot.toObject(InvitedInEventUserModel.class));
-                    }
-
-
-                }
-//                        Log.d(TAG, "index 0: " + invitedInEventUserModels.get(0)
-//                                .getInvitedInEventUserName());
-//                        return invitedInEventUserModels;
-//                    }
-//                }).addOnSuccessListener(new OnSuccessListener<ArrayList<InvitedInEventUserModel>>() {
-//                    @Override
-//                    public void onSuccess(ArrayList<InvitedInEventUserModel> invitedInEventUserModels) {
-//                        Log.d(TAG, String.format("Size of array after transaction is %s and first " +
-//                                        "user is %s", invitedInEventUserModels.size(),
-//                                invitedInEventUserModels.size() == 0 ? "NO " +
-//                                        "USER" : invitedInEventUserModels.get(0)));
-//                        invitedUserInEventModelList = invitedInEventUserModels;
-//                    }
-//                }).addOnFailureListener(new OnFailureListener() {
-//                    @Override
-//                    public void onFailure(@NonNull Exception e) {
-//                        Log.d(TAG, String.format("Transaction failed with error: %s", e.getMessage()));
-//                    }
-//                });
-
-            }
-        });
+        } else {
+            Log.d(TAG, String.format("Directory %s could not be created.",
+                    dirToMake.getAbsolutePath()));
+        }
     }
 
-//    public void downloadDebug() {
-////        File debugFile = new File(fileDir, DEBUG_FILENAME);
-//        try (FileOutputStream fos = context.openFileOutput(DEBUG_FILENAME, Context.MODE_PRIVATE)) {
-//            fos.write(debugString.getBytes());
-//            Toast.makeText(context, "Successfully downloaded file", Toast.LENGTH_SHORT).show();
-//        } catch (FileNotFoundException e) {
-//            e.printStackTrace();
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
+    private void downloadEventDetails() {
+        Log.d(TAG, "in OfflineManager downloadEventDetails");
+
+        eventDetailsDir = new File(currUserEventDir, EVENT_DETAILS_DIR);
+        makeDir(eventDetailsDir);
+        eventDetailsFile = new File(eventDetailsDir, EVENT_DETAILS_FILE);
+
+        Gson eventGson = new Gson();
+        String eventJson = eventGson.toJson(eventModel, EventModel.class);
+        try {
+            FileOutputStream eventJsonWriter = new FileOutputStream(eventDetailsFile);
+            eventJsonWriter.write(eventJson.getBytes());
+            Log.d(TAG, "event details json written successfully");
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void downloadEventMap() {
+
+    }
+
+    private void downloadInvitedUsers() {
+
+    }
+
+//
+//    private void downloadInvitedInEventUsers(File currUserDir, EventModel eventModel) {
+//        String invitedInEventUsersDirName = "invited_in_event_users_dir";
+//        File invitedInEventsUsersDir = context.getDir(invitedInEventUsersDirName, Context.MODE_PRIVATE);
+//        FirebaseFirestore.getInstance().collection(context.getString(R.string.ff_Events)).document(eventModel.getEventID()).collection(context.getString(R.string.ff_InvitedInEventUsers)).get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+//            @Override
+//            public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+//
+////                FirebaseFirestore.getInstance().runTransaction(new Transaction.Function<ArrayList<InvitedInEventUserModel>>() {
+//
+////                    @Nullable
+////                    @Override
+////                    public ArrayList<InvitedInEventUserModel> apply(@NonNull Transaction transaction) throws FirebaseFirestoreException {
+//                ArrayList<InvitedInEventUserModel> invitedInEventUserModels = new ArrayList<>();
+//                for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
+//                    Log.d(TAG, String.format("Adding query snapshot name: %s",
+//                            documentSnapshot.get(context.getString(R.string.ff_InvitedInEventUsers_invitedInEventUserName))));
+//                    String userId =
+//                            documentSnapshot.getString(context.getString(R.string.ff_InvitedInEventUsers_invitedInEventUserID));
+//
+//                    if (TextUtils.equals(userId, getInstance().getUid())) {
+//                        invitedInEventUserModels.add(0,
+//                                documentSnapshot.toObject(InvitedInEventUserModel.class));
+//                    } else {
+//
+//                        InvitedInEventUserModel invitedInEventUserModel =
+//                                documentSnapshot.toObject(InvitedInEventUserModel.class);
+//                        String userJson = gson.toJson(invitedInEventUserModel,
+//                                InvitedInEventUserModel.class);
+//                        String userFileName = invitedInEventUserModel.getInvitedInEventUserID();
+//                        File userFile = new File(invitedInEventsUsersDir, userFileName);
+//                        try {
+//                            FileOutputStream outputStreamWriter = new FileOutputStream(userFile);
+//                            outputStreamWriter.write(userJson.getBytes());
+//                        } catch (FileNotFoundException e) {
+//                            e.printStackTrace();
+//                        } catch (IOException e) {
+//                            e.printStackTrace();
+//                        }
+//
+////                                invitedInEventUserModels.add(documentSnapshot.toObject(InvitedInEventUserModel.class));
+//                    }
+//
+//
+//                }
+////                        Log.d(TAG, "index 0: " + invitedInEventUserModels.get(0)
+////                                .getInvitedInEventUserName());
+////                        return invitedInEventUserModels;
+////                    }
+////                }).addOnSuccessListener(new OnSuccessListener<ArrayList<InvitedInEventUserModel>>() {
+////                    @Override
+////                    public void onSuccess(ArrayList<InvitedInEventUserModel> invitedInEventUserModels) {
+////                        Log.d(TAG, String.format("Size of array after transaction is %s and first " +
+////                                        "user is %s", invitedInEventUserModels.size(),
+////                                invitedInEventUserModels.size() == 0 ? "NO " +
+////                                        "USER" : invitedInEventUserModels.get(0)));
+////                        invitedUserInEventModelList = invitedInEventUserModels;
+////                    }
+////                }).addOnFailureListener(new OnFailureListener() {
+////                    @Override
+////                    public void onFailure(@NonNull Exception e) {
+////                        Log.d(TAG, String.format("Transaction failed with error: %s", e.getMessage()));
+////                    }
+////                });
+//
+//            }
+//        });
 //    }
+//
+////    public void downloadDebug() {
+//////        File debugFile = new File(fileDir, DEBUG_FILENAME);
+////        try (FileOutputStream fos = context.openFileOutput(DEBUG_FILENAME, Context.MODE_PRIVATE)) {
+////            fos.write(debugString.getBytes());
+////            Toast.makeText(context, "Successfully downloaded file", Toast.LENGTH_SHORT).show();
+////        } catch (FileNotFoundException e) {
+////            e.printStackTrace();
+////        } catch (IOException e) {
+////            e.printStackTrace();
+////        }
+////    }
 }
