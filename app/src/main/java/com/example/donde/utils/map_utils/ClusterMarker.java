@@ -1,4 +1,6 @@
 package com.example.donde.utils.map_utils;
+import android.graphics.Bitmap;
+
 import com.google.android.gms.maps.model.LatLng;
 import com.google.maps.android.clustering.ClusterItem;
 
@@ -7,26 +9,37 @@ public class ClusterMarker implements ClusterItem {
     private LatLng position;
     private String title;
     private String snippet;
-    private int iconPicture;
+//    private int iconPicture;
+    private Bitmap iconPictureBitmap;
 //    private User user;
 
-    public ClusterMarker(String userID, LatLng position, String title, String snippet, int iconPicture) {
+    public ClusterMarker(String userID, LatLng position, String title, String snippet, Bitmap iconPictureBitmap) {
         this.userID = userID;
         this.position = position;
         this.title = title;
         this.snippet = snippet;
-        this.iconPicture = iconPicture;
+        this.iconPictureBitmap = iconPictureBitmap;
+//        this.iconPicture = iconPicture;
     }
 
     public String getUserID() { return userID; }
 
-    public int getIconPicture() {
-        return iconPicture;
+//    public int getIconPicture() {
+//        return iconPicture;
+//    }
+
+
+    public Bitmap getIconPictureBitmap() {
+        return iconPictureBitmap;
     }
 
-    public void setIconPicture(int iconPicture) {
-        this.iconPicture = iconPicture;
+    public void setIconPictureBitmap(Bitmap iconPictureBitmap) {
+        this.iconPictureBitmap = iconPictureBitmap;
     }
+
+//    public void setIconPicture(int iconPicture) {
+//        this.iconPicture = iconPicture;
+//    }
 
     public void setPosition(LatLng position) {
         this.position = position;
