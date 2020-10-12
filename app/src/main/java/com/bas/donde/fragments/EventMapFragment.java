@@ -13,7 +13,6 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.location.Location;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Looper;
 import android.util.Log;
@@ -65,6 +64,8 @@ import java.util.List;
 
 public class EventMapFragment extends Fragment implements OnMapReadyCallback, StatusDialog.StatusDialogListener {
     public static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
+    public static final int currentUserIndex = 0;
+    public static final int locationUpdateInterval = 300;
     private static final String TAG = "tagEventMapFragment";
     LocationRequest mLocationRequest;
     GoogleMap mGoogleMap;
@@ -136,17 +137,25 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback, St
         };
     }
 
-    private void initializerFields() {
+    private void initializeFields() {
         initializeClusterMarkers();
+        mFusedLocationClient =
+                LocationServices.getFusedLocationProviderClient(getActivity());
+        initializeMapFragment();
+        initializeClusterMarkers();
+        setClusterMarkerOnClick();
+
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        initializerFields();
+        initializeFields();
 
-        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(getActivity());
 
+    }
+
+    private void initializeMapFragment() {
         SupportMapFragment mapFragment =
                 (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map_mapView);
         if (mapFragment != null) {
@@ -175,54 +184,36 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback, St
      */
     @Override
     public void onMapReady(GoogleMap googleMap) {
+        initializeGoogleMap(googleMap);
+        initializeLocationRequest();
 
-//        LatLng sydney = new LatLng(-34, 151);
-//        googleMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
-//        googleMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
-
-
-        mGoogleMap = googleMap;
-//        String tilesDir = getContext().getFilesDir().toString();
-
-//        mGoogleMap.addTileOverlay(new TileOverlayOptions().tileProvider(new OfflineTileProvider(getContext())));
-
-
-        mGoogleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-        mLocationRequest = new LocationRequest();
-        mLocationRequest.setInterval(300);
-        mLocationRequest.setFastestInterval(300);
-        mLocationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
-
-        if (status != null) {
-            offlineDataTransfer.updateStatus(status);
-        }
-        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (ContextCompat.checkSelfPermission(getContext(),
-                    Manifest.permission.ACCESS_FINE_LOCATION)
-                    == PackageManager.PERMISSION_GRANTED) {
-                //Location Permission already granted
-                mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback, Looper.myLooper());
-                mGoogleMap.setMyLocationEnabled(true);
-            } else {
-                //Request Location Permission
-                checkLocationPermission();
-            }
-        } else {
+        // TODO: Why is this here?
+//        if (status != null) {
+//            offlineDataTransfer.updateStatus(status);
+//        }
+        if (ContextCompat.checkSelfPermission(getContext(),
+                Manifest.permission.ACCESS_FINE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED) {
+            //Location Permission already granted
             mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback, Looper.myLooper());
             mGoogleMap.setMyLocationEnabled(true);
+        } else {
+            //Request Location Permission
+            checkLocationPermission();
         }
 
-        mGoogleMap.setMapType(GoogleMap.MAP_TYPE_NONE);
     }
 
-    public void ChangeType(View view) {
-        if (mGoogleMap.getMapType() == GoogleMap.MAP_TYPE_NORMAL) {
-            mGoogleMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
-        } else if (mGoogleMap.getMapType() == GoogleMap.MAP_TYPE_SATELLITE) {
-            mGoogleMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
-        } else if (mGoogleMap.getMapType() == GoogleMap.MAP_TYPE_HYBRID) {
-            mGoogleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-        }
+    private void initializeLocationRequest() {
+        mLocationRequest = new LocationRequest();
+        mLocationRequest.setInterval(locationUpdateInterval);
+        mLocationRequest.setFastestInterval(locationUpdateInterval);
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
+    }
+
+    private void initializeGoogleMap(GoogleMap googleMap) {
+        mGoogleMap = googleMap;
+        mGoogleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
     }
 
     private void updateInfo() {
@@ -240,6 +231,7 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback, St
         }
 
     }
+
 
     private void addMapMarkers() {
         // TODO: Bottleneck #2
@@ -293,31 +285,25 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback, St
         setClusterMarkerOnClick();
     }
 
+
     private void setClusterMarkerOnClick() {
         mClusterManager.setOnClusterItemClickListener(
                 new ClusterManager.OnClusterItemClickListener<ClusterMarker>() {
                     @Override
                     public boolean onClusterItemClick(ClusterMarker clusterItem) {
-                        if (clusterItem.getUserID().equals(myUserId)) {
-                            showStatusDialog();
-
-                            Log.d("onClusterItemClick", status);
-                            //update my stats also in list
-                            clusterItem.setSnippet(status);
-                            invitedUsersList.get(0).setInvitedInEventUserStatus(status);
-
-                            //update inner status in mClusterMarkers
-                            for (int i = 0; i < mClusterMarkers.size(); i++) {
-                                if (mClusterMarkers.get(i).getUserID().equals(myUserId)) {
-                                    mClusterMarkers.get(i).setSnippet(status);
-                                    Log.d("onClusterItemClick", status);
-                                    mClusterManagerRenderer.setUpdateMarker(mClusterMarkers.get(i));
-                                }
-                            }
-                            offlineDataTransfer.updateStatus(status);
-                        } else {
+                        if (!clusterItem.getUserID().equals(myUserId)) {
                             return false;
                         }
+                        // else: clicked on my user marker
+                        showStatusDialog();
+
+                        Log.d("onClusterItemClick", status);
+                        //update my stats also in list
+                        clusterItem.setSnippet(status);
+                        invitedUsersList.get(currentUserIndex).setInvitedInEventUserStatus(status);
+                        mClusterMarkers.get(currentUserIndex).setSnippet(status);
+                        mClusterManagerRenderer.setUpdateMarker(mClusterMarkers.get(currentUserIndex));
+                        offlineDataTransfer.updateStatus(status);
                         // if true, click handling stops here and do not show info view, do not move camera
                         // you can avoid this by calling:
                         return false;
