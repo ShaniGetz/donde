@@ -86,16 +86,12 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback {
     private ClusterManager mClusterManager;
     private GeoPoint geoPoint;
     private LatLng laLing;
-    Button updateButton;
     private MyClusterManagerRenderer mClusterManagerRenderer;
     private OfflineDataTransfer offlineDataTransfer;
 
 
     private ArrayList<ClusterMarker> mClusterMarkers = new ArrayList<>();
-    LocationCallback mLocationCallback = new
-
-            LocationCallback() {
-
+    LocationCallback mLocationCallback = new LocationCallback() {
                 @Override
                 public void onLocationResult(LocationResult locationResult) {
                     List<Location> locationList = locationResult.getLocations();
@@ -104,20 +100,16 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback {
                         Location location = locationList.get(locationList.size() - 1);
                         Log.i("MapsActivity", "Location: " + location.getLatitude() + " " + location.getLongitude());
                         mLastLocation = location;
+
                         //to update the location we have
                         offlineDataTransfer.updateLocation(new GeoPoint(location.getLatitude(), location.getLongitude()));
+
                         if (mCurrLocationMarker != null) {
                             mCurrLocationMarker.remove();
                         }
-                        //Place current location marker
-                        LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
-                        //add marker pic
-                        Log.d(TAG, "Calling add map markers");
-
                         //move map camera
 //                        mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 11));
                         LatLng localLatling = new LatLng(location.getLatitude(), location.getLongitude());
-                        if(localLatling.longitude < 1 || localLatling.latitude< 1){localLatling = laLing;};
                         mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(localLatling, 17));
 
                         Log.d("onLocationResult", laLing.latitude + " " + laLing.longitude);
@@ -138,7 +130,6 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback {
         geoPoint = ((EventActivity)getActivity()).getEvent().getEventLocation();
         laLing = new LatLng(geoPoint.getLatitude(), geoPoint.getLongitude());
         offlineDataTransfer = ((EventActivity) getActivity()).getOfflineDataTransfer();
-
         return inflater.inflate(R.layout.fragment_event_map, container, false);
 
     }
@@ -190,8 +181,8 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback {
 
         mGoogleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
         mLocationRequest = new LocationRequest();
-        mLocationRequest.setInterval(70);
-        mLocationRequest.setFastestInterval(70);
+        mLocationRequest.setInterval(300);
+        mLocationRequest.setFastestInterval(300);
         mLocationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
 
         if(status != null){
@@ -267,22 +258,21 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback {
                     myUserId = EventActivity.getMyUserId();
 //                    user.getInvitedInEventUserProfilePicURL()
 //                    try {
-                        if (user.getInvitedInEventUserID().equals(myUserId)) {
-                            GeoPoint Geo;
-                            if (mLastLocation == null)
-                            {Geo =  new GeoPoint(31.768161300000003, 35.2127055);}
-                            else{Geo =  new GeoPoint(mLastLocation.getLatitude(), mLastLocation.getLongitude());}
-                            user.setInvitedInEventUserCurrentLocation(Geo);
-                            Log.d(TAG, user.getInvitedInEventUserCurrentLocation().toString());
-                            Log.d(TAG, mLastLocation.toString());
-                            user.setInvitedInEventUserStatus("Click to post your status");
-                        } else {
-                            user.setInvitedInEventUserStatus("");
-                        }
+//                        if (user.getInvitedInEventUserID().equals(myUserId)) {
+//                            if(mLastLocation ==null){
+//                                Log.d("ERROR", "youre location is null at row 265");
+//                            }
+//                            user.setInvitedInEventUserCurrentLocation(new GeoPoint(mLastLocation.getLatitude(), mLastLocation.getLongitude()));
+//                            Log.d(TAG, user.getInvitedInEventUserCurrentLocation().toString());
+//                            Log.d(TAG, mLastLocation.toString());
+//                            user.setInvitedInEventUserStatus("Click to post your status");
+//                            offlineDataTransfer.updateStatus("Click to post your status");
+//                        } else {
+//                            user.setInvitedInEventUserStatus("");
+//                        }
 //                        int avatar = R.drawable.avatar2; // set the default avatar
-                        FirebaseStorage storage = FirebaseStorage.getInstance();
-
-                        StorageReference imageRef = storage.getReference().child(user.getInvitedInEventUserID()+".jpg");
+                    FirebaseStorage storage = FirebaseStorage.getInstance();
+                    StorageReference imageRef = storage.getReference().child(user.getInvitedInEventUserID()+".jpg");
 //                        StorageReference gsReference = storage.getReferenceFromUrl(user.getInvitedInEventUserProfilePicURL());
                     imageRef.getBytes(1024 * 1024).addOnSuccessListener(new OnSuccessListener<byte[]>() {
                             @Override
@@ -301,15 +291,21 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback {
                                         mClusterManagerRenderer.setUpdateMarker(mClusterMarkers.get(i));
                                     }
                                 }
-                                LatLng latLng;
                                 if (!exist) {
+                                    if (user.getInvitedInEventUserID().equals(myUserId)) {
+                                        user.setInvitedInEventUserCurrentLocation(new GeoPoint(mLastLocation.getLatitude(), mLastLocation.getLongitude()));
+                                        user.setInvitedInEventUserStatus("Click to post your status");
+                                        offlineDataTransfer.updateStatus("Click to post your status");
+                                        } else {
+                                            user.setInvitedInEventUserStatus("");
+                                            offlineDataTransfer.updateStatus("");
+                                    }
                                     ClusterMarker newClusterMarker = new ClusterMarker(
                                             user.getInvitedInEventUserID(), new LatLng(user.getInvitedInEventUserCurrentLocation().getLatitude(),
                                             user.getInvitedInEventUserCurrentLocation().getLongitude()),
                                             user.getInvitedInEventUserName(),
                                             user.getInvitedInEventUserStatus(),
-                                            avatar
-                                    );
+                                            avatar);
                                     mClusterManager.addItem(newClusterMarker);
                                     mClusterMarkers.add(newClusterMarker);
                                 }
@@ -327,18 +323,20 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback {
                                         if (clusterItem.getUserID().equals(myUserId)) {
                                             openDialog();
                                             status = EventActivity.getStatus();
+
+                                            //update my stats also in list
                                             clusterItem.setSnippet(status);
-                                            for (int i=0; i<invitedUsersList.size(); i++){
-                                                if (invitedUsersList.get(i).getInvitedInEventUserID().equals(myUserId)){
-                                                    invitedUsersList.get(i).setInvitedInEventUserStatus(status);
-                                                }
-                                            }
+                                            offlineDataTransfer.updateStatus(status);
+                                            invitedUsersList.get(0).setInvitedInEventUserStatus(status);
+
+                                            //update inner status in mClusterMarkers
                                             for (int i = 0; i < mClusterMarkers.size(); i++) {
                                                 if (mClusterMarkers.get(i).getUserID().equals(myUserId)) {
                                                     mClusterMarkers.get(i).setSnippet(status);
                                                     mClusterManagerRenderer.setUpdateMarker(mClusterMarkers.get(i));
                                                 }
                                             }
+
                                         } else {
                                             return false;
                                         }

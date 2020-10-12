@@ -72,6 +72,7 @@ public class EventActivity extends AppCompatActivity implements StatusDialog.Sta
     private EventsListViewModel eventsListViewModel;
     private String TAG = "EventActivity";
     private ArrayList<InvitedInEventUserModel> invitedUserInEventModelList = new ArrayList<>();
+
     public ArrayList<InvitedInEventUserModel> getInvitedUserInEventModelList() {
         return invitedUserInEventModelList;
     }
