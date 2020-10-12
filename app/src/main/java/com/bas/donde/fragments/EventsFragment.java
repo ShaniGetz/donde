@@ -26,6 +26,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bas.donde.R;
+import com.bas.donde.activities.EditEventActivity;
 import com.bas.donde.activities.EventActivity;
 import com.bas.donde.activities.MainActivity;
 import com.bas.donde.models.EventModel;
@@ -112,8 +113,7 @@ public class EventsFragment extends Fragment {
                         holder.textViewEventCreatorName.setText(String.format("Creator name: %s",
                                 model.getInvitedInUserEventCreatorName()));
                         holder.textViewEventLocationName.setText(String.format("Location: %s", model.getInvitedInUserEventLocationName()));
-                        holder.textViewEventTimeStarting.setText(String.format("Time " +
-                                "starting: %s", model.getInvitedInUserEventTimeStarting()));
+                        holder.textViewEventTimeStarting.setText("Time starting: "+ timeFormatting(model.getInvitedInUserEventTimeStarting().toString()));
                         holder.buttonGotoEvent.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
@@ -124,6 +124,29 @@ public class EventsFragment extends Fragment {
                                                 documentSnapshot.toObject(EventModel.class);
 
                                         Intent eventIntent = new Intent(getActivity(), EventActivity.class);
+
+                                        eventIntent.putExtra(getString(R.string.arg_position), position);
+                                        // gson helps pass objects
+                                        Gson gson = new Gson();
+                                        String eventJson = gson.toJson(eventModel);
+                                        eventIntent.putExtra(getString(R.string.arg_event_model), eventJson);
+                                        eventIntent.putExtra(getString(R.string.arg_event_id),
+                                                eventModel.getEventID());
+                                        startActivity(eventIntent);
+                                    }
+                                });
+
+                            }
+                        });
+
+                        holder.buttonEditEvent.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                firebaseFirestore.collection(getString(R.string.ff_Events)).document(model.getInvitedInUserEventId()).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                                    @Override
+                                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                                        EventModel eventModel = documentSnapshot.toObject(EventModel.class);
+                                        Intent eventIntent = new Intent(getActivity(), EditEventActivity.class);
 
                                         eventIntent.putExtra(getString(R.string.arg_position), position);
                                         // gson helps pass objects
@@ -235,6 +258,8 @@ public class EventsFragment extends Fragment {
 
     }
 
+
+
     private void deleteEventSubcollection(InvitedInUserEventModel model,
                                           CollectionReference invitedInEventUsersRef) {
         WriteBatch deleteEventSubcollectionBatch = firebaseFirestore.batch();
@@ -308,6 +333,8 @@ public class EventsFragment extends Fragment {
         private CheckBox checkBoxEventIsGoing;
         private Button buttonGotoEvent;
         private Button buttonDeleteEvent;
+        private Button buttonEditEvent;
+
 
         public EventsViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -318,7 +345,26 @@ public class EventsFragment extends Fragment {
             checkBoxEventIsGoing = itemView.findViewById(R.id.event_item_checkBox_is_going);
             buttonGotoEvent = itemView.findViewById(R.id.event_item_button_goto_event);
             buttonDeleteEvent = itemView.findViewById(R.id.event_item_button_delete_event);
+            buttonEditEvent = itemView.findViewById(R.id.Edit_Event);
         }
+    }
+
+    private String timeFormatting(String data){
+        String hour = "";
+        String minute = "";
+        String date = "";
+        String Year = data.substring((data.length()-4));
+
+        for(int i = 0; i < data.length(); i++){
+            if(data.charAt(i)== ':'){
+                date = data.substring(0, i-3);
+                hour = data.substring(i-2,i);
+                minute = data.substring(i+1, i + 3);
+                break;
+            }
+        }
+        Log.d("TIMEER", ( date + "/" + Year + "    " +hour + ":" + minute));
+        return ( date + "/" + Year + "    " +hour + ":" + minute);
     }
 
 }

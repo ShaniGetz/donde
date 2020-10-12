@@ -2,7 +2,7 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:fillViewport="true"
-        android:fadingEdge="none"
+    android:fadingEdge="none"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
@@ -46,11 +46,21 @@
             app:layout_constraintBottom_toTopOf="@+id/create_editText_event_description"
             app:layout_constraintVertical_chainStyle="spread" />
 
+        <Button
+            android:id="@+id/Update"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="UPDATE EVENT"
+            android:textSize="7pt"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/create_listView_invited_users" />
+
         <ListView
             android:id="@+id/create_listView_invited_users"
             android:layout_width="300dp"
             android:layout_height="100dp"
-            app:layout_constraintBottom_toTopOf="@id/create_button_create"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
 
             app:layout_constraintStart_toStartOf="parent"
@@ -59,63 +69,32 @@
 
         <EditText
             android:id="@+id/create_editText_event_description"
-            android:autofillHints="invited friends"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            android:autofillHints="invited friends"
             android:hint="Event description"
             android:textSize="7pt"
-            android:iconifiedByDefault="false"
-            app:iconifiedByDefault="false"
-            android:clickable="true"
-            android:layout_marginBottom="12dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/create_editText_event_name"
             app:layout_constraintBottom_toTopOf="@+id/create_searchView_location_search"
-            android:focusable="true" />
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.51"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/create_editText_event_name" />
 
-        <!--    <EditText-->
-        <!--        android:id="@+id/create_editText_longitude"-->
-        <!--        android:layout_width="wrap_content"-->
-        <!--        android:layout_height="wrap_content"-->
-        <!--        android:hint="longtitude"-->
-        <!--        app:layout_constraintBottom_toTopOf="@id/create_editText_event_day"-->
-        <!--        app:layout_constraintEnd_toStartOf="@id/create_editText_latitude"-->
-        <!--        app:layout_constraintStart_toStartOf="parent"-->
-        <!--        app:layout_constraintTop_toBottomOf="@id/create_editText_location_name" />-->
-
-        <!--    <EditText-->
-        <!--        android:id="@+id/create_editText_latitude"-->
-        <!--        android:layout_width="wrap_content"-->
-        <!--        android:layout_height="wrap_content"-->
-        <!--        android:hint="latitude"-->
-        <!--        app:layout_constraintEnd_toEndOf="parent"-->
-        <!--        app:layout_constraintStart_toEndOf="@id/create_editText_longitude"-->
-        <!--        app:layout_constraintTop_toTopOf="@id/create_editText_longitude" />-->
-
-        <!--    <EditText-->
-        <!--        android:id="@+id/create_editText_location_name"-->
-        <!--        android:layout_width="wrap_content"-->
-
-        <!--        android:layout_height="wrap_content"-->
-        <!--        android:hint="location name"-->
-        <!--        app:layout_constraintBottom_toTopOf="@id/create_editText_longitude"-->
-        <!--        app:layout_constraintEnd_toEndOf="parent"-->
-        <!--        app:layout_constraintStart_toStartOf="parent"-->
-        <!--        app:layout_constraintTop_toBottomOf="@id/create_editText_event_description" />-->
-
-            <SearchView
+        <SearchView
             android:id="@+id/create_searchView_location_search"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/create_editText_event_description"
-                app:layout_constraintBottom_toTopOf="@id/create_mapView"
+            app:layout_constraintBottom_toTopOf="@id/create_mapView"
             android:queryHint="Search for event location"
             android:iconifiedByDefault="false"
             app:iconifiedByDefault="false"
-                android:layout_marginBottom="10dp"/>
+            android:clickable="true"
+            android:layout_marginBottom="10dp"
+            android:focusable="true" />
 
         <!--TODO: make map height reactive (not a fixed height)-->
 
@@ -192,26 +171,6 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/create_textView_event_time" />
-
-        <Button
-            android:id="@+id/create_button_create"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="CREATE EVENT"
-            android:textSize="7pt"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/create_listView_invited_users" />
-
-        <Button
-            android:id="@+id/create_button_debug_fill_default"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Debug:\nautofill"
-
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@id/create_button_create"
-            app:layout_constraintTop_toTopOf="@id/create_button_create" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
