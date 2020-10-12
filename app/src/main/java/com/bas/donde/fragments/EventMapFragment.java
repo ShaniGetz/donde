@@ -287,40 +287,42 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback, St
 
             initializeMarkerStatus(user);
 
-            ///////////// ALON CODE
+        }
+        // TODO: Should this be in user loop? or outside?
+        mClusterManager.cluster();
+        setClusterMarkerOnClick();
+    }
 
+    private void setClusterMarkerOnClick() {
+        mClusterManager.setOnClusterItemClickListener(
+                new ClusterManager.OnClusterItemClickListener<ClusterMarker>() {
+                    @Override
+                    public boolean onClusterItemClick(ClusterMarker clusterItem) {
+                        if (clusterItem.getUserID().equals(myUserId)) {
+                            showStatusDialog();
 
-            mClusterManager.setOnClusterItemClickListener(
-                    new ClusterManager.OnClusterItemClickListener<ClusterMarker>() {
-                        @Override
-                        public boolean onClusterItemClick(ClusterMarker clusterItem) {
-                            if (clusterItem.getUserID().equals(myUserId)) {
-                                showStatusDialog();
+                            Log.d("onClusterItemClick", status);
+                            //update my stats also in list
+                            clusterItem.setSnippet(status);
+                            invitedUsersList.get(0).setInvitedInEventUserStatus(status);
 
-                                Log.d("onClusterItemClick", status);
-                                //update my stats also in list
-                                clusterItem.setSnippet(status);
-                                invitedUsersList.get(0).setInvitedInEventUserStatus(status);
-
-                                //update inner status in mClusterMarkers
-                                for (int i = 0; i < mClusterMarkers.size(); i++) {
-                                    if (mClusterMarkers.get(i).getUserID().equals(myUserId)) {
-                                        mClusterMarkers.get(i).setSnippet(status);
-                                        Log.d("onClusterItemClick", status);
-                                        mClusterManagerRenderer.setUpdateMarker(mClusterMarkers.get(i));
-                                    }
+                            //update inner status in mClusterMarkers
+                            for (int i = 0; i < mClusterMarkers.size(); i++) {
+                                if (mClusterMarkers.get(i).getUserID().equals(myUserId)) {
+                                    mClusterMarkers.get(i).setSnippet(status);
+                                    Log.d("onClusterItemClick", status);
+                                    mClusterManagerRenderer.setUpdateMarker(mClusterMarkers.get(i));
                                 }
-                                offlineDataTransfer.updateStatus(status);
-                            } else {
-                                return false;
                             }
-                            // if true, click handling stops here and do not show info view, do not move camera
-                            // you can avoid this by calling:
+                            offlineDataTransfer.updateStatus(status);
+                        } else {
                             return false;
                         }
-                    });
-            mClusterManager.cluster();
-        }
+                        // if true, click handling stops here and do not show info view, do not move camera
+                        // you can avoid this by calling:
+                        return false;
+                    }
+                });
     }
 
     private void initializeMarkerStatus(InvitedInEventUserModel user) {
