@@ -110,6 +110,7 @@ public class OfflineDataTransfer{
                 stopAdvertising();
                 myStatus = status;
                 Status_dict.put(myName, myStatus);
+                Log.d("updateStatue offline", getUser());
                 startAdvertising();
             } else {
                 myStatus = status;

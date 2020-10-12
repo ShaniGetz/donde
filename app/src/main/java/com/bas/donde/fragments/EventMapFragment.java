@@ -20,6 +20,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -51,6 +53,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.GeoPoint;
 import com.google.android.gms.maps.model.TileOverlay;
 import com.google.android.gms.maps.model.TileOverlayOptions;
@@ -66,7 +69,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class EventMapFragment extends Fragment implements OnMapReadyCallback {
+import static com.firebase.ui.auth.AuthUI.getApplicationContext;
+
+public class EventMapFragment extends Fragment implements OnMapReadyCallback, StatusDialog.StatusDialogListener {
     public static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
     private static final String TAG = "tagEventMapFragment";
     LocationRequest mLocationRequest;
@@ -77,7 +82,7 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback {
     Marker mCurrLocationMarker;
     ArrayList<InvitedInEventUserModel> invitedUsersList;
     private String myUserId;
-    private String status;
+    private String status = "";
     private FragmentActivity myContext;
     private ClusterManager mClusterManager;
     private GeoPoint geoPoint;
@@ -88,42 +93,42 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback {
 
     private ArrayList<ClusterMarker> mClusterMarkers = new ArrayList<>();
     LocationCallback mLocationCallback = new LocationCallback() {
-                @Override
-                public void onLocationResult(LocationResult locationResult) {
-                    List<Location> locationList = locationResult.getLocations();
-                    if (locationList.size() > 0) {
-                        //The last location in the list is the newest
-                        Location location = locationList.get(locationList.size() - 1);
-                        Log.i("MapsActivity", "Location: " + location.getLatitude() + " " + location.getLongitude());
-                        mLastLocation = location;
+        @Override
+        public void onLocationResult(LocationResult locationResult) {
+            List<Location> locationList = locationResult.getLocations();
+            if (locationList.size() > 0) {
+                //The last location in the list is the newest
+                Location location = locationList.get(locationList.size() - 1);
+                Log.i("MapsActivity", "Location: " + location.getLatitude() + " " + location.getLongitude());
+                mLastLocation = location;
 
-                        //to update the location we have
-                        offlineDataTransfer.updateLocation(new GeoPoint(location.getLatitude(), location.getLongitude()));
+                //to update the location we have
+                offlineDataTransfer.updateLocation(new GeoPoint(location.getLatitude(), location.getLongitude()));
 
-                        if (mCurrLocationMarker != null) {
-                            mCurrLocationMarker.remove();
-                        }
-                        //move map camera
-//                        mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 11));
-                        LatLng localLatling = new LatLng(location.getLatitude(), location.getLongitude());
-                        mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(localLatling, 17));
-
-                        Log.d("onLocationResult", laLing.latitude + " " + laLing.longitude);
-                        mGoogleMap.setMapType(GoogleMap.MAP_TYPE_NONE);
-                        TileOverlay onlineTileOverlay = mGoogleMap.addTileOverlay(new TileOverlayOptions()
-                                .tileProvider(new OfflineTileProvider(myContext)));
-
-                        offlineDataTransfer.connect();
-                        updateInfo();
-                        addMapMarkers();
-                    }
+                if (mCurrLocationMarker != null) {
+                    mCurrLocationMarker.remove();
                 }
-            };
+                //move map camera
+//                        mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 11));
+                LatLng localLatling = new LatLng(location.getLatitude(), location.getLongitude());
+                mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(localLatling, 17));
+
+                Log.d("onLocationResult", laLing.latitude + " " + laLing.longitude);
+                mGoogleMap.setMapType(GoogleMap.MAP_TYPE_NONE);
+                TileOverlay onlineTileOverlay = mGoogleMap.addTileOverlay(new TileOverlayOptions()
+                        .tileProvider(new OfflineTileProvider(myContext)));
+
+                offlineDataTransfer.connect();
+                updateInfo();
+                addMapMarkers();
+            }
+        }
+    };
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        geoPoint = ((EventActivity)getActivity()).getEvent().getEventLocation();
+        geoPoint = ((EventActivity) getActivity()).getEvent().getEventLocation();
         laLing = new LatLng(geoPoint.getLatitude(), geoPoint.getLongitude());
         offlineDataTransfer = ((EventActivity) getActivity()).getOfflineDataTransfer();
         return inflater.inflate(R.layout.fragment_event_map, container, false);
@@ -268,81 +273,101 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback {
 //                        }
 //                        int avatar = R.drawable.avatar2; // set the default avatar
                     FirebaseStorage storage = FirebaseStorage.getInstance();
-                    StorageReference imageRef = storage.getReference().child(user.getInvitedInEventUserID()+".jpg");
+                    StorageReference imageRef = storage.getReference().child(user.getInvitedInEventUserID() + ".jpg");
 //                        StorageReference gsReference = storage.getReferenceFromUrl(user.getInvitedInEventUserProfilePicURL());
                     imageRef.getBytes(1024 * 1024).addOnSuccessListener(new OnSuccessListener<byte[]>() {
-                            @Override
-                            public void onSuccess(byte[] bytes) {
-                                Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
-                                String dir = saveToInternalStorage(bitmap);
-                                Log.i("download photo", dir);
-                                Bitmap b = loadImageFromStorage(dir);
-                                Bitmap avatar = b;
-                                boolean exist = false;
-                                for (int i = 0; i < mClusterMarkers.size(); i++) {
-                                    if (mClusterMarkers.get(i).getUserID().equals(user.getInvitedInEventUserID())) {
-                                        exist = true;
-                                        LatLng updatedLocation = new LatLng(user.getInvitedInEventUserCurrentLocation().getLatitude(), user.getInvitedInEventUserCurrentLocation().getLongitude());
-                                        mClusterMarkers.get(i).setPosition(updatedLocation);
-                                        mClusterManagerRenderer.setUpdateMarker(mClusterMarkers.get(i));
-                                    }
-                                }
-                                if (!exist) {
-                                    if (user.getInvitedInEventUserID().equals(myUserId)) {
-                                        user.setInvitedInEventUserCurrentLocation(new GeoPoint(mLastLocation.getLatitude(), mLastLocation.getLongitude()));
-                                        user.setInvitedInEventUserStatus("Click to post your status");
-                                        offlineDataTransfer.updateStatus("Click to post your status");
-                                        } else {
-                                            user.setInvitedInEventUserStatus("");
-                                            offlineDataTransfer.updateStatus("");
-                                    }
-                                    ClusterMarker newClusterMarker = new ClusterMarker(
-                                            user.getInvitedInEventUserID(), new LatLng(user.getInvitedInEventUserCurrentLocation().getLatitude(),
-                                            user.getInvitedInEventUserCurrentLocation().getLongitude()),
-                                            user.getInvitedInEventUserName(),
-                                            user.getInvitedInEventUserStatus(),
-                                            avatar);
-                                    mClusterManager.addItem(newClusterMarker);
-                                    mClusterMarkers.add(newClusterMarker);
+                        @Override
+                        public void onSuccess(byte[] bytes) {
+                            Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+                            String dir = saveToInternalStorage(bitmap);
+                            Log.i("download photo", dir);
+                            Bitmap b = loadImageFromStorage(dir);
+                            Bitmap avatar = b;
+                            boolean exist = false;
+                            for (int i = 0; i < mClusterMarkers.size(); i++) {
+                                if (mClusterMarkers.get(i).getUserID().equals(user.getInvitedInEventUserID())) {
+                                    exist = true;
+                                    LatLng updatedLocation = new LatLng(user.getInvitedInEventUserCurrentLocation().getLatitude(), user.getInvitedInEventUserCurrentLocation().getLongitude());
+                                    mClusterMarkers.get(i).setPosition(updatedLocation);
+                                    mClusterManagerRenderer.setUpdateMarker(mClusterMarkers.get(i));
                                 }
                             }
-                        }).addOnFailureListener(new OnFailureListener() {
-                            @Override
-                            public void onFailure(@NonNull Exception e) {
-                                Log.e("download photo", e.toString());
+                            if (!exist) {
+                                if (user.getInvitedInEventUserID().equals(myUserId)) {
+                                    user.setInvitedInEventUserCurrentLocation(new GeoPoint(mLastLocation.getLatitude(), mLastLocation.getLongitude()));
+                                    user.setInvitedInEventUserStatus("Click to post your status");
+                                    offlineDataTransfer.updateStatus("Click to post your status");
+                                } else {
+                                    user.setInvitedInEventUserStatus("");
+                                    offlineDataTransfer.updateStatus("");
+                                }
+                                ClusterMarker newClusterMarker = new ClusterMarker(
+                                        user.getInvitedInEventUserID(), new LatLng(user.getInvitedInEventUserCurrentLocation().getLatitude(),
+                                        user.getInvitedInEventUserCurrentLocation().getLongitude()),
+                                        user.getInvitedInEventUserName(),
+                                        user.getInvitedInEventUserStatus(),
+                                        avatar);
+                                mClusterManager.addItem(newClusterMarker);
+                                mClusterMarkers.add(newClusterMarker);
                             }
-                        });
-                        mClusterManager.setOnClusterItemClickListener(
-                                new ClusterManager.OnClusterItemClickListener<ClusterMarker>() {
-                                    @Override
-                                    public boolean onClusterItemClick(ClusterMarker clusterItem) {
-                                        if (clusterItem.getUserID().equals(myUserId)) {
-                                            openDialog();
-                                            status = EventActivity.getStatus();
+                        }
+                    }).addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Log.e("download photo", e.toString());
+                        }
+                    });
+                    mClusterManager.setOnClusterItemClickListener(
+                            new ClusterManager.OnClusterItemClickListener<ClusterMarker>() {
+                                @Override
+                                public boolean onClusterItemClick(ClusterMarker clusterItem) {
+                                    if (clusterItem.getUserID().equals(myUserId)) {
+                                        View view = getLayoutInflater().inflate(R.layout.layout_status_dialog, null);
+                                        AlertDialog alertDialog = new AlertDialog.Builder(getActivity())
+                                                .setView(view)
+                                                .setTitle("Status")
+                                                .setIcon(R.drawable.ic_baseline_mode_comment_24)
+                                                .setNegativeButton("cancel", new DialogInterface.OnClickListener() {
+                                                    @Override
+                                                    public void onClick(DialogInterface dialogInterface, int i) {
+                                                    }
+                                                })
+                                                .setPositiveButton("ok", new DialogInterface.OnClickListener() {
+                                                    @Override
+                                                    public void onClick(DialogInterface dialogInterface, int i) {
+                                                        status = ((EditText) view.findViewById(R.id.edit_status)).getText().toString();
+//                                                        listener.applyText(status);
+                                                    }
+                                                })
+                                                .create();
 
-                                            //update my stats also in list
-                                            clusterItem.setSnippet(status);
-                                            offlineDataTransfer.updateStatus(status);
-                                            invitedUsersList.get(0).setInvitedInEventUserStatus(status);
+                                        alertDialog.show();
+                                        //                                        openDialog();
 
-                                            //update inner status in mClusterMarkers
-                                            for (int i = 0; i < mClusterMarkers.size(); i++) {
-                                                if (mClusterMarkers.get(i).getUserID().equals(myUserId)) {
-                                                    mClusterMarkers.get(i).setSnippet(status);
-                                                    mClusterManagerRenderer.setUpdateMarker(mClusterMarkers.get(i));
-                                                }
+                                        Log.d("onClusterItemClick", status);
+                                        //update my stats also in list
+                                        clusterItem.setSnippet(status);
+                                        invitedUsersList.get(0).setInvitedInEventUserStatus(status);
+
+                                        //update inner status in mClusterMarkers
+                                        for (int i = 0; i < mClusterMarkers.size(); i++) {
+                                            if (mClusterMarkers.get(i).getUserID().equals(myUserId)) {
+                                                mClusterMarkers.get(i).setSnippet(status);
+                                                Log.d("onClusterItemClick", status);
+                                                mClusterManagerRenderer.setUpdateMarker(mClusterMarkers.get(i));
                                             }
-
-                                        } else {
-                                            return false;
                                         }
-                                        // if true, click handling stops here and do not show info view, do not move camera
-                                        // you can avoid this by calling:
+                                        offlineDataTransfer.updateStatus(status);
+                                    } else {
                                         return false;
                                     }
-                                });
+                                    // if true, click handling stops here and do not show info view, do not move camera
+                                    // you can avoid this by calling:
+                                    return false;
+                                }
+                            });
 //                    } finally {
-                        mClusterManager.cluster();
+                    mClusterManager.cluster();
 //                    }
                 }
             }
@@ -357,7 +382,7 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback {
 
     @Override
     public void onAttach(Activity activity) {
-        myContext = (FragmentActivity) activity;
+        myContext = this.getActivity();
         super.onAttach(activity);
     }
 
@@ -422,12 +447,12 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback {
     }
 
 
-    private String saveToInternalStorage(Bitmap bitmapImage){
+    private String saveToInternalStorage(Bitmap bitmapImage) {
         ContextWrapper cw = new ContextWrapper(getContext());
         // path to /data/data/yourapp/app_data/imageDir
         File directory = cw.getDir("imageDir", Context.MODE_PRIVATE);
         // Create imageDir
-        File mypath=new File(directory,"photo.jpg");
+        File mypath = new File(directory, "photo.jpg");
 
         FileOutputStream fos = null;
         try {
@@ -446,23 +471,26 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback {
         return directory.getAbsolutePath();
     }
 
-    private Bitmap loadImageFromStorage(String path)
-    {
+    private Bitmap loadImageFromStorage(String path) {
         try {
-            File f=new File(path, "photo.jpg");
+            File f = new File(path, "photo.jpg");
             Bitmap b = BitmapFactory.decodeStream(new FileInputStream(f));
             //todo: conect to the rellevant clustermarker b
 //            ImageView img=(ImageView)findViewById(R.id.imgPicker);
 //            img.setImageBitmap(b);
             return b;
 
-        }
-        catch (FileNotFoundException e)
-        {
+        } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
         return null;
     }
+
+    @Override
+    public void applyText(String status) {
+        this.status = status;
+    }
+
 }
 
 
