@@ -73,6 +73,7 @@
         android:layout_marginBottom="64dp"
         android:layout_marginTop="30dp"
         android:text="LOGIN"
+        android:textSize="7pt"
         app:layout_constraintBottom_toTopOf="@id/login_textView_goto_register"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

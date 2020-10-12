@@ -85,8 +85,8 @@
         android:id="@+id/event_item_checkBox_is_going"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:checked="true"
         android:layout_marginBottom="5dp"
+        android:checked="true"
         app:layout_constraintBottom_toBottomOf="@+id/event_item_textView_are_you_going"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@id/event_item_textView_are_you_going"
@@ -95,9 +95,10 @@
 
     <Button
         android:id="@+id/event_item_button_goto_event"
-        android:layout_width="wrap_content"
+        android:layout_width="160dp"
         android:layout_height="wrap_content"
         android:text="GO TO EVENT"
+        android:textSize="7pt"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@id/event_item_button_delete_event"
         app:layout_constraintStart_toStartOf="parent"
@@ -105,11 +106,12 @@
 
     <Button
         android:id="@+id/event_item_button_delete_event"
-        android:layout_width="wrap_content"
+        android:layout_width="160dp"
         android:layout_height="wrap_content"
         android:text="DELETE EVENT"
         app:layout_constraintBottom_toBottomOf="@+id/event_item_button_goto_event"
         app:layout_constraintEnd_toEndOf="parent"
+        android:textSize="7pt"
         app:layout_constraintStart_toEndOf="@id/event_item_button_goto_event"
         app:layout_constraintTop_toTopOf="@+id/event_item_button_goto_event" />
 

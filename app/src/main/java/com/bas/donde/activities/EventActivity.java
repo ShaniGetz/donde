@@ -23,8 +23,6 @@ import com.bas.donde.models.InvitedInEventUserModel;
 import com.bas.donde.recycle_views.events_recycler_view.EventsListViewModel;
 import com.bas.donde.utils.OfflineDataTransfer;
 import com.bas.donde.utils.ViewPagerAdapter;
-import com.bas.donde.utils.map_utils.StatusDialog;
-import com.google.android.gms.nearby.Nearby;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
