@@ -52,11 +52,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.TileOverlay;
 import com.google.android.gms.maps.model.TileOverlayOptions;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.GeoPoint;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
 import com.google.maps.android.clustering.ClusterManager;
 
 import java.io.File;
@@ -247,9 +243,11 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback, St
 
     private void addMapMarkers() {
         // TODO: Bottleneck #2
+        // TODO: Make all these changed irrelevant by requiring them in EventActivity
         if (mGoogleMap == null) {
             return;
         }
+
         if (mClusterManager == null) {
             mClusterManager =
                     new ClusterManager<ClusterMarker>(getContext(), mGoogleMap);
@@ -266,52 +264,32 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback, St
         if (invitedUsersList == null) {
             return;
         }
+
+
         for (InvitedInEventUserModel user : invitedUsersList) {
             myUserId = EventActivity.getMyUserId();
-            FirebaseStorage storage = FirebaseStorage.getInstance();
-            StorageReference imageRef = storage.getReference().child(user.getInvitedInEventUserID() + ".jpg");
-            imageRef.getBytes(1024 * 1024).addOnSuccessListener(new OnSuccessListener<byte[]>() {
-                @Override
-                public void onSuccess(byte[] bytes) {
-                    Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
-                    String dir = saveToInternalStorage(bitmap);
-                    Log.i("download photo", dir);
-                    Bitmap avatar = loadImageFromStorage(dir);
-                    boolean exist = false;
-                    for (int i = 0; i < mClusterMarkers.size(); i++) {
-                        if (mClusterMarkers.get(i).getUserID().equals(user.getInvitedInEventUserID())) {
-                            exist = true;
-                            LatLng updatedLocation = new LatLng(user.getInvitedInEventUserCurrentLocation().getLatitude(), user.getInvitedInEventUserCurrentLocation().getLongitude());
-                            mClusterMarkers.get(i).setPosition(updatedLocation);
-                            mClusterManagerRenderer.setUpdateMarker(mClusterMarkers.get(i));
-                        }
-                    }
-                    if (exist) {
-                        return;
-                    }
-                    if (user.getInvitedInEventUserID().equals(myUserId)) {
-                        user.setInvitedInEventUserCurrentLocation(new GeoPoint(mLastLocation.getLatitude(), mLastLocation.getLongitude()));
-                        user.setInvitedInEventUserStatus("Click to post your status");
-                        offlineDataTransfer.updateStatus("Click to post your status");
-                    } else {
-                        user.setInvitedInEventUserStatus("");
-                        offlineDataTransfer.updateStatus("");
-                    }
-                    ClusterMarker newClusterMarker = new ClusterMarker(
-                            user.getInvitedInEventUserID(), new LatLng(user.getInvitedInEventUserCurrentLocation().getLatitude(),
-                            user.getInvitedInEventUserCurrentLocation().getLongitude()),
-                            user.getInvitedInEventUserName(),
-                            user.getInvitedInEventUserStatus(),
-                            avatar);
-                    mClusterManager.addItem(newClusterMarker);
-                    mClusterMarkers.add(newClusterMarker);
-                }
-            }).addOnFailureListener(new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception e) {
-                    Log.e("download photo", e.toString());
-                }
-            });
+            // TODO: getUserAvater should retrieve avatar from list already in fragment
+            Bitmap avatar = getUserAvatar(user);
+            if (mClusterMarkers.contains(user)) {
+                LatLng updatedLocation = new LatLng(user.getInvitedInEventUserCurrentLocation().getLatitude(), user.getInvitedInEventUserCurrentLocation().getLongitude());
+                mClusterMarkers.get(user_index).setPosition(updatedLocation);
+                mClusterManagerRenderer.setUpdateMarker(mClusterMarkers.get(user_index));
+                return;
+            }
+            ClusterMarker newClusterMarker = new ClusterMarker(
+                    user.getInvitedInEventUserID(), new LatLng(user.getInvitedInEventUserCurrentLocation().getLatitude(),
+                    user.getInvitedInEventUserCurrentLocation().getLongitude()),
+                    user.getInvitedInEventUserName(),
+                    user.getInvitedInEventUserStatus(),
+                    avatar);
+            mClusterManager.addItem(newClusterMarker);
+            mClusterMarkers.add(newClusterMarker);
+
+            initializeMarkerStatus(user);
+
+            ///////////// ALON CODE
+
+
             mClusterManager.setOnClusterItemClickListener(
                     new ClusterManager.OnClusterItemClickListener<ClusterMarker>() {
                         @Override
@@ -342,6 +320,17 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback, St
                         }
                     });
             mClusterManager.cluster();
+        }
+    }
+
+    private void initializeMarkerStatus(InvitedInEventUserModel user) {
+        if (user.getInvitedInEventUserID().equals(myUserId)) {
+            user.setInvitedInEventUserCurrentLocation(new GeoPoint(mLastLocation.getLatitude(), mLastLocation.getLongitude()));
+            user.setInvitedInEventUserStatus("Click to post your status");
+            offlineDataTransfer.updateStatus("Click to post your status");
+        } else {
+            user.setInvitedInEventUserStatus("");
+            offlineDataTransfer.updateStatus("");
         }
     }
 
