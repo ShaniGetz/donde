@@ -111,7 +111,7 @@ public class OfflineDataTransfer{
     }
 
     public void updateStatus(String status){
-        if(myStatus != null) {
+        if(status != null) {
             if (isAdvertising) {
                 stopAdvertising();
                 myStatus = status;
