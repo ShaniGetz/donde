@@ -1,14 +1,9 @@
 package com.example.donde.activities;
 
-import android.content.Context;
-import android.content.ContextWrapper;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -30,18 +25,9 @@ import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.Transaction;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
 import com.google.gson.Gson;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.util.ArrayList;
-
-import static com.firebase.ui.auth.AuthUI.getApplicationContext;
 
 
 public class EventActivity extends AppCompatActivity implements StatusDialog.StatusDialogListener {
@@ -71,14 +57,19 @@ public class EventActivity extends AppCompatActivity implements StatusDialog.Sta
     private EventsListViewModel eventsListViewModel;
     private String TAG = "EventActivity";
     private ArrayList<InvitedInEventUserModel> invitedUserInEventModelList = new ArrayList<>();
-    public ArrayList<InvitedInEventUserModel> getInvitedUserInEventModelList() {
-        return invitedUserInEventModelList;
-    }
     private String currUserID;
     private int currentUserIndexInInvitedUsersList = 0; // current user is always at beginning
 
     public static String getStatus() {
         return status;
+    }
+
+    public static String getMyUserId() {
+        return myUserId;
+    }
+
+    public ArrayList<InvitedInEventUserModel> getInvitedUserInEventModelList() {
+        return invitedUserInEventModelList;
     }
 
     @Override
@@ -91,10 +82,6 @@ public class EventActivity extends AppCompatActivity implements StatusDialog.Sta
         myUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
 //        changeUriToBitmap("profile.jpg");
 //        b = loadImageFromStorage(path);
-    }
-
-    public static String getMyUserId() {
-        return myUserId;
     }
 
     private void initializeInvitedUsersList() {
@@ -115,7 +102,7 @@ public class EventActivity extends AppCompatActivity implements StatusDialog.Sta
                                     documentSnapshot.getString(getString(R.string.ff_InvitedInEventUsers_invitedInEventUserID));
 
                             Log.d(TAG, "checking if " + userId + "==" + currUserID);
-                            if (TextUtils.equals(userId , currUserID)) {
+                            if (TextUtils.equals(userId, currUserID)) {
                                 Log.d(TAG, "enteres");
                                 invitedInEventUserModels.add(0,
                                         documentSnapshot.toObject(InvitedInEventUserModel.class));
@@ -126,7 +113,7 @@ public class EventActivity extends AppCompatActivity implements StatusDialog.Sta
 
 
                         }
-                        Log.d(TAG, "index 0: "+invitedInEventUserModels.get(0)
+                        Log.d(TAG, "index 0: " + invitedInEventUserModels.get(0)
                                 .getInvitedInEventUserName());
                         return invitedInEventUserModels;
                     }
@@ -222,18 +209,6 @@ public class EventActivity extends AppCompatActivity implements StatusDialog.Sta
         });
     }
 
-//    private void initializeUsersList() {
-//        usersList = new ArrayList<>();
-//        FirebaseUser myUser = FirebaseAuth.getInstance().getCurrentUser();
-//        String myUserId = myUser.getUid();
-//        UserModel myUserModel = new UserModel(myUserId, myUser.)
-//        usersList.add(myUserModel);
-//        Query invitedUsersQuery =
-//                firebaseFirestore.collection(getString(R.string.ff_events_collection)).document(getEventID()).collection(getString(R.string.ff_eventInvitedUsers_collection));
-//        FirestoreRecyclerOptions<InvitedUserModel> invitedUsersOptions =
-//                new FirestoreRecyclerOptions.Builder<InvitedUserModel>().setQuery(invitedUsersQuery, InvitedUserModel.class).build();
-//
-//    }
 
     private void changeTabs(int position) {
         TextView mainTab;
