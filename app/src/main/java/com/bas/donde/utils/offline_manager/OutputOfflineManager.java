@@ -1,10 +1,9 @@
-package com.example.donde.utils.offline_manager;
+package com.bas.donde.utils.offline_manager;
 
 import android.content.Context;
 import android.util.Log;
 
-import com.example.donde.models.EventModel;
-import com.example.donde.models.InvitedInUserEventModel;
+import com.bas.donde.models.InvitedInUserEventModel;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.gson.Gson;
 
@@ -13,7 +12,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-public class OutputOfflineManager extends OfflineManager {
+public class OutputOfflineManager extends com.example.donde.utils.offline_manager.OfflineManager {
 
     // the user who is requesting the download
     private FirebaseUser userDownloading;

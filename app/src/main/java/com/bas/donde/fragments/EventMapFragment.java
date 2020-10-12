@@ -266,20 +266,17 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback, St
         if (invitedUsersList == null) {
             return;
         }
-        Log.d(TAG, "not null and " + invitedUsersList.size());
         for (InvitedInEventUserModel user : invitedUsersList) {
             myUserId = EventActivity.getMyUserId();
             FirebaseStorage storage = FirebaseStorage.getInstance();
             StorageReference imageRef = storage.getReference().child(user.getInvitedInEventUserID() + ".jpg");
-//                        StorageReference gsReference = storage.getReferenceFromUrl(user.getInvitedInEventUserProfilePicURL());
             imageRef.getBytes(1024 * 1024).addOnSuccessListener(new OnSuccessListener<byte[]>() {
                 @Override
                 public void onSuccess(byte[] bytes) {
                     Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
                     String dir = saveToInternalStorage(bitmap);
                     Log.i("download photo", dir);
-                    Bitmap b = loadImageFromStorage(dir);
-                    Bitmap avatar = b;
+                    Bitmap avatar = loadImageFromStorage(dir);
                     boolean exist = false;
                     for (int i = 0; i < mClusterMarkers.size(); i++) {
                         if (mClusterMarkers.get(i).getUserID().equals(user.getInvitedInEventUserID())) {
