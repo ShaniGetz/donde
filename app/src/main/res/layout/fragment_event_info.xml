@@ -7,26 +7,20 @@
     android:background="@drawable/bg_gradient"
     tools:context=".fragments.EventInfoFragment">
 
-    <!--    <FrameLayout-->
-    <!--        android:layout_width="match_parent"-->
-    <!--        android:layout_height="match_parent"-->
-    <!--        -->
-    <!--        android:layout_margin="15dp">-->
-
 
     <TextView
         android:id="@+id/info_textView_title"
-        android:text="Event Info"
-        android:fontFamily="monospace"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
         android:layout_marginLeft="30dp"
+        android:layout_marginTop="20dp"
+        android:fontFamily="monospace"
+        android:text="Event Info"
         android:textColor="@color/green"
         android:textSize="30sp"
         android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"/>
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/info_textView_event_name"

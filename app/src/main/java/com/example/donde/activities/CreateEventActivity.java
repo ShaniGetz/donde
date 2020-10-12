@@ -409,7 +409,6 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
         textViewEventDate.setOnClickListener(new View.OnClickListener() {
 
 
-            //TODO: Hide soft keyboard when choosing items in craeteevent
             @Override
             public void onClick(View v) {
                 // TODO: on click show currently selected date, not current date
@@ -451,7 +450,6 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
 
             @Override
             public void onClick(View v) {
-                // TODO Auto-generated method stub
                 Calendar mcurrentTime = Calendar.getInstance();
                 int hour = mcurrentTime.get(Calendar.HOUR_OF_DAY);
                 int minute = mcurrentTime.get(Calendar.MINUTE);
