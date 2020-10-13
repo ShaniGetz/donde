@@ -506,6 +506,8 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
     }
 
     private void initializeSearchQuery() {
+        searchViewLocationSearch.setIconified(true);
+        searchViewLocationSearch.setQueryHint("Search for event location");
         searchViewLocationSearch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

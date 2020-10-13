@@ -8,5 +8,5 @@
         android:endColor="#FDC473"
         android:centerX="0.2"
         android:centerY="0.3"
-        android:angle="270" />
+        android:angle="45" />
 </shape>

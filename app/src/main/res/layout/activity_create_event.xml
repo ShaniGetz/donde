@@ -127,11 +127,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@drawable/rounded_corners_info"
-            android:textColorHighlight="@color/pink"
+            android:textColorHighlight="@color/pink_orenge"
             android:textAlignment="center"
             android:textColor="@color/black"
             android:textColorHint="@color/gray_dark_dark"
-            android:textColorLink="@color/pink"
                 android:searchHintIcon="@color/gray_dark_dark"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -140,7 +139,8 @@
             android:queryHint="Search for event location"
             android:iconifiedByDefault="false"
             app:iconifiedByDefault="false"
-                android:layout_marginBottom="10dp"/>
+                android:layout_marginBottom="10dp"
+                app:theme="@style/AppTheme.Toolbar"/>
 
         <!--TODO: make map height reactive (not a fixed height)-->
 
