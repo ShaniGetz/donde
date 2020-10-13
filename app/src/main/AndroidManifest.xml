@@ -9,7 +9,7 @@
     <application
         android:name=".activities.App"
         android:allowBackup="true"
-        android:icon="@drawable/icon_donde_2"
+        android:icon="@mipmap/ic_launcher"
         android:label="Donde"
         android:roundIcon="@drawable/icon"
         android:supportsRtl="false"
