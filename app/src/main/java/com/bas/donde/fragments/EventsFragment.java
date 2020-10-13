@@ -20,11 +20,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -119,7 +121,8 @@ public class EventsFragment extends Fragment {
     }
 
     private void initializeInvitedUsersList(CollectionReference invitedInEventUsersCollectionRef,
-                                            String currUserID, int position, EventModel eventModel) {
+                                            String currUserID, int position,
+                                            EventModel eventModel, EventsViewHolder holder) {
         invitedInEventUsersCollectionRef.get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
             @Override
             public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
@@ -160,7 +163,7 @@ public class EventsFragment extends Fragment {
                         eventJson = gson.toJson(eventModel);
                         invitedInEventUserModelsList = invitedInEventUserModels;
                         invitedUserInEventModelListJson = gson.toJson(invitedInEventUserModelsList);
-                        initializeUsersBitmaps();
+                        initializeUsersBitmaps(holder);
                     }
                 }).addOnFailureListener(new OnFailureListener() {
                     @Override
@@ -256,9 +259,11 @@ public class EventsFragment extends Fragment {
     }
 
     private void setIsGoingEventOnClick(@NonNull EventsViewHolder holder, int position, @NonNull InvitedInUserEventModel model) {
+
         holder.checkBoxEventIsGoing.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                holder.showProgressBar();
                 Toast.makeText(getContext(), "Downloading invited users list",
                         Toast.LENGTH_SHORT).show();
                 DocumentReference eventRef =
@@ -271,19 +276,22 @@ public class EventsFragment extends Fragment {
                         CollectionReference invitedInEventUsersCollectionRef =
                                 eventRef.collection(getString(R.string.ff_InvitedInEventUsers));
                         initializeInvitedUsersList(invitedInEventUsersCollectionRef, currUserID,
-                                position, eventModel);
+                                position, eventModel, holder);
                     }
                 });
             }
         });
     }
 
-    private void initializeUsersBitmaps() {
+    private void initializeUsersBitmaps(EventsViewHolder holder) {
         Log.d(TAG, "in initializeUsersBitmaps");
         Toast.makeText(getContext(), "Getting users bitmaps", Toast.LENGTH_SHORT).show();
         for (InvitedInEventUserModel user : invitedInEventUserModelsList) {
+
             getUserAndPutAvatar(user);
+            holder.hideProgressBar();
         }
+        // TODO: Doesn't actually end when storage pull ends
 
     }
 
@@ -572,7 +580,8 @@ public class EventsFragment extends Fragment {
         private Button buttonGotoEvent;
         private Button buttonDeleteEvent;
         private Button buttonEditEvent;
-
+        private ConstraintLayout constraintLayoutEventInfo;
+        private ProgressBar progressBar;
 
         public EventsViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -584,6 +593,18 @@ public class EventsFragment extends Fragment {
             buttonGotoEvent = itemView.findViewById(R.id.event_item_button_goto_event);
             buttonDeleteEvent = itemView.findViewById(R.id.event_item_button_delete_event);
             buttonEditEvent = itemView.findViewById(R.id.Edit_Event);
+            constraintLayoutEventInfo = itemView.findViewById(R.id.event_item_info_constraint);
+            progressBar = itemView.findViewById(R.id.event_item_progressBar);
+        }
+
+        private void showProgressBar() {
+            constraintLayoutEventInfo.setVisibility(View.INVISIBLE);
+            progressBar.setVisibility(View.VISIBLE);
+        }
+
+        private void hideProgressBar() {
+            progressBar.setVisibility(View.INVISIBLE);
+            constraintLayoutEventInfo.setVisibility(View.VISIBLE);
         }
     }
 
