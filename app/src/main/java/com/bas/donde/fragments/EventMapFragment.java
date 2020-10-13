@@ -437,7 +437,7 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback, St
                 } else {
                     // permission denied, boo! Disable the
                     // functionality that depends on this permission.
-                    Toast.makeText(getContext(), "permission denied", Toast.LENGTH_LONG).show();
+                    Log.d("Event MAp Fragment", "permission denied");
                 }
                 return;
             }

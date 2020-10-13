@@ -94,14 +94,12 @@ public class RegisterActivity extends Activity {
                             // register successful
                             if (task.isSuccessful()) {
 
-                                Toast.makeText(RegisterActivity.this, "User added successfully",
-                                        Toast.LENGTH_LONG).show();
+                                Log.d("RegisterActivity", "User added successfully");
                                 gotoAccountActivity();
                             } else {
                                 // show error to user
                                 String errorMessage = task.getException().getMessage();
-                                Toast.makeText(RegisterActivity.this, "Error: " + errorMessage,
-                                        Toast.LENGTH_LONG).show();
+                                Log.d("RegisterActivity",  "Error: " + errorMessage);
                             }
                             // after progress we don't want to see progress bar
                             progressBar.setVisibility(View.INVISIBLE);

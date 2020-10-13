@@ -88,14 +88,12 @@ public class LoginActivity extends Activity {
                             // login successful
                             if (task.isSuccessful()) {
 
-                                Toast.makeText(LoginActivity.this, "User Logged in successfully",
-                                        Toast.LENGTH_LONG).show();
+                                Log.d("LoginActivity", "User Logged in successfully");
                                 gotoMainActivity();
                             } else {
                                 // show error to user
                                 String errorMessage = task.getException().getMessage();
-                                Toast.makeText(LoginActivity.this, "Error: " + errorMessage,
-                                        Toast.LENGTH_LONG).show();
+                                Log.d("LoginActivity","Error: " + errorMessage);
                             }
                             // after progress we don't want to see progress bar
                             progressBar.setVisibility(View.INVISIBLE);

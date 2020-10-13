@@ -289,17 +289,16 @@ public class EventsFragment extends Fragment {
         eventsCollectionRef.document(model.getInvitedInUserEventId()).delete().addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
-                Toast.makeText(getContext(), String.format("Event \"%s\" deleted successfully",
-                        model.getInvitedInUserEventName()), Toast.LENGTH_SHORT).show();
+                Log.d("event Fragment ", String.format("Event \"%s\" deleted successfully",
+                        model.getInvitedInUserEventName()));
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
 
 
-                Toast.makeText(getContext(), String.format("Could" +
-                                " not delete event. Error: %s", e.getMessage()),
-                        Toast.LENGTH_SHORT).show();
+                Log.d("Event MAp Fragment", String.format("Could" +
+                                " not delete event. Error: %s", e.getMessage()));
 
             }
         });

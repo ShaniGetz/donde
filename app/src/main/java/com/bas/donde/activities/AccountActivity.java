@@ -105,7 +105,7 @@ public class AccountActivity extends Activity {
                         textViewName.setText(userName);
                     }
                 } else {
-                    Toast.makeText(AccountActivity.this, String.format("Error retrieving user details: %s", task.getException().getMessage()), Toast.LENGTH_SHORT).show();
+                    Log.d("AccountActivity", String.format("Error retrieving user details: %s", task.getException().getMessage()));
                 }
                 // details finished loading
                 progressBar.setVisibility(View.INVISIBLE);
@@ -194,17 +194,13 @@ public class AccountActivity extends Activity {
                 usersCollectionRef.document(userID).delete().addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        Toast.makeText(AccountActivity.this, String.format("Successfully deleted " +
-                                        "account with email %s", userEmail),
-                                Toast.LENGTH_SHORT).show();
+                        Log.d("AccountActivity", String.format("Successfully deleted " + "account with email %s", userEmail));
                     }
                 }).addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
 
-                        Toast.makeText(AccountActivity.this, String.format("Failed to delete " +
-                                        "account with email %s, error:", userEmail, e.getMessage()),
-                                Toast.LENGTH_SHORT).show();
+                        Log.d("AccountActivity",String.format("Failed to delete " + "account with email %s, error:", userEmail, e.getMessage()));
                     }
                 });
 
@@ -221,7 +217,7 @@ public class AccountActivity extends Activity {
                 }).addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        Toast.makeText(AccountActivity.this, "Failed to delete user from FirebaseAuth", Toast.LENGTH_SHORT).show();
+                        Log.d("AccountActivity", "Failed to delete user from FirebaseAuth");
                     }
                 });
 
@@ -235,7 +231,7 @@ public class AccountActivity extends Activity {
     }
 
     private void setProfilePic(Uri imageUri) {
-        Toast.makeText(this, "`adding deafult pic", Toast.LENGTH_SHORT).show();
+        Log.d("AccountActivity", "`adding deafult pic");
         StorageReference fileRef = storageReference.child(fAuth.getCurrentUser().getUid() + ".jpg");
         fileRef.putFile(imageUri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
             @Override
@@ -245,14 +241,14 @@ public class AccountActivity extends Activity {
                     public void onSuccess(Uri uri) {
                         Picasso.get().load(uri).into(profileImage);
                         userProfilePicURL = fAuth.getCurrentUser().getUid()+".jpg";
-                        Toast.makeText(AccountActivity.this, "`added default pic", Toast.LENGTH_SHORT).show();
+                        Log.d("AccountActivity", "`adding deafult pic");
                     };
                 });
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
-                Toast.makeText(AccountActivity.this, "Failed", Toast.LENGTH_SHORT);
+                Log.d("AccountActivity", "Fail");
             }
         });
     }
@@ -280,14 +276,12 @@ public class AccountActivity extends Activity {
                         public void onComplete(@NonNull Task<Void> task) {
                             // account save successful
                             if (task.isSuccessful()) {
-                                Toast.makeText(AccountActivity.this, "Account updated successfully",
-                                        Toast.LENGTH_LONG).show();
+                                Log.d("AccountActivity", "Account updated successfully");
                                 gotoMainActivity();
                             } else {
                                 // show error to user
                                 String errorMessage = task.getException().getMessage();
-                                Toast.makeText(AccountActivity.this, "Error: " + errorMessage,
-                                        Toast.LENGTH_LONG).show();
+                                Log.d("AccountActivity", "Error: " + errorMessage);
                             }
                             // after progress we don't want to see progress bar
                             progressBar.setVisibility(View.INVISIBLE);
