@@ -600,6 +600,7 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
         buttonCreateEvent.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                showProgressBar();
 
                 boolean didSetFields = retrieveAndSetEventFields();
                 if (didSetFields) {
@@ -627,6 +628,7 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
         Intent eventsIntent = new Intent(CreateEventActivity.this, MainActivity.class);
         startActivity(eventsIntent);
         // don't allow going back to creating event
+        hideProgressBar();
         finish();
 
     }
@@ -722,9 +724,19 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
         writeBatch.set(invitedInUserEventsRef.document(newEventId), newInvitedInUserEventModel);
     }
 
+    private void showProgressBar() {
+        buttonCreateEvent.setText("");
+        progressBar.setVisibility(View.VISIBLE);
+    }
+
+    private void hideProgressBar() {
+        progressBar.setVisibility(View.GONE);
+        buttonCreateEvent.setText("Create Event");
+
+    }
+
     private void createEvent() {
 
-        progressBar.setVisibility(View.VISIBLE);
 
         EventModel newEventModel = createNewEventModel();
 
@@ -774,8 +786,7 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
                             public void onComplete(@NonNull Task<Void> task) {
                                 gotoEvents();
                             }
-                        }); // TODO: Handle
-                        // failure
+                        }); // TODO: Handle failure
                     }
                 });
 
@@ -791,7 +802,6 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
             }
         });
 
-        progressBar.setVisibility(View.GONE);
 
     }
 
@@ -895,7 +905,6 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
     }
 
     private boolean setEventCreatorName() {
-        this.progressBar.setVisibility(View.VISIBLE);
         currUserDocumentRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
             public void onSuccess(DocumentSnapshot documentSnapshot) {
@@ -916,8 +925,6 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
         }).addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                progressBar.setVisibility(View.GONE);
-
             }
         });
         return true;
@@ -957,7 +964,6 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
             Query userByEmailQuery = usersRef.whereEqualTo(getString(R.string.ff_Users_userEmail)
                     , userEmail);
 
-            progressBar.setVisibility(View.VISIBLE);
             userByEmailQuery.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                 @Override
                 public void onComplete(@NonNull Task<QuerySnapshot> task) {
@@ -982,7 +988,6 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
                         } else if (task.getResult().size() > 1) {
                             Log.d("CreateEventActivity", String.format("Found more " + "than one user with email %s", userEmail));
                         }
-                        progressBar.setVisibility(View.GONE);
 
                     } else {
                         Log.d("CreateEventActivity", String.format("Error processing " +
