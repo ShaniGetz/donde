@@ -26,6 +26,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -37,6 +38,8 @@ import com.google.firebase.storage.UploadTask;
 import com.squareup.picasso.Picasso;
 
 import java.util.HashMap;
+
+import static com.bas.donde.utils.CodeHelpers.myAssert;
 
 
 public class AccountActivity extends Activity {
@@ -53,7 +56,7 @@ public class AccountActivity extends Activity {
 
     // Firebase
     private StorageReference storageReference;
-    private FirebaseAuth firebaseAuth;
+    private FirebaseUser firebaseUser;
     private FirebaseFirestore firebaseFirestore;
     private CollectionReference usersCollectionRef;
 
@@ -69,7 +72,6 @@ public class AccountActivity extends Activity {
     // Data
     private String userID;
     private String userEmail;
-    private String userProfilePicURL;
 
 
     @Override
@@ -92,8 +94,8 @@ public class AccountActivity extends Activity {
 
     private void initializeFields() {
         initializeViews();
-        initializeFirebase();
-        initializeData();
+        initializeFirebaseFields();
+        initializeDataFields();
     }
 
     private void initializeViews() {
@@ -106,11 +108,20 @@ public class AccountActivity extends Activity {
         progressBar = findViewById(R.id.account_progressBar);
     }
 
-    private void initializeFirebase() {
+
+    private void initializeFirebaseFields() {
+        storageReference = FirebaseStorage.getInstance().getReference();
+        myAssert(FirebaseAuth.getInstance().getCurrentUser() != null, "User in null upon account " +
+                "activity");
+        firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+        firebaseFirestore = FirebaseFirestore.getInstance();
+        usersCollectionRef = firebaseFirestore.collection(getString(R.string.ff_Users));
 
     }
 
-    private void initializeData() {
+    private void initializeDataFields() {
+        userID = firebaseUser.getUid();
+        userEmail = firebaseUser.getEmail();
 
     }
 
@@ -120,7 +131,6 @@ public class AccountActivity extends Activity {
 
         buttonChangeProfilePic.setText("Add profile picture");
         setSaveButtonRegisterOnClick();
-
 
     }
 
