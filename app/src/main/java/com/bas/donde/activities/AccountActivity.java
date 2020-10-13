@@ -41,6 +41,11 @@ import java.util.HashMap;
 
 public class AccountActivity extends Activity {
     private final String TAG = "tagAccountActivity";
+    FirebaseAuth fAuth;
+    StorageReference storageReference;
+    Button buttonChangeProfilePic;
+    ImageView profileImage;
+    Uri DEFAULT_PROFILE_PIC_URI;
     private Button buttonSave;
     private Button buttonCancel;
     private Button buttonDeleteAccount;
@@ -52,13 +57,9 @@ public class AccountActivity extends Activity {
     private String userID;
     private String userEmail;
     private String userProfilePicURL;
-    FirebaseAuth fAuth;
-    StorageReference storageReference;
-    Button buttonChangeProfilePic;
-    ImageView profileImage;
+    private boolean hasProfilePicSet;
 
-
-    Uri DEFAULT_PROFILE_PIC_URI;
+    private boolean didSetProfilePic = false;
 
 
 //            parse("android.resource://com.example.donde/drawable/avatar2.png");
@@ -77,7 +78,7 @@ public class AccountActivity extends Activity {
                 .appendPath(getResources().getResourceTypeName(R.drawable.avatar2))
                 .appendPath(getResources().getResourceEntryName(R.drawable.avatar2))
                 .build();
-        setProfilePic();
+//        setProfilePic();
 
     }
 
@@ -103,6 +104,11 @@ public class AccountActivity extends Activity {
                         String userName =
                                 userDocument.getString(getString(R.string.ff_Users_userName));
                         textViewName.setText(userName);
+
+//                        hasProfilePicSet = userDocument.getString(getString(R.string.ff_Users_userProfilePicURL)) != null;
+//                        if (!hasProfilePicSet) {
+//                            setProfilePic();
+//                        }
                     }
                 } else {
                     Toast.makeText(AccountActivity.this, String.format("Error retrieving user details: %s", task.getException().getMessage()), Toast.LENGTH_SHORT).show();
@@ -149,6 +155,7 @@ public class AccountActivity extends Activity {
         buttonChangeProfilePic.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                didSetProfilePic = true;
                 //open gallery
                 Intent openGalleryIntent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
                 startActivityForResult(openGalleryIntent, 1000);
@@ -179,6 +186,8 @@ public class AccountActivity extends Activity {
         buttonCancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+                didSetProfilePic = false;
                 gotoMainActivity();
             }
         });
@@ -230,12 +239,8 @@ public class AccountActivity extends Activity {
 
     }
 
-    private void setProfilePic(){
-        setProfilePic(DEFAULT_PROFILE_PIC_URI);
-    }
-
     private void setProfilePic(Uri imageUri) {
-        Toast.makeText(this, "`adding deafult pic", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "`adding pic", Toast.LENGTH_SHORT).show();
         StorageReference fileRef = storageReference.child(fAuth.getCurrentUser().getUid() + ".jpg");
         fileRef.putFile(imageUri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
             @Override
@@ -244,9 +249,11 @@ public class AccountActivity extends Activity {
                     @Override
                     public void onSuccess(Uri uri) {
                         Picasso.get().load(uri).into(profileImage);
-                        userProfilePicURL = fAuth.getCurrentUser().getUid()+".jpg";
-                        Toast.makeText(AccountActivity.this, "`added default pic", Toast.LENGTH_SHORT).show();
-                    };
+                        userProfilePicURL = fAuth.getCurrentUser().getUid() + ".jpg";
+                        Toast.makeText(AccountActivity.this, "`added  pic", Toast.LENGTH_SHORT).show();
+                    }
+
+                    ;
                 });
             }
         }).addOnFailureListener(new OnFailureListener() {

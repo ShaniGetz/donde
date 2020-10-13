@@ -240,7 +240,7 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
 
                     // permission denied, boo! Disable the
                     // functionality that depends on this permission.
-                    Toast.makeText(this, "permission denied", Toast.LENGTH_LONG).show();
+                    Log.d("createEvent", "permission denied");
                 }
             }
 
@@ -531,8 +531,7 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
         });
     }
     void searchQuerry(String location){
-        Toast.makeText(CreateEventActivity.this, "Search query is: " + location,
-                Toast.LENGTH_SHORT).show();
+        Log.d("CreateEventActivity", "Search query is: " + location);
         List<Address> addressList = new ArrayList<>();
         if (location != null || !location.equals("")) {
             Geocoder geocoder = new Geocoder(CreateEventActivity.this);
@@ -544,7 +543,7 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
                 e.printStackTrace();
             }
             if (addressList.size() == 0) {
-                Toast.makeText(CreateEventActivity.this, "Search query failed", Toast.LENGTH_SHORT).show();
+                Log.d("CreateEventActivity",  "Search query failed");
             } else {
 
                 Address address = addressList.get(0);
@@ -597,7 +596,6 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
                             {
                                 createEvent();
 //                        loadingDialog.dismiss();//dismiss the dialog box once data is retreived
-//                        Toast.makeText(Act_NewHome.this, "Not enough players online right now!", Toast.LENGTH_SHORT).show();
 //                        tvUserName.setText(u_name);
                             }
                         }
@@ -627,9 +625,8 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
             initializeFields();
             initializeListeners();
         } else {
-            // TODO: Make dialog box and not toast
 
-            Toast.makeText(this, "Go online in order to create an event", Toast.LENGTH_SHORT).show();
+            Log.d("CreateEventActivity", "Go online in order to create an event");
             gotoEvents();
         }
     }
@@ -757,8 +754,7 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
                 }
 
 
-                Toast.makeText(CreateEventActivity.this, "Event created successfully",
-                        Toast.LENGTH_SHORT).show();
+                Log.d("CreateEventActivity",  "Event created successfully");
                 gotoEvents();
 
             }
@@ -766,12 +762,12 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
         }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
-                Toast.makeText(CreateEventActivity.this,
-                        "Error while creating event: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                Log.d("CreateEventActivity",
+                        "Error while creating event: " + e.getMessage());
             }
         });
 
-        progressBar.setVisibility(View.INVISIBLE);
+        progressBar.setVisibility(View.GONE);
 
     }
 
@@ -817,7 +813,7 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
             toastErrorMessage = "Fix time starting";
         }
         if (!TextUtils.isEmpty(toastErrorMessage)) {
-            Toast.makeText(this, toastErrorMessage, Toast.LENGTH_SHORT).show();
+            Log.d("CreateEventActivity",  toastErrorMessage);
             return false;
         } else {
             return true;
@@ -888,16 +884,15 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
             @Override
             public void onFailure(@NonNull Exception e) {
 
-                Toast.makeText(CreateEventActivity.this, String.format("Error getting creator" +
-                                " user name: %s", e.getMessage()),
-                        Toast.LENGTH_SHORT).show();
+                Log.d("CreateEventActivity",  String.format("Error getting creator" +
+                                " user name: %s", e.getMessage()));
             }
 
 
         }).addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                progressBar.setVisibility(View.INVISIBLE);
+                progressBar.setVisibility(View.GONE);
 
             }
         });
@@ -957,20 +952,15 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
                                     invitedUserName, invitedUserEmail));
 
                         } else if (task.getResult().size() == 0) {
-                            Toast.makeText(CreateEventActivity.this, String.format("No user found" +
-                                            " with email %s", userEmail),
-                                    Toast.LENGTH_SHORT).show();
+                            Log.d("CreateEventActivity",  String.format("No user found" + " with email %s", userEmail));
                         } else if (task.getResult().size() > 1) {
-                            Toast.makeText(CreateEventActivity.this, String.format("Found more " +
-                                            "than one user with email %s", userEmail),
-                                    Toast.LENGTH_SHORT).show();
+                            Log.d("CreateEventActivity",  String.format("Found more " + "than one user with email %s", userEmail));
                         }
-                        progressBar.setVisibility(View.INVISIBLE);
+                        progressBar.setVisibility(View.GONE);
 
                     } else {
-                        Toast.makeText(CreateEventActivity.this, String.format("Error processing " +
-                                        "email %s, error: %s", userEmail, task.getException().getMessage()),
-                                Toast.LENGTH_SHORT).show();
+                        Log.d("CreateEventActivity",  String.format("Error processing " +
+                                        "email %s, error: %s", userEmail, task.getException().getMessage()));
                     }
                     didFinishSettingUsers = true;
                 }

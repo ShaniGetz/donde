@@ -18,6 +18,7 @@
     <string name="arg_event_name">eventName</string>
     <string name="arg_position">arg_position</string>
     <string name="arg_event_model">arg_event_model</string>
+    <string name="arg_offline_manager">arg_offline_manager</string>
 
 
     <!--    Users collection-->
@@ -57,6 +58,7 @@
     <string name="ff_InvitedInEventUsers_invitedInEventUserProfilePicURL">invitedInEventUserProfilePicURL</string>
     <string name="ff_InvitedInEventUsers_invitedInEventUserName">invitedInEventUserName</string>
     <string name="ff_InvitedInEventUsers_invitedInEventUserIsGoing">invitedInEventUserIsGoing</string>
-
+    <string name="arg_invitedInEventUserModels_intent">arg_invitedInEventUserModels_intent</string>
+    <string name="arg_users_bitmaps_intent">arg_users_bitmaps_intent</string>
 
 </resources>

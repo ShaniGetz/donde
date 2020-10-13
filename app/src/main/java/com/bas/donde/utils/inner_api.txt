@@ -1,8 +1,27 @@
-/*
-Updates (old to new):
-06/10/20,   16:43,  alon
+FILE HIERARCHY INNER API:
 
-*/
+This is how the file hierarchy looks like (and is created when a user downloads an event for
+offline):
+
+-   Base application dir (name = Context.getFilesDir())
+    -   -   User dir (name = userID)
+    -   -   -   User-Event dir (name = eventID)
+    -   -   -   -   User-Event-Details dir  (name = "details")
+    -   -   -   -   -   User-Event-Details file (name = "details, type = .json)
+    -   -   -   -   User-Event-Map dir (name = "map")
+    -   -   -   -   -   User-Event-Map file (name = "map" (Or something else...))
+    -   -   -   -   User-Event-Invited-Users dir (name = "invited_users")
+    -   -   -   -   -   User-Event-Invited-User dir (name = invitedUserID)
+    -   -   -   -   -   -   User-Event-Invited-User-Details file (name = details, type = .json)
+    -   -   -   -   -   -   User-Event-Invited-User-Profile-Pic file (name = profile_pic, type = .jpg)
+
+
+
+/////////////////////////////////////////////////////////
+
+
+
+FIREBASE INNER API:
 
 *General comments*
 - Collections are named using (upper) CamelCase (e.g. 'Users', 'Events')
@@ -19,7 +38,7 @@ Updates (old to new):
 *Firebase Firestore*
 
 -   Events   [Collection]
--   -   eventName           [String]
+-   -   eventName           [String]o
 -   -   eventDescription    [String]
 -   -   eventCreatorUID      [String]
 -   -   eventCreatorName    [String]

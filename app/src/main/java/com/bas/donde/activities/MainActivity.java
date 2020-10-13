@@ -19,6 +19,9 @@ public class MainActivity extends AppCompatActivity {
     private FloatingActionButton fabCreateEvent;
     private FirebaseAuth mAuth;
 
+    public FirebaseAuth getmAuth() {
+        return mAuth;
+    }
 
     public FirebaseAuth getFirebaseAuth() {
         return mAuth;
@@ -28,6 +31,7 @@ public class MainActivity extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
         fabCreateEvent = findViewById(R.id.main_create_fab);
     }
+
 
     private void initializeListeners() {
         fabCreateEvent.setOnClickListener(new View.OnClickListener() {

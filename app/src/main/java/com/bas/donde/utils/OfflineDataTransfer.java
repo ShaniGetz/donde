@@ -1,14 +1,15 @@
 package com.bas.donde.utils;
 
 import android.content.Context;
-import androidx.annotation.NonNull;
 import android.util.Log;
+
+import androidx.annotation.NonNull;
+
 import com.google.android.gms.nearby.Nearby;
 import com.google.android.gms.nearby.connection.AdvertisingOptions;
 import com.google.android.gms.nearby.connection.ConnectionInfo;
 import com.google.android.gms.nearby.connection.ConnectionLifecycleCallback;
 import com.google.android.gms.nearby.connection.ConnectionResolution;
-import com.google.android.gms.nearby.connection.ConnectionsClient;
 import com.google.android.gms.nearby.connection.ConnectionsStatusCodes;
 import com.google.android.gms.nearby.connection.DiscoveredEndpointInfo;
 import com.google.android.gms.nearby.connection.DiscoveryOptions;
@@ -16,15 +17,16 @@ import com.google.android.gms.nearby.connection.EndpointDiscoveryCallback;
 import com.google.android.gms.nearby.connection.Payload;
 import com.google.android.gms.nearby.connection.PayloadCallback;
 import com.google.android.gms.nearby.connection.PayloadTransferUpdate;
-import com.google.android.gms.nearby.connection.PayloadTransferUpdate.Status;
 import com.google.android.gms.nearby.connection.Strategy;
-
 import com.google.firebase.firestore.GeoPoint;
 
 import java.util.Hashtable;
 
 
-public class OfflineDataTransfer{
+public class OfflineDataTransfer {
+    private static final Strategy STRATEGY = Strategy.P2P_CLUSTER;
+    public boolean isAdvertising = false;
+    public boolean isDiscovering = false;
     String myName;
     GeoPoint geoPoint;
     String myStatus;
@@ -35,111 +37,6 @@ public class OfflineDataTransfer{
     PayloadCallback payloadCallback;
     Hashtable<String, GeoPoint> Location_dict = new Hashtable<String, GeoPoint>();
     Hashtable<String, String> Status_dict = new Hashtable<String, String>();
-    private static final Strategy STRATEGY = Strategy.P2P_CLUSTER;
-    public boolean isAdvertising = false;
-    public boolean isDiscovering = false;
-
-
-    public OfflineDataTransfer(String name, GeoPoint geopoint, Context Context, String status) {
-        myName = name;
-        geoPoint = geopoint;
-        context = Context;
-        myStatus = status;
-        SERVICE_ID = context.getPackageName();
-        Location_dict.put(myName, geopoint);
-        Status_dict.put(myName, myStatus);
-        payloadCallback = new PayloadCallback() {
-                    @Override
-                    public void onPayloadReceived(String endpointId, Payload payload) { }
-                    @Override
-                    public void onPayloadTransferUpdate(String endpointId, PayloadTransferUpdate update) {}
-                };
-
-        connectionLifecycleCallback = new ConnectionLifecycleCallback() {
-                    @Override
-                    public void onConnectionInitiated(@NonNull String endpointId, @NonNull ConnectionInfo connectionInfo) {
-                        // Automatically accept the connection on both sides.
-                        Nearby.getConnectionsClient(context).acceptConnection(endpointId, payloadCallback);
-                        EndpointId = endpointId;
-                        Log.d("OfflineDataTransfer", "Connection initiated : " +
-                                endpointId + " ," + connectionInfo.toString());
-                    }
-                    @Override
-                    public void onConnectionResult(String endpointId, ConnectionResolution result) {
-                        switch (result.getStatus().getStatusCode()) {
-                            case ConnectionsStatusCodes.STATUS_OK:
-                                // We're connected! Can now start sending and receiving data.
-                                Log.d("OfflineDataTransfer", "Connected : " + endpointId + " ," + result.toString());
-                                //once connected disconnect and try again
-                                stopAll();
-                                connect();
-                                break;
-                            case ConnectionsStatusCodes.STATUS_CONNECTION_REJECTED:
-                                // The connection was rejected by one or both sides.
-                                Log.d("OfflineDataTransfer", "Connection rejected : " + endpointId + " ," + result.toString());
-                                break;
-                            case ConnectionsStatusCodes.STATUS_ERROR:
-                                // The connection broke before it was able to be accepted.
-                                break;
-                            default:
-                                // Unknown status code
-                        }
-                    }
-
-                    @Override
-                    public void onDisconnected(String endpointId) {}
-                };
-    }
-
-    public void updateLocation(GeoPoint geopoint){
-        if(isAdvertising){
-            stopAdvertising();
-            geoPoint = geopoint;
-            Location_dict.put(myName, geopoint);
-            startAdvertising();
-        }else{
-            isDiscovering = true;
-            geoPoint = geopoint;
-            Location_dict.put(myName, geopoint);
-        }
-    }
-
-    public void updateStatus(String status){
-        if(status != null) {
-            if (isAdvertising) {
-                stopAdvertising();
-                myStatus = status;
-                Status_dict.put(myName, myStatus);
-                Log.d("updateStatue offline", getUser());
-                startAdvertising();
-            } else {
-                myStatus = status;
-                Status_dict.put(myName, myStatus);
-            }
-        }
-    }
-
-    public GeoPoint getOtherLocation(String name){
-        if(Location_dict.get(name)== null){
-            return new GeoPoint(0,0);
-        }
-        return Location_dict.get(name);
-
-    }
-    public String getOtherStatus(String name){
-        return Status_dict.get(name);
-    }
-
-    public void stopAdvertising(){
-        isAdvertising = false;
-        Nearby.getConnectionsClient(context).stopAdvertising();
-    }
-    public void stopDiscovering(){
-        isDiscovering = false;
-        Nearby.getConnectionsClient(context).stopDiscovery();
-    }
-
-
     private EndpointDiscoveryCallback endpointDiscoveryCallback =
             new EndpointDiscoveryCallback() {
                 @Override
@@ -169,6 +66,112 @@ public class OfflineDataTransfer{
                     // A previously discovered endpoint has gone away.
                 }
             };
+
+    public OfflineDataTransfer(String name, GeoPoint geopoint, Context Context, String status) {
+        myName = name;
+        geoPoint = geopoint;
+        context = Context;
+        myStatus = status;
+        SERVICE_ID = context.getPackageName();
+        Location_dict.put(myName, geopoint);
+        Status_dict.put(myName, myStatus);
+        payloadCallback = new PayloadCallback() {
+            @Override
+            public void onPayloadReceived(String endpointId, Payload payload) {
+            }
+
+            @Override
+            public void onPayloadTransferUpdate(String endpointId, PayloadTransferUpdate update) {
+            }
+        };
+
+        connectionLifecycleCallback = new ConnectionLifecycleCallback() {
+            @Override
+            public void onConnectionInitiated(@NonNull String endpointId, @NonNull ConnectionInfo connectionInfo) {
+                // Automatically accept the connection on both sides.
+                Nearby.getConnectionsClient(context).acceptConnection(endpointId, payloadCallback);
+                EndpointId = endpointId;
+                Log.d("OfflineDataTransfer", "Connection initiated : " +
+                        endpointId + " ," + connectionInfo.toString());
+            }
+
+            @Override
+            public void onConnectionResult(String endpointId, ConnectionResolution result) {
+                switch (result.getStatus().getStatusCode()) {
+                    case ConnectionsStatusCodes.STATUS_OK:
+                        // We're connected! Can now start sending and receiving data.
+                        Log.d("OfflineDataTransfer", "Connected : " + endpointId + " ," + result.toString());
+                        //once connected disconnect and try again
+                        stopAll();
+                        connect();
+                        break;
+                    case ConnectionsStatusCodes.STATUS_CONNECTION_REJECTED:
+                        // The connection was rejected by one or both sides.
+                        Log.d("OfflineDataTransfer", "Connection rejected : " + endpointId + " ," + result.toString());
+                        break;
+                    case ConnectionsStatusCodes.STATUS_ERROR:
+                        // The connection broke before it was able to be accepted.
+                        break;
+                    default:
+                        // Unknown status code
+                }
+            }
+
+            @Override
+            public void onDisconnected(String endpointId) {
+            }
+        };
+    }
+
+    public void updateLocation(GeoPoint geopoint) {
+        if (isAdvertising) {
+            stopAdvertising();
+            geoPoint = geopoint;
+            Location_dict.put(myName, geopoint);
+            startAdvertising();
+        } else {
+            isDiscovering = true;
+            geoPoint = geopoint;
+            Location_dict.put(myName, geopoint);
+        }
+    }
+
+    public void updateStatus(String status) {
+        if (status != null) {
+            if (isAdvertising) {
+                stopAdvertising();
+                myStatus = status;
+                Status_dict.put(myName, myStatus);
+                Log.d("updateStatue offline", getUser());
+                startAdvertising();
+            } else {
+                myStatus = status;
+                Status_dict.put(myName, myStatus);
+            }
+        }
+    }
+
+    public GeoPoint getOtherLocation(String name) {
+        if (Location_dict.get(name) == null) {
+            return new GeoPoint(0, 0);
+        }
+        return Location_dict.get(name);
+
+    }
+
+    public String getOtherStatus(String name) {
+        return Status_dict.get(name);
+    }
+
+    public void stopAdvertising() {
+        isAdvertising = false;
+        Nearby.getConnectionsClient(context).stopAdvertising();
+    }
+
+    public void stopDiscovering() {
+        isDiscovering = false;
+        Nearby.getConnectionsClient(context).stopDiscovery();
+    }
 
     public void startAdvertising() {
         isAdvertising = true;
@@ -207,13 +210,13 @@ public class OfflineDataTransfer{
                         });
     }
 
-    public void connect(){
-        if(isDiscovering){
+    public void connect() {
+        if (isDiscovering) {
             stopDiscovering();
             isDiscovering = false;
             startAdvertising();
             isAdvertising = true;
-        }else{
+        } else {
             stopAdvertising();
             isAdvertising = false;
             startDiscovery();
@@ -230,22 +233,22 @@ public class OfflineDataTransfer{
     }
 
 
-    public String getUser(){
+    public String getUser() {
         return myName + "#" + myStatus + "#" + geoPoint.getLatitude() + "#" + geoPoint.getLongitude();
     }
 
-    public String getNameAndStatus(String string){
+    public String getNameAndStatus(String string) {
         boolean foundName = false;
         boolean foundStat = false;
         boolean foundLatitude = false;
-        String Name ="";
-        String stat ="";
+        String Name = "";
+        String stat = "";
 
         int idx = 0;
         String StringOfLatitude;
         GeoPoint geoPoint;
 
-        for(int i =0; i < string.length(); i++) {
+        for (int i = 0; i < string.length(); i++) {
             if (string.charAt(i) == '#') {
                 if (!foundName) {
                     foundName = true;
