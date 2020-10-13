@@ -31,7 +31,7 @@ public class LoginActivity extends Activity {
     private EditText textViewUserEmail;
     private EditText textViewUserPassword;
     private ProgressBar progressBar;
-
+    private boolean isHidden = true;
     private FirebaseAuth firebaseAuth;
 
 
@@ -56,12 +56,15 @@ public class LoginActivity extends Activity {
             @Override
             public void onClick(View v) {
                 Log.d("TAG", "sdfgsdg");
-                if (showHideBtn.getText().equals("Show")) {
+                if (isHidden) {
                     textViewUserPassword.setTransformationMethod(null);
-                    showHideBtn.setText("Hide");
+                    showHideBtn.setBackgroundResource(R.drawable.ic_eye_visibility_off_24);
+                    isHidden = false;
                 } else {
+                    isHidden = true;
                     textViewUserPassword.setTransformationMethod(new PasswordTransformationMethod());
-                    showHideBtn.setText("Show");
+                    showHideBtn.setBackgroundResource(R.drawable.ic_baseline_remove_red_eye_24);
+
                 }
             }
         });

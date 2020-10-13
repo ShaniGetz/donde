@@ -2,6 +2,7 @@ package com.bas.donde.activities;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
@@ -30,6 +31,7 @@ public class RegisterActivity extends Activity {
     ProgressBar progressBar;
     FirebaseAuth fAuth;
     private Button showHideBtn;
+    boolean isHidden = true;
 
 
     @Override
@@ -53,12 +55,14 @@ public class RegisterActivity extends Activity {
             @Override
             public void onClick(View v) {
                 Log.d("TAG", "sdfgsdg");
-                if (showHideBtn.getText().equals("Show")) {
+                if (isHidden) {
                     editTextPassword.setTransformationMethod(null);
-                    showHideBtn.setText("Hide");
+                    showHideBtn.setBackgroundResource(R.drawable.ic_eye_visibility_off_24);
+                    isHidden = false;
                 } else {
+                    isHidden = true;
                     editTextPassword.setTransformationMethod(new PasswordTransformationMethod());
-                    showHideBtn.setText("Show");
+                    showHideBtn.setBackgroundResource(R.drawable.ic_baseline_remove_red_eye_24);
                 }
             }
         });
