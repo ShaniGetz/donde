@@ -7,8 +7,13 @@
 
 package com.bas.donde.fragments;
 
+import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -29,6 +34,7 @@ import com.bas.donde.R;
 import com.bas.donde.activities.EventActivity;
 import com.bas.donde.activities.MainActivity;
 import com.bas.donde.models.EventModel;
+import com.bas.donde.models.InvitedInEventUserModel;
 import com.bas.donde.models.InvitedInUserEventModel;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
@@ -38,10 +44,25 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.Transaction;
 import com.google.firebase.firestore.WriteBatch;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 import com.google.gson.Gson;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+
+import static com.bas.donde.utils.CodeHelpers.myAssert;
 
 
 /**
@@ -54,6 +75,13 @@ public class EventsFragment extends Fragment {
     private CollectionReference eventsCollectionRef;
     private RecyclerView recyclerViewEventsList;
     private FirestoreRecyclerAdapter eventsRecyclerAdapter;
+    private String currUserID;
+
+    private HashMap<String, Bitmap> mUsersBitmaps;
+    private String eventJson;
+    private ArrayList<InvitedInEventUserModel> invitedInEventUserModelsList;
+    private String invitedUserInEventModelListJson;
+
 
     public EventsFragment() {
         Log.e("EventsFragment", "Constructor");
@@ -65,6 +93,7 @@ public class EventsFragment extends Fragment {
         recyclerViewEventsList = view.findViewById(R.id.events_recyclerView_events);
         firebaseFirestore = FirebaseFirestore.getInstance();
         eventsCollectionRef = firebaseFirestore.collection(getString(R.string.ff_Events));
+        mUsersBitmaps = new HashMap<>();
 
     }
 
@@ -88,11 +117,66 @@ public class EventsFragment extends Fragment {
 
     }
 
+    private void initializeInvitedUsersList(CollectionReference invitedInEventUsersCollectionRef,
+                                            String currUserID, int position, EventModel eventModel) {
+        invitedInEventUsersCollectionRef.get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+            @Override
+            public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+
+                firebaseFirestore.runTransaction(new Transaction.Function<ArrayList<InvitedInEventUserModel>>() {
+
+                    @Nullable
+                    @Override
+                    public ArrayList<InvitedInEventUserModel> apply(@NonNull Transaction transaction) throws FirebaseFirestoreException {
+                        ArrayList<InvitedInEventUserModel> invitedInEventUserModels = new ArrayList<>();
+                        for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
+                            Log.d(TAG, String.format("Adding query snapshot name: %s",
+                                    documentSnapshot.get(getString(R.string.ff_InvitedInEventUsers_invitedInEventUserName))));
+                            String userId =
+                                    documentSnapshot.getString(getString(R.string.ff_InvitedInEventUsers_invitedInEventUserID));
+
+                            Log.d(TAG, "checking if " + userId + "==" + currUserID);
+                            if (TextUtils.equals(userId, currUserID)) {
+                                Log.d(TAG, "enteres");
+                                invitedInEventUserModels.add(0,
+                                        documentSnapshot.toObject(InvitedInEventUserModel.class));
+                            } else {
+
+                                invitedInEventUserModels.add(documentSnapshot.toObject(InvitedInEventUserModel.class));
+                            }
+
+
+                        }
+                        Log.d(TAG, "index 0: " + invitedInEventUserModels.get(0)
+                                .getInvitedInEventUserName());
+                        return invitedInEventUserModels;
+                    }
+                }).addOnSuccessListener(new OnSuccessListener<ArrayList<InvitedInEventUserModel>>() {
+                    @Override
+                    public void onSuccess(ArrayList<InvitedInEventUserModel> invitedInEventUserModels) {
+
+                        Gson gson = new Gson();
+                        eventJson = gson.toJson(eventModel);
+                        invitedInEventUserModelsList = invitedInEventUserModels;
+                        invitedUserInEventModelListJson = gson.toJson(invitedInEventUserModelsList);
+                        initializeUsersBitmaps();
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.d(TAG, String.format("Transaction failed with error: %s", e.getMessage()));
+                    }
+                });
+
+            }
+        });
+    }
+
     private void initializeEventsList() {
 
-        String userID = ((MainActivity) getActivity()).getFirebaseAuth().getCurrentUser().getUid();
+        currUserID = ((MainActivity) getActivity()).getFirebaseAuth().getCurrentUser().getUid();
         DocumentReference userDocumentRef =
-                firebaseFirestore.collection(getString(R.string.ff_Users)).document(userID);
+                firebaseFirestore.collection(getString(R.string.ff_Users)).document(currUserID);
         CollectionReference eventsInUser = userDocumentRef.collection(getString(R.string.ff_InvitedInUserEvents));
 
 
@@ -114,30 +198,8 @@ public class EventsFragment extends Fragment {
                         holder.textViewEventLocationName.setText(String.format("Location: %s", model.getInvitedInUserEventLocationName()));
                         holder.textViewEventTimeStarting.setText(String.format("Time " +
                                 "starting: %s", model.getInvitedInUserEventTimeStarting()));
-                        holder.buttonGotoEvent.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                firebaseFirestore.collection(getString(R.string.ff_Events)).document(model.getInvitedInUserEventId()).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                                    @Override
-                                    public void onSuccess(DocumentSnapshot documentSnapshot) {
-                                        EventModel eventModel =
-                                                documentSnapshot.toObject(EventModel.class);
-
-                                        Intent eventIntent = new Intent(getActivity(), EventActivity.class);
-
-                                        eventIntent.putExtra(getString(R.string.arg_position), position);
-                                        // gson helps pass objects
-                                        Gson gson = new Gson();
-                                        String eventJson = gson.toJson(eventModel);
-                                        eventIntent.putExtra(getString(R.string.arg_event_model), eventJson);
-                                        eventIntent.putExtra(getString(R.string.arg_event_id),
-                                                eventModel.getEventID());
-                                        startActivity(eventIntent);
-                                    }
-                                });
-
-                            }
-                        });
+                        setGotoEventOnClick(holder, position, model);
+                        setIsGoingEventOnClick(holder, position, model);
                         setEventDeleteButtonOnClick(holder, model);
                     }
 
@@ -161,6 +223,91 @@ public class EventsFragment extends Fragment {
                         DividerItemDecoration.VERTICAL);
         recyclerViewEventsList.addItemDecoration(dividerItemDecoration);
         recyclerViewEventsList.setAdapter(eventsRecyclerAdapter);
+    }
+
+    private void setIsGoingEventOnClick(@NonNull EventsViewHolder holder, int position, @NonNull InvitedInUserEventModel model) {
+        holder.checkBoxEventIsGoing.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(getContext(), "Downloading invited users list",
+                        Toast.LENGTH_SHORT).show();
+                DocumentReference eventRef =
+                        firebaseFirestore.collection(getString(R.string.ff_Events)).document(model.getInvitedInUserEventId());
+                eventRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                    @Override
+                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                        EventModel eventModel =
+                                documentSnapshot.toObject(EventModel.class);
+                        CollectionReference invitedInEventUsersCollectionRef =
+                                eventRef.collection(getString(R.string.ff_InvitedInEventUsers));
+                        initializeInvitedUsersList(invitedInEventUsersCollectionRef, currUserID,
+                                position, eventModel);
+                    }
+                });
+            }
+        });
+    }
+
+    private void initializeUsersBitmaps() {
+        Log.d(TAG, "in initializeUsersBitmaps");
+        Toast.makeText(getContext(), "Getting users bitmaps", Toast.LENGTH_SHORT).show();
+        for (InvitedInEventUserModel user : invitedInEventUserModelsList) {
+            getUserAndPutAvatar(user);
+        }
+
+    }
+
+    private void setGotoEventOnClick(@NonNull EventsViewHolder holder, int position, @NonNull InvitedInUserEventModel model) {
+        holder.buttonGotoEvent.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+
+
+                Intent eventIntent = new Intent(getActivity(), EventActivity.class);
+                eventIntent.putExtra(getString(R.string.arg_position), position);
+                eventIntent.putExtra(getString(R.string.arg_event_model), eventJson);
+                eventIntent.putExtra(getString(R.string.arg_event_id), model.getInvitedInUserEventId());
+                eventIntent.putExtra(getString(R.string.arg_invitedInEventUserModels_intent), invitedUserInEventModelListJson);
+                Gson gson = new Gson();
+                String invitedUsersInEventBitmapsJson = gson.toJson(mUsersBitmaps);
+
+                eventIntent.putExtra(getString(R.string.arg_users_bitmaps_intent), invitedUsersInEventBitmapsJson);
+
+
+                startActivity(eventIntent);
+
+//
+//                DocumentReference eventRef =
+//                        firebaseFirestore.collection(getString(R.string.ff_Events)).document(model.getInvitedInUserEventId());
+//                eventRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+//                    @Override
+//                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+//                        EventModel eventModel =
+//                                documentSnapshot.toObject(EventModel.class);
+//                        CollectionReference invitedInEventUsersCollectionRef =
+//                                eventRef.collection(getString(R.string.ff_InvitedInEventUsers));
+//                        initializeInvitedUsersList(invitedInEventUsersCollectionRef, currUserID,
+//                                position, eventModel);
+
+
+//                        Intent eventIntent = new Intent(getActivity(), EventActivity.class);
+//
+//                        eventIntent.putExtra(getString(R.string.arg_position), position);
+//                        // gson helps pass objects
+//                        Gson gson = new Gson();
+//                        String eventJson = gson.toJson(eventModel);
+//                        eventIntent.putExtra(getString(R.string.arg_event_model), eventJson);
+//                        eventIntent.putExtra(getString(R.string.arg_event_id),
+//                                eventModel.getEventID());
+//                        startActivity(eventIntent);
+//                    }
+//                });
+//
+//            }
+//        });
+            }
+        });
     }
 
 
@@ -298,6 +445,71 @@ public class EventsFragment extends Fragment {
         }
     }
 
+    private Bitmap getUserAndPutAvatar(InvitedInEventUserModel user) {
+        Log.d(TAG, "in getUserAvatar for " + user.getInvitedInEventUserName());
+        FirebaseStorage storage = FirebaseStorage.getInstance();
+        StorageReference imageRef = storage.getReference().child(user.getInvitedInEventUserID() + ".jpg");
+//                        StorageReference gsReference = storage.getReferenceFromUrl(user.getInvitedInEventUserProfilePicURL());
+        imageRef.getBytes(1024 * 1024).addOnSuccessListener(new OnSuccessListener<byte[]>() {
+            @Override
+            public void onSuccess(byte[] bytes) {
+                Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+                String dir = saveToInternalStorage(bitmap);
+
+                Bitmap avatar = loadImageFromStorage(dir);
+                mUsersBitmaps.put(user.getInvitedInEventUserID(), avatar);
+                Log.d(TAG, "put avatar for " + user.getInvitedInEventUserName());
+
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                // TODO: Implement default avatar
+                myAssert(false, "Failed to get user avatar for " + user.getInvitedInEventUserName());
+//                avatar = defaultAvatar();
+            }
+        });
+        return null;
+    }
+
+    private String saveToInternalStorage(Bitmap bitmapImage) {
+        ContextWrapper cw = new ContextWrapper(getContext());
+        // path to /data/data/yourapp/app_data/imageDir
+        File directory = cw.getDir("imageDir", Context.MODE_PRIVATE);
+        // Create imageDir
+        File mypath = new File(directory, "photo.jpg");
+
+        FileOutputStream fos = null;
+        try {
+            fos = new FileOutputStream(mypath);
+            // Use the compress method on the BitMap object to write image to the OutputStream
+            bitmapImage.compress(Bitmap.CompressFormat.PNG, 100, fos);
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                fos.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return directory.getAbsolutePath();
+    }
+
+    private Bitmap loadImageFromStorage(String path) {
+        try {
+            File f = new File(path, "photo.jpg");
+            Bitmap b = BitmapFactory.decodeStream(new FileInputStream(f));
+            //todo: conect to the rellevant clustermarker b
+//            ImageView img=(ImageView)findViewById(R.id.imgPicker);
+//            img.setImageBitmap(b);
+            return b;
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 
     class EventsViewHolder extends RecyclerView.ViewHolder {
 

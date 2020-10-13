@@ -61,7 +61,8 @@
     <string name="ff_InvitedInEventUsers_invitedInEventUserProfilePicURL">invitedInEventUserProfilePicURL</string>
     <string name="ff_InvitedInEventUsers_invitedInEventUserName">invitedInEventUserName</string>
     <string name="ff_InvitedInEventUsers_invitedInEventUserIsGoing">invitedInEventUserIsGoing</string>
-
+    <string name="arg_invitedInEventUserModels_intent">arg_invitedInEventUserModels_intent</string>
+    <string name="arg_users_bitmaps_intent">arg_users_bitmaps_intent</string>
 
 
 </resources>

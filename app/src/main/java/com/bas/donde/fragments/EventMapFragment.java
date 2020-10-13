@@ -5,12 +5,9 @@ BATSHEVAAA
 package com.bas.donde.fragments;
 
 import android.Manifest;
-import android.content.Context;
-import android.content.ContextWrapper;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.Looper;
@@ -46,19 +43,11 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.TileOverlayOptions;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.GeoPoint;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
 import com.google.maps.android.clustering.ClusterManager;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import static com.bas.donde.utils.CodeHelpers.myAssert;
@@ -82,7 +71,7 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback {
 
 
     private ArrayList<ClusterMarker> mClusterMarkers;
-    private ArrayList<Bitmap> mUsersBitmaps;
+    private HashMap<String, Bitmap> mUsersBitmaps;
 
     private LocationCallback mLocationCallback;
 
@@ -162,18 +151,39 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback {
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(getActivity());
         initializeMapFragment();
         initializeInvitedUsersList();
-        initializeUsersData();
+        initializeInvitedUserBitmaps();
+//        initializeUsersBitmaps();
+//        initializeUsersData();
         setOnLocationCallback();
 
 
     }
 
+//    private void initializeUsersBitmaps() {
+//        Log.d(TAG, "in initializeUsersBitmaps");
+//        mUsersBitmaps = new HashMap<>();
+//        for (InvitedInEventUserModel user : invitedUsersList) {
+//            Bitmap userBitmap = getUserAvatar(user);
+//            mUsersBitmaps.put(user.getInvitedInEventUserID(), userBitmap);
+//        }
+//
+//        Gson gson = new Gson();
+//        gson.toJson(mUsersBitmaps);
+//    }
+
+    private void initializeInvitedUserBitmaps() {
+        Log.d(TAG, "in initializeInvitedUserBitmaps");
+        mUsersBitmaps = ((EventActivity) getActivity()).getInvitedUserInEventBitmaps();
+        myAssert(mUsersBitmaps != null, "invitedUsersList is null");
+        myAssert(mUsersBitmaps.size() > 0, "invitedUsersList size is 0");
+
+    }
 
     private void initializeInvitedUsersList() {
         Log.d(TAG, "in initializeInvitedUsersList");
         invitedUsersList = ((EventActivity) getActivity()).getInvitedUserInEventModelList();
         myAssert(invitedUsersList != null, "invitedUsersList is null");
-        myAssert(invitedUsersList.size() > 0,"invitedUsersList size is 0");
+        myAssert(invitedUsersList.size() > 0, "invitedUsersList size is 0");
 
     }
 
@@ -210,9 +220,9 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback {
         Log.d(TAG, "in onMapReady");
         initializeGoogleMap(googleMap);
         initializeLocationRequest();
-
         initializeClusterFields();
         setClusterMarkerOnClick();
+        initializeUsersData();
 
         if (ContextCompat.checkSelfPermission(getContext(),
                 Manifest.permission.ACCESS_FINE_LOCATION)
@@ -275,7 +285,8 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback {
 
 
         // initialize user cluster marker
-        Bitmap userBitmap = getUserAvatar(user);
+        Bitmap userBitmap = mUsersBitmaps.get(user.getInvitedInEventUserID());
+        myAssert(userBitmap != null, "user bitmap is null for " + user.getInvitedInEventUserName());
         ClusterMarker userClusterMarker = new ClusterMarker(
                 user.getInvitedInEventUserID(), new LatLng(user.getInvitedInEventUserCurrentLocation().getLatitude(),
                 user.getInvitedInEventUserCurrentLocation().getLongitude()),
@@ -287,29 +298,6 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback {
 
         // TODO: Should this be in user loop? or outside?
         mClusterManager.cluster();
-    }
-
-    private Bitmap getUserAvatar(InvitedInEventUserModel user) {
-        Log.d(TAG, "in getUserAvatar for " + user.getInvitedInEventUserName());
-        final Bitmap[] avatar = new Bitmap[1];
-        FirebaseStorage storage = FirebaseStorage.getInstance();
-        StorageReference imageRef = storage.getReference().child(user.getInvitedInEventUserID() + ".jpg");
-//                        StorageReference gsReference = storage.getReferenceFromUrl(user.getInvitedInEventUserProfilePicURL());
-        imageRef.getBytes(1024 * 1024).addOnSuccessListener(new OnSuccessListener<byte[]>() {
-            @Override
-            public void onSuccess(byte[] bytes) {
-                Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
-                String dir = saveToInternalStorage(bitmap);
-                avatar[0] = loadImageFromStorage(dir);
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                // TODO: Implement default avatar
-//                avatar = defaultAvatar();
-            }
-        });
-        return null;
     }
 
 
@@ -438,46 +426,6 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback {
             // other 'case' lines to check for other
             // permissions this app might request
         }
-    }
-
-
-    private String saveToInternalStorage(Bitmap bitmapImage) {
-        ContextWrapper cw = new ContextWrapper(getContext());
-        // path to /data/data/yourapp/app_data/imageDir
-        File directory = cw.getDir("imageDir", Context.MODE_PRIVATE);
-        // Create imageDir
-        File mypath = new File(directory, "photo.jpg");
-
-        FileOutputStream fos = null;
-        try {
-            fos = new FileOutputStream(mypath);
-            // Use the compress method on the BitMap object to write image to the OutputStream
-            bitmapImage.compress(Bitmap.CompressFormat.PNG, 100, fos);
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                fos.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        return directory.getAbsolutePath();
-    }
-
-    private Bitmap loadImageFromStorage(String path) {
-        try {
-            File f = new File(path, "photo.jpg");
-            Bitmap b = BitmapFactory.decodeStream(new FileInputStream(f));
-            //todo: conect to the rellevant clustermarker b
-//            ImageView img=(ImageView)findViewById(R.id.imgPicker);
-//            img.setImageBitmap(b);
-            return b;
-
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-        return null;
     }
 
 
