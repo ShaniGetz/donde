@@ -30,7 +30,6 @@ public class InvitedInEventUserModel {
 
     private GeoPoint invitedInEventUserLastLocation;
     private String invitedInEventUserProfilePicURL;
-    private String isInvitedInEventUserIsGoing;
 
     public String getInvitedInEventUserID() {
         return invitedInEventUserID;
