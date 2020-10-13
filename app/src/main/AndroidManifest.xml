@@ -10,7 +10,7 @@
         android:name=".activities.App"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
-        android:label="Donde"
+        android:label="Dónde"
         android:roundIcon="@drawable/icon_donde_rounded"
         android:supportsRtl="false"
         android:theme="@style/AppTheme">

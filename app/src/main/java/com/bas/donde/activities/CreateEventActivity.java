@@ -46,6 +46,7 @@ import com.bas.donde.R;
 import com.bas.donde.models.EventModel;
 import com.bas.donde.models.InvitedInEventUserModel;
 import com.bas.donde.models.InvitedInUserEventModel;
+import com.bas.donde.models.UserModel;
 import com.bas.donde.utils.map_utils.CustomMapTileProvider;
 import com.bas.donde.utils.map_utils.OfflineTileProvider;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -769,9 +770,8 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
                     ffEventInvitedUserIDs.add(invitedInEventUserId);
 
                 }
-                eventCreateBatch.update(documentReference,
-                        App.getRes().getString(R.string.ff_Events_eventInvitedUserIDs),
-                        ffEventInvitedUserIDs);
+
+                eventCreateBatch.update(documentReference, App.getRes().getString(R.string.ff_Events_eventInvitedUserIDs), ffEventInvitedUserIDs);
                 eventCreateBatch.commit().addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
@@ -813,11 +813,11 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
     }
 
 
-//    private void addEventToInvitedUser(String invitedUserId, String eventId) {
-//
-//        usersCollectionRef.document(invitedUserId).update("userInvitedEventIDs",
-//                FieldValue.arrayUnion(eventId));
-//    }
+    private void addEventToInvitedUser(String invitedUserId, String eventId) {
+
+        usersCollectionRef.document(invitedUserId).update("userInvitedEventIDs",
+                FieldValue.arrayUnion(eventId));
+    }
 
     private boolean retrieveAndSetEventFields() {
         String toastErrorMessage = "";
@@ -964,30 +964,28 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
             }
             Query userByEmailQuery = usersRef.whereEqualTo(getString(R.string.ff_Users_userEmail)
                     , userEmail);
+
             userByEmailQuery.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                 @Override
                 public void onComplete(@NonNull Task<QuerySnapshot> task) {
                     if (task.isSuccessful()) {
                         if (task.getResult().size() == 1) {
                             DocumentSnapshot invitedUserDoc = task.getResult().getDocuments().get(0);
-                            String invitedUserID = invitedUserDoc.getId();
-                            String invitedUserEmail =
-                                    invitedUserDoc.getString(getString(R.string.ff_Users_userEmail));
-                            String invitedUserName =
-                                    invitedUserDoc.getString(getString(R.string.ff_Users_userName));
-                            // TODO: retrieve
-//                            String invitedUserProfilePicURL = invitedUserDoc.getString(
-//                                    getString(R.string.ff_InvitedInEventUser_));
-                            Log.d(TAG, String.format("adding user to ffInvited: %s", invitedUserEmail));
-                            ffInvitedUserInEventModels.add(new InvitedInEventUserModel(invitedUserID,
-                                    invitedUserName, invitedUserEmail));
+                            UserModel userModel = invitedUserDoc.toObject(UserModel.class);
+                            Log.d(TAG, String.format("adding user to ffInvited: %s",
+                                    userModel.getUserName()));
+                            ffInvitedUserInEventModels.add(new InvitedInEventUserModel(userModel.getUserID(),
+                                    userModel.getUserName(), userModel.getUserEmail(), userModel.getUserStatus(), userModel.getUserLastLocation(), userModel.getUserProfilePicURL()));
 
                         } else if (task.getResult().size() == 0) {
-                            Toast.makeText(CreateEventActivity.this, String.format("No user " + "found" + " with " + "email %s", userEmail), Toast.LENGTH_SHORT);
+                            Toast.makeText(CreateEventActivity.this, String.format("No user " +
+                                    "found" + " with " + "email %s", userEmail), Toast.LENGTH_SHORT);
                         } else if (task.getResult().size() > 1) {
                             Toast.makeText(CreateEventActivity.this,
-                                    String.format("Found more " + "than one user with email %s", userEmail), Toast.LENGTH_SHORT);
+                                    String.format("Found more " + "than one user with email %s",
+                                            userEmail), Toast.LENGTH_SHORT);
                         }
+
                     } else {
                         Log.d("CreateEventActivity", String.format("Error processing " +
                                 "email %s, error: %s", userEmail, task.getException().getMessage()));
