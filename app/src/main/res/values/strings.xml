@@ -27,6 +27,7 @@
     <string name="ff_Users_userID">userID </string>
     <string name="ff_Users_userEmail">userEmail </string>
     <string name="ff_Users_userProfilePicURL">userProfilePicURL </string>
+    <string name="ff_Users_userLastLocation">userLastLocation</string>
     <string name="ff_Users_userInvitedEventIDs">userInvitedEventIDs </string>
     <string name="ff_Users_userInteractedUserEmails">userInteractedUserEmails</string>
     <string name="ff_Users_InvitedInUserEvents">InvitedInUserEvents </string>
@@ -55,11 +56,12 @@
     <string name="ff_InvitedInEventUsers">InvitedInEventUsers</string>
     <string name="ff_InvitedInEventUsers_invitedInEventUserID">invitedInEventUserID</string>
     <string name="ff_InvitedInEventUsers_invitedInEventUserStatus">invitedInEventUserStatus</string>
-    <string name="ff_InvitedInEventUsers_invitedInEventUserCurrentLocation">invitedInEventUserCurrentLocation</string>
+    <string name="ff_InvitedInEventUsers_invitedInEventUserLastLocation">invitedInEventUserLastLocation</string>
     <string name="ff_InvitedInEventUsers_invitedInEventUserProfilePicURL">invitedInEventUserProfilePicURL</string>
     <string name="ff_InvitedInEventUsers_invitedInEventUserName">invitedInEventUserName</string>
     <string name="ff_InvitedInEventUsers_invitedInEventUserIsGoing">invitedInEventUserIsGoing</string>
     <string name="arg_invitedInEventUserModels_intent">arg_invitedInEventUserModels_intent</string>
     <string name="arg_users_bitmaps_intent">arg_users_bitmaps_intent</string>
+    <string name="arg_did_come_from_register_intent">arg_did_come_from_register_intent</string>
 
 </resources>

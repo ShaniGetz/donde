@@ -49,6 +49,7 @@ import com.bas.donde.R;
 import com.bas.donde.models.EventModel;
 import com.bas.donde.models.InvitedInEventUserModel;
 import com.bas.donde.models.InvitedInUserEventModel;
+import com.bas.donde.models.UserModel;
 import com.bas.donde.utils.map_utils.CustomMapTileProvider;
 import com.bas.donde.utils.map_utils.OfflineTileProvider;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -817,18 +818,12 @@ public class EditEventActivity extends AppCompatActivity implements OnMapReadyCa
                     if (task.isSuccessful()) {
                         if (task.getResult().size() == 1) {
                             DocumentSnapshot invitedUserDoc = task.getResult().getDocuments().get(0);
-                            String invitedUserID = invitedUserDoc.getId();
-                            String invitedUserEmail =
-                                    invitedUserDoc.getString(getString(R.string.ff_Users_userEmail));
-                            String invitedUserName =
-                                    invitedUserDoc.getString(getString(R.string.ff_Users_userName));
-                            // TODO: retrieve
-//                            String invitedUserProfilePicURL = invitedUserDoc.getString(
-//                                    getString(R.string.ff_InvitedInEventUser_));
+                            UserModel userModel = invitedUserDoc.toObject(UserModel.class);
                             Log.d(TAG, String.format("adding user to ffInvited: %s",
-                                    invitedUserEmail));
-                            ffInvitedUserInEventModels.add(new InvitedInEventUserModel(invitedUserID,
-                                    invitedUserName, invitedUserEmail));
+                                    userModel.getUserName()));
+                            ffInvitedUserInEventModels.add(new InvitedInEventUserModel(userModel.getUserID(),
+                                    userModel.getUserName(), userModel.getUserEmail(), userModel.getUserStatus(), userModel.getUserLastLocation(), userModel.getUserProfilePicURL()));
+
                             eventsCollectionRef.document(eventModel.getEventID()).update("InvitedInEventUsers", ffInvitedUserInEventModels);
 
                         } else if (task.getResult().size() == 0) {

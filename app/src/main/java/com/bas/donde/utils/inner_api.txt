@@ -50,7 +50,7 @@ FIREBASE INNER API:
 -   -   InvitedInEventUsers [Collection]        //document ID corresponds to userID
 -   -   -   invitedInEventUserID              [String]    //references user document ID in Users collection
 -   -   -   invitedInEventUserStatus          [String]
--   -   -   invitedInEventUserCurrentLocation [Geopoint]
+-   -   -   invitedInEventUserLastLocation [Geopoint]
 -   -   -   invitedInEventUserProfilePicURL   [String]
 -   -   -   invitedInEventUserName            [String]
 -   -   -   invitedInEventUserIsGoing         [boolean]
@@ -61,7 +61,8 @@ FIREBASE INNER API:
 -   -   userEmail           [String]
 -   -   userProfilePicURL   [String]        //URL for the profile pic inside Firebase Storage
 -   -   userInvitedEventIDs [Array<String>]
--   -   userInteracted
+-   -   userInteracted      [Array<String>]
+-   -   userLastLocation    [Geopoint]
 -   -   InvitedInUserEvents   [Collection]
 -   -   -   invitedInUserEventID              [String]    //references event document ID in Events collection
 -   -   -   invitedInUserEventName            [String]

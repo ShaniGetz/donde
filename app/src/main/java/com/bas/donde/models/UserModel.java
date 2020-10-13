@@ -1,42 +1,46 @@
 package com.bas.donde.models;
 
-import com.google.android.gms.maps.model.LatLng;
+import com.google.firebase.firestore.GeoPoint;
 
-import java.lang.reflect.Array;
+import java.util.ArrayList;
 
 public class UserModel {
     String userID;
     String userName;
+    String userEmail;
     String userProfilePicURL;
-    LatLng userCurLocation;
+    GeoPoint userLastLocation;
     String userStatus;
-    Array userInvitedEventsIDs;
-
-    public void setUserID(String userID) {
-        this.userID = userID;
-    }
-
-    public Array getUserInvitedEventsIDs() {
-        return userInvitedEventsIDs;
-    }
-
-    public void setUserInvitedEventsIDs(Array userInvitedEventsIDs) {
-        this.userInvitedEventsIDs = userInvitedEventsIDs;
-    }
+    ArrayList<String> userInvitedEventsIDs;
 
     public UserModel() {
     }
 
-    public UserModel(String userID, String userName, String userProfilePicURL, LatLng userCurLocation, String userStatus) {
+    public UserModel(String userID, String userName, String userEmail, String userProfilePicURL) {
         this.userID = userID;
         this.userName = userName;
+        this.userEmail = userEmail;
         this.userProfilePicURL = userProfilePicURL;
-        this.userCurLocation = userCurLocation;
-        this.userStatus = userStatus;
+        this.userStatus = "";
+        this.userLastLocation = new GeoPoint(10, 10);
+        this.userInvitedEventsIDs = userInvitedEventsIDs;
+        this.userInvitedEventsIDs = new ArrayList<>();
     }
 
-    public String getUserID(){
+    public ArrayList<String> getUserInvitedEventsIDs() {
+        return userInvitedEventsIDs;
+    }
+
+    public void setUserInvitedEventsIDs(ArrayList<String> userInvitedEventsIDs) {
+        this.userInvitedEventsIDs = userInvitedEventsIDs;
+    }
+
+    public String getUserID() {
         return userID;
+    }
+
+    public void setUserID(String userID) {
+        this.userID = userID;
     }
 
     public String getUserName() {
@@ -47,7 +51,7 @@ public class UserModel {
         this.userName = userName;
     }
 
-    public String getUserProfilePicURL(){
+    public String getUserProfilePicURL() {
         return userProfilePicURL;
     }
 
@@ -55,7 +59,7 @@ public class UserModel {
         this.userProfilePicURL = userProfilePicURL;
     }
 
-    public String getUserStatus(){
+    public String getUserStatus() {
         return userStatus;
     }
 
@@ -63,11 +67,19 @@ public class UserModel {
         this.userStatus = userStatus;
     }
 
-    public LatLng getUserCurLocation(){
-        return userCurLocation;
+    public String getUserEmail() {
+        return userEmail;
     }
 
-    public void setUserCurLocation(LatLng userCurLocation) {
-        this.userCurLocation = userCurLocation;
+    public void setUserEmail(String userEmail) {
+        this.userEmail = userEmail;
+    }
+
+    public GeoPoint getUserLastLocation() {
+        return userLastLocation;
+    }
+
+    public void setUserLastLocation(GeoPoint userLastLocation) {
+        this.userLastLocation = userLastLocation;
     }
 }

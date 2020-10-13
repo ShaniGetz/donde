@@ -2,9 +2,9 @@ package com.bas.donde.activities;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.text.method.PasswordTransformationMethod;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -16,13 +16,15 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.bas.donde.R;
-import android.text.method.PasswordTransformationMethod;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 
 public class RegisterActivity extends Activity {
+    private final String TAG = "logtagRegisterActivity";
+
+
     Button buttonGotoLogin;
     Button buttonRegister;
     EditText editTextName;
@@ -30,9 +32,8 @@ public class RegisterActivity extends Activity {
     EditText editTextPassword;
     ProgressBar progressBar;
     FirebaseAuth fAuth;
-    private Button showHideBtn;
     boolean isHidden = true;
-
+    private Button showHideBtn;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -40,7 +41,7 @@ public class RegisterActivity extends Activity {
         setContentView(R.layout.activity_register);
 
         //
-        
+
         initializeFields();
         initializeListeners();
     }
@@ -77,8 +78,8 @@ public class RegisterActivity extends Activity {
                 finish();
             }
         });
-
         buttonRegister.setOnClickListener(new View.OnClickListener() {
+
             @Override
             public void onClick(View v) {
 
@@ -88,30 +89,29 @@ public class RegisterActivity extends Activity {
                     //show progress
                     progressBar.setVisibility(View.VISIBLE);
 
-                    fAuth.createUserWithEmailAndPassword(sUserEmail, sUserPassword).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                    fAuth.createUserWithEmailAndPassword(sUserEmail, sUserPassword).addOnSuccessListener(new OnSuccessListener<AuthResult>() {
                         @Override
-                        public void onComplete(@NonNull Task<AuthResult> task) {
-                            // register successful
-                            if (task.isSuccessful()) {
-
-                                Log.d("RegisterActivity", "User added successfully");
-                                gotoAccountActivity();
-                            } else {
-                                // show error to user
-                                String errorMessage = task.getException().getMessage();
-                                Log.d("RegisterActivity",  "Error: " + errorMessage);
-                            }
-                            // after progress we don't want to see progress bar
-                            progressBar.setVisibility(View.INVISIBLE);
+                        public void onSuccess(AuthResult authResult) {
+                            gotoAccountActivity();
                         }
-
-
+                    }).addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Toast.makeText(RegisterActivity.this, "Error creating username: " + e.getMessage(),
+                                    Toast.LENGTH_SHORT).show();
+                        }
                     });
+
+                    progressBar.setVisibility(View.INVISIBLE);
+                } else {
+                    Toast.makeText(RegisterActivity.this, "One or more of the fields is invalid",
+                            Toast.LENGTH_SHORT).show();
 
                 }
             }
         });
     }
+
 
     @Override
     protected void onStart() {
@@ -136,8 +136,11 @@ public class RegisterActivity extends Activity {
     }
 
     private void gotoAccountActivity() {
-        Intent mainIntent = new Intent(RegisterActivity.this, AccountActivity.class);
-        startActivity(mainIntent);
+        Log.d(TAG, "in gotoAccountActivity");
+        Intent accountIntent = new Intent(RegisterActivity.this, AccountActivity.class);
+        accountIntent.putExtra(getString(R.string.arg_did_come_from_register_intent), true);
+
+        startActivity(accountIntent);
         // prevent option to back-click back to here
         finish();
     }

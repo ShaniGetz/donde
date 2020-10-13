@@ -11,7 +11,24 @@ public class InvitedInEventUserModel {
     private String invitedInEventUserName;
     private String invitedInEventUserEmail;
     private String invitedInEventUserStatus;
-    private GeoPoint invitedInEventUserCurrentLocation;
+
+    public String getDocumentId() {
+        return documentId;
+    }
+
+    public void setDocumentId(String documentId) {
+        this.documentId = documentId;
+    }
+
+    public GeoPoint getInvitedInEventUserLastLocation() {
+        return invitedInEventUserLastLocation;
+    }
+
+    public void setInvitedInEventUserLastLocation(GeoPoint invitedInEventUserLastLocation) {
+        this.invitedInEventUserLastLocation = invitedInEventUserLastLocation;
+    }
+
+    private GeoPoint invitedInEventUserLastLocation;
     private String invitedInEventUserProfilePicURL;
 
     public String getInvitedInEventUserID() {
@@ -46,13 +63,6 @@ public class InvitedInEventUserModel {
         this.invitedInEventUserStatus = invitedInEventUserStatus;
     }
 
-    public GeoPoint getInvitedInEventUserCurrentLocation() {
-        return invitedInEventUserCurrentLocation;
-    }
-
-    public void setInvitedInEventUserCurrentLocation(GeoPoint invitedInEventUserCurrentLocation) {
-        this.invitedInEventUserCurrentLocation = invitedInEventUserCurrentLocation;
-    }
 
     public String getInvitedInEventUserProfilePicURL() {
         return invitedInEventUserProfilePicURL;
@@ -72,29 +82,16 @@ public class InvitedInEventUserModel {
 
     private boolean invitedInEventUserIsGoing;
 
-    public InvitedInEventUserModel(String invitedInEventUserID, String invitedInEventUserName,
-                                   String invitedInEventUserEmail, String invitedInEventUserStatus, GeoPoint invitedInEventUserCurrentLocation, String invitedInEventUserProfilePicURL, boolean invitedInEventUserIsGoing) {
+
+    public InvitedInEventUserModel(String invitedInEventUserID, String invitedInEventUserName, String invitedInEventUserEmail, String invitedInEventUserStatus, GeoPoint invitedInEventUserLastLocation, String invitedInEventUserProfilePicURL) {
         this.invitedInEventUserID = invitedInEventUserID;
         this.invitedInEventUserName = invitedInEventUserName;
         this.invitedInEventUserEmail = invitedInEventUserEmail;
         this.invitedInEventUserStatus = invitedInEventUserStatus;
-        this.invitedInEventUserCurrentLocation = invitedInEventUserCurrentLocation;
-        if(invitedInEventUserCurrentLocation == null){
-            this.invitedInEventUserCurrentLocation = new GeoPoint(0, 0);
-        }
+        this.invitedInEventUserLastLocation = invitedInEventUserLastLocation;
         this.invitedInEventUserProfilePicURL = invitedInEventUserProfilePicURL;
-        this.invitedInEventUserIsGoing = invitedInEventUserIsGoing;
+        this.invitedInEventUserIsGoing = false;
     }
-
-    public InvitedInEventUserModel(String invitedInEventUserID, String invitedInEventUserName, String invitedInEventUserEmail) {
-        this(invitedInEventUserID, invitedInEventUserName, invitedInEventUserEmail, "Enter status",
-                new GeoPoint(0, 0), "https://firebasestorage.googleapis.com/v0/b/donde-4cda4" +
-                        ".appspot.com/o/avatar.webp?alt=media&token=9922bed2-de35-4690-bde2" +
-                        "-ca2dbe9762a3", true);
-
-
-    }
-
 
     // required empty constructor
     public InvitedInEventUserModel() {

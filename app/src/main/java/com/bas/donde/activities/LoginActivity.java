@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.text.method.PasswordTransformationMethod;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -20,7 +21,6 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
-import android.text.method.PasswordTransformationMethod;
 
 
 public class LoginActivity extends Activity {
@@ -84,12 +84,14 @@ public class LoginActivity extends Activity {
                             // login successful
                             if (task.isSuccessful()) {
 
-                                Log.d("LoginActivity", "User Logged in successfully");
+                                Toast.makeText(LoginActivity.this, "User Logged in successfully",
+                                        Toast.LENGTH_SHORT).show();
                                 gotoMainActivity();
                             } else {
                                 // show error to user
                                 String errorMessage = task.getException().getMessage();
-                                Log.d("LoginActivity","Error: " + errorMessage);
+                                Toast.makeText(LoginActivity.this, "Error: " + errorMessage,
+                                        Toast.LENGTH_SHORT).show();
                             }
                             // after progress we don't want to see progress bar
                             progressBar.setVisibility(View.INVISIBLE);
@@ -104,8 +106,7 @@ public class LoginActivity extends Activity {
         textViewGotoRegister.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent registerIntent = new Intent(LoginActivity.this, RegisterActivity.class);
-                startActivity(registerIntent);
+                gotoRegister();
 
             }
         });
@@ -141,4 +142,12 @@ public class LoginActivity extends Activity {
         // prevent option to back-click back to here
         finish();
     }
+
+    private void gotoRegister() {
+        Intent registerIntent = new Intent(LoginActivity.this, RegisterActivity.class);
+        startActivity(registerIntent);
+
+    }
+
+
 }

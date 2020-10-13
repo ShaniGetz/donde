@@ -129,12 +129,15 @@ public class EventsFragment extends Fragment {
             @Override
             public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
 
+                Log.d(TAG, "before running  transaction");
                 firebaseFirestore.runTransaction(new Transaction.Function<ArrayList<InvitedInEventUserModel>>() {
 
                     @Nullable
                     @Override
                     public ArrayList<InvitedInEventUserModel> apply(@NonNull Transaction transaction) throws FirebaseFirestoreException {
+                        Log.d(TAG, "inside apply");
                         ArrayList<InvitedInEventUserModel> invitedInEventUserModels = new ArrayList<>();
+
                         for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
                             Log.d(TAG, String.format("Adding query snapshot name: %s",
                                     documentSnapshot.get(getString(R.string.ff_InvitedInEventUsers_invitedInEventUserName))));
@@ -144,15 +147,17 @@ public class EventsFragment extends Fragment {
                             Log.d(TAG, "checking if " + userId + "==" + currUserID);
                             if (TextUtils.equals(userId, currUserID)) {
                                 Log.d(TAG, "enteres");
-                                invitedInEventUserModels.add(0,
-                                        documentSnapshot.toObject(InvitedInEventUserModel.class));
+                                    invitedInEventUserModels.add(0,
+                                            documentSnapshot.toObject(InvitedInEventUserModel.class));
+
+
                             } else {
 
                                 invitedInEventUserModels.add(documentSnapshot.toObject(InvitedInEventUserModel.class));
                             }
-
-
                         }
+
+
                         Log.d(TAG, "index 0: " + invitedInEventUserModels.get(0)
                                 .getInvitedInEventUserName());
                         return invitedInEventUserModels;
@@ -160,7 +165,6 @@ public class EventsFragment extends Fragment {
                 }).addOnSuccessListener(new OnSuccessListener<ArrayList<InvitedInEventUserModel>>() {
                     @Override
                     public void onSuccess(ArrayList<InvitedInEventUserModel> invitedInEventUserModels) {
-
                         Gson gson = new Gson();
                         eventJson = gson.toJson(eventModel);
                         invitedInEventUserModelsList = invitedInEventUserModels;
@@ -265,6 +269,8 @@ public class EventsFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 holder.showProgressBar();
+                holder.buttonGotoEvent.setEnabled(true);
+                holder.buttonGotoEvent.setBackgroundColor(R.drawable.rounded_corners_butten);
                 Toast.makeText(getContext(), "Downloading invited users list",
                         Toast.LENGTH_SHORT).show();
                 DocumentReference eventRef =
@@ -276,8 +282,7 @@ public class EventsFragment extends Fragment {
                                 documentSnapshot.toObject(EventModel.class);
                         CollectionReference invitedInEventUsersCollectionRef =
                                 eventRef.collection(getString(R.string.ff_InvitedInEventUsers));
-                        initializeInvitedUsersList(invitedInEventUsersCollectionRef, currUserID,
-                                position, eventModel, holder);
+                        initializeInvitedUsersList(invitedInEventUsersCollectionRef, currUserID, position, eventModel, holder);
                     }
                 });
             }
@@ -300,8 +305,8 @@ public class EventsFragment extends Fragment {
         holder.buttonGotoEvent.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-
+//                holder.buttonGotoEvent.setEnabled(true);
+//                holder.buttonGotoEvent.setBackground(R.drawable.rounded_corners_butten);
                 Intent eventIntent = new Intent(getActivity(), EventActivity.class);
                 eventIntent.putExtra(getString(R.string.arg_position), position);
                 eventIntent.putExtra(getString(R.string.arg_event_model), eventJson);
@@ -453,7 +458,7 @@ public class EventsFragment extends Fragment {
     private Bitmap getUserAndPutAvatar(InvitedInEventUserModel user) {
         Log.d(TAG, "in getUserAvatar for " + user.getInvitedInEventUserName());
         FirebaseStorage storage = FirebaseStorage.getInstance();
-        StorageReference imageRef = storage.getReference().child(user.getInvitedInEventUserID() + ".jpg");
+        StorageReference imageRef = storage.getReference().child(user.getInvitedInEventUserProfilePicURL());
 //                        StorageReference gsReference = storage.getReferenceFromUrl(user.getInvitedInEventUserProfilePicURL());
         imageRef.getBytes(1024 * 1024).addOnSuccessListener(new OnSuccessListener<byte[]>() {
             @Override
@@ -470,8 +475,7 @@ public class EventsFragment extends Fragment {
             @Override
             public void onFailure(@NonNull Exception e) {
                 // TODO: Implement default avatar
-                myAssert(false,
-                        "Failed to get user avatar for " + user.getInvitedInEventUserName() + " uri" +
+                myAssert(false, "Failed to get user avatar for " + user.getInvitedInEventUserName() + " uri" +
                                 ": " + user.getInvitedInEventUserID() + ".jpg" +
                                 " Error: " + e.getMessage());
 //                avatar = defaultAvatar();
@@ -560,6 +564,8 @@ public class EventsFragment extends Fragment {
             checkBoxEventIsGoing = itemView.findViewById(R.id.event_item_checkBox_is_going);
             checkBoxEventIsGoing.setChecked(false);
             buttonGotoEvent = itemView.findViewById(R.id.event_item_button_goto_event);
+//            buttonGotoEvent.setEnabled(false);
+            buttonGotoEvent.setBackgroundColor(R.drawable.rounded_corners_butten_gray);
             buttonDeleteEvent = itemView.findViewById(R.id.event_item_button_delete_event);
             buttonEditEvent = itemView.findViewById(R.id.Edit_Event);
             constraintLayoutEventInfo = itemView.findViewById(R.id.event_item_info_constraint);

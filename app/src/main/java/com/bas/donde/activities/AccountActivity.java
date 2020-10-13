@@ -18,177 +18,222 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.bas.donde.BuildConfig;
 import com.bas.donde.R;
-import com.google.android.gms.tasks.OnCompleteListener;
+import com.bas.donde.models.UserModel;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.Query;
-import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.squareup.picasso.Picasso;
 
 import java.util.HashMap;
+import java.util.Map;
+
+import static com.bas.donde.utils.CodeHelpers.myAssert;
 
 
 public class AccountActivity extends Activity {
-    private final String TAG = "tagAccountActivity";
-    FirebaseAuth fAuth;
-    StorageReference storageReference;
-    Button buttonChangeProfilePic;
-    ImageView profileImage;
-    Uri DEFAULT_PROFILE_PIC_URI;
+    // Constants
+    private final String TAG = "logtagAccountActivity";
+    private Uri DEFAULT_AVATAR_RES_URI;
+    private String DEFAULT_AVATAR_STORAGE_STRING = "avatar2.png";
+
+//    private final Uri DEFAULT_AVATAR_STORAGE_URI = Uri.parse(DEFAULT_AVATAR_STORAGE_STRING);
+
+
+    // Firebase
+    private FirebaseStorage firebaseStorage;
+    private FirebaseUser firebaseUser;
+    private FirebaseFirestore firebaseFirestore;
+    private CollectionReference usersCollectionRef;
+
+    // Views
+    private Button buttonChangeProfilePic;
+    private ImageView profileImage;
     private Button buttonSave;
     private Button buttonCancel;
     private Button buttonDeleteAccount;
     private EditText textViewName;
     private ProgressBar progressBar;
-    private FirebaseAuth firebaseAuth;
-    private FirebaseFirestore firebaseFirestore;
-    private CollectionReference usersCollectionRef;
+
+    // Data
     private String userID;
     private String userEmail;
-    private String userProfilePicURL;
-    private boolean hasProfilePicSet;
+    private String userName;
+    private boolean didComeFromRegister;
+    private String initialUserProfilePicURI;
+    private String updatedUserProfilePicURI;
+    private Uri uploadedPhoto;
 
-    private boolean didSetProfilePic = false;
-
-
-//            parse("android.resource://com.example.donde/drawable/avatar2.png");
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.d(TAG, "in onCreate");
+
+
         setContentView(R.layout.activity_account);
         initializeFields();
-        initializeListeners();
-        retrieveAccountDetails();
-        // TODO: Default pic shoud not upload on account edit
-        DEFAULT_PROFILE_PIC_URI=(new Uri.Builder())
-                .scheme(ContentResolver.SCHEME_ANDROID_RESOURCE)
-                .authority(getResources().getResourcePackageName(R.drawable.avatar2))
-                .appendPath(getResources().getResourceTypeName(R.drawable.avatar2))
-                .appendPath(getResources().getResourceEntryName(R.drawable.avatar2))
-                .build();
-//        setProfilePic();
+        didComeFromRegister =
+                getIntent().getBooleanExtra(getString(R.string.arg_did_come_from_register_intent)
+                        , true);
+        if (didComeFromRegister) {
+            initializeFromRegister();
+
+        } else {
+            initializeFromUpdate();
+        }
 
     }
-
-
-    private void retrieveAccountDetails() {
-        // details are loading
-        progressBar.setVisibility(View.VISIBLE);
-        buttonSave.setEnabled(false);
-        // TODO: set other buttons as enabled/disabled
-
-        // check if user with given ID exists
-        CollectionReference usersRef = firebaseFirestore.collection(getString(R.string.ff_Users));
-        Query userExistsQuery = usersRef.whereEqualTo(getString(R.string.ff_Users_userID), userID);
-        userExistsQuery.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-
-            @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                if (task.isSuccessful()) {
-                    if (BuildConfig.DEBUG && task.getResult().size() > 1) {
-                        throw new AssertionError("More than one user exists with given ID");
-                    } else if (task.getResult().size() == 1) {
-                        DocumentSnapshot userDocument = task.getResult().getDocuments().get(0);
-                        String userName =
-                                userDocument.getString(getString(R.string.ff_Users_userName));
-                        textViewName.setText(userName);
-
-//                        hasProfilePicSet = userDocument.getString(getString(R.string.ff_Users_userProfilePicURL)) != null;
-//                        if (!hasProfilePicSet) {
-//                            setProfilePic();
-//                        }
-                    }
-                } else {
-                    Toast.makeText(AccountActivity.this, String.format("Error retrieving user details: %s", task.getException().getMessage()), Toast.LENGTH_SHORT).show();
-                }
-                // details finished loading
-                progressBar.setVisibility(View.INVISIBLE);
-                buttonSave.setEnabled(true);
-            }
-        });
-    }
-
 
     private void initializeFields() {
+        Log.d(TAG, "in initializeFields");
+
+        initializeViews();
+        initializeFirebaseFields();
+        initializeDataFields();
+    }
+
+    private void initializeViews() {
+        buttonChangeProfilePic = findViewById(R.id.account_change_profile_pic);
+        profileImage = findViewById(R.id.account_profile_pic);
         buttonSave = findViewById(R.id.account_button_save);
         buttonCancel = findViewById(R.id.account_button_cancel);
         buttonDeleteAccount = findViewById(R.id.account_button_delete_account);
         textViewName = findViewById(R.id.account_editText_name);
         progressBar = findViewById(R.id.account_progressBar);
-        firebaseAuth = FirebaseAuth.getInstance();
-        firebaseFirestore = FirebaseFirestore.getInstance();
-        usersCollectionRef = firebaseFirestore.collection(getString(R.string.ff_Users));
-        userID = firebaseAuth.getCurrentUser().getUid();
-        userEmail = firebaseAuth.getCurrentUser().getEmail();
-        if (firebaseAuth.getCurrentUser() != null) {
-            buttonDeleteAccount.setVisibility(View.VISIBLE);
-        }
-        fAuth = FirebaseAuth.getInstance();
-        buttonChangeProfilePic = findViewById(R.id.change_profile_pic);
-        profileImage = findViewById(R.id.profile_pic);
-        storageReference = FirebaseStorage.getInstance().getReference();
-        StorageReference profileRef = storageReference.child("users/"+fAuth.getCurrentUser().getUid()+".jpg");
-        profileRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-            @Override
-            public void onSuccess(Uri uri) {
-                Picasso.get().load(uri).into(profileImage);
-            }
-        });
+        setButtonDeleteAccountOnClick();
+        setSaveButtonOnClick();
     }
 
-    private void initializeListeners() {
-        setButtonSaveOnClick();
-        setButtonCancelOnClick();
-        setButtonDeleteAccountOnClick();
+
+    private void initializeFirebaseFields() {
+        Log.d(TAG, "in initializeFirebaseFields");
+
+        myAssert(FirebaseAuth.getInstance().getCurrentUser() != null, "User in null upon account " +
+                "activity");
+        firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+        firebaseFirestore = FirebaseFirestore.getInstance();
+        usersCollectionRef = firebaseFirestore.collection(getString(R.string.ff_Users));
+        firebaseStorage = FirebaseStorage.getInstance();
+
+    }
+
+    private void initializeDataFields() {
+
+        Log.d(TAG, "in initializeDataFields");
+
+        userID = firebaseUser.getUid();
+        userEmail = firebaseUser.getEmail();
+        userName = "";
+
+        DEFAULT_AVATAR_RES_URI = new Uri.Builder()
+                .scheme(ContentResolver.SCHEME_ANDROID_RESOURCE)
+                .authority(getResources().getResourcePackageName(R.drawable.avatar2))
+                .appendPath(getResources().getResourceTypeName(R.drawable.avatar2))
+                .appendPath(getResources().getResourceEntryName(R.drawable.avatar2))
+                .build();
+    }
+
+
+    private void initializeFromRegister() {
+        Log.d(TAG, "in initializeFromRegister");
+//        buttonCancel.setVisibility(View.INVISIBLE);
+//        buttonDeleteAccount.setVisibility(View.INVISIBLE);
+        buttonChangeProfilePic.setText("Add profile picture");
+        initialUserProfilePicURI = DEFAULT_AVATAR_STORAGE_STRING;
+        setChangeProfilePicButtonOnClick();
+    }
+
+
+    private void initializeFromUpdate() {
+        Log.d(TAG, "in initializeFromUpdate");
+
+        // TODO show progress bar
+        buttonCancel.setVisibility(View.VISIBLE);
+        buttonDeleteAccount.setVisibility(View.VISIBLE);
+        buttonChangeProfilePic.setText("Change profile picture");
+        usersCollectionRef.document(userID).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+            @Override
+            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                userName = documentSnapshot.getString(getString(R.string.ff_Users_userName));
+                initialUserProfilePicURI = documentSnapshot.getString(getString(R.string.ff_Users_userProfilePicURL));
+                showName();
+                showProfilePic();
+
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Toast.makeText(AccountActivity.this, "Failed retrieving data", Toast.LENGTH_SHORT).show();
+                gotoMainActivity();
+            }
+        });
+        setChangeProfilePicButtonOnClick();
+        setCancelButtonOnClick();
+
+    }
+
+    private void setChangeProfilePicButtonOnClick() {
+        Log.d(TAG, "in setChangeProfilePicButtonOnClick");
         buttonChangeProfilePic.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                didSetProfilePic = true;
-                //open gallery
                 Intent openGalleryIntent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
                 startActivityForResult(openGalleryIntent, 1000);
             }
         });
-
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if(requestCode == 1000){
-            if(resultCode == Activity.RESULT_OK){
-                Uri imageUri = data.getData();
-//                profileImage.setImageURI(imageUri);
-                uploadImageToFirebase(imageUri);
+
+    private void showName() {
+        Log.d(TAG, "in showName with name: " + userName);
+
+        textViewName.setText(userName);
+    }
+
+    private void showProfilePic() {
+        Log.d(TAG, "in showProfilePic");
+        StorageReference userStorageRef = firebaseStorage.getReference().child(initialUserProfilePicURI);
+
+        userStorageRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+            @Override
+            public void onSuccess(Uri uri) {
+                Picasso.get().load(uri).into(profileImage);
             }
-        }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Toast.makeText(AccountActivity.this,
+                        "Loading profile pic failed with error: " + e.getMessage(),
+                        Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
-    private void uploadImageToFirebase(Uri imageUri) {
-        //upload image to firebase storage
-//        userProfilePicURL = "avatar2.png";
-        setProfilePic(imageUri);
-    }
+    private void setSaveButtonOnClick() {
+        Log.d(TAG, "in setSaveButtonOnClick");
 
-    private void setButtonCancelOnClick() {
-        buttonCancel.setOnClickListener(new View.OnClickListener() {
+        buttonSave.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                DocumentReference userRef = usersCollectionRef.document(userID);
+                if (areFieldsValid()) {
+                    if (didComeFromRegister) {
+                        saveNewUser(userRef);
+                    } else {
+                        updateExistingUser(userRef);
+                    }
 
-                didSetProfilePic = false;
-                gotoMainActivity();
+                }
+
             }
         });
     }
@@ -218,10 +263,8 @@ public class AccountActivity extends Activity {
                 });
 
                 // delete user from Events collection
-
-
                 // delete user from authentication
-                firebaseAuth.getCurrentUser().delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+                firebaseUser.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
                         Log.d(TAG, "Successfully deleted user from auth");
@@ -239,89 +282,114 @@ public class AccountActivity extends Activity {
 
     }
 
-    private void setProfilePic(Uri imageUri) {
-        Toast.makeText(this, "`adding pic", Toast.LENGTH_SHORT).show();
-        StorageReference fileRef = storageReference.child(fAuth.getCurrentUser().getUid() + ".jpg");
-        fileRef.putFile(imageUri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-            @Override
-            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                fileRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                    @Override
-                    public void onSuccess(Uri uri) {
-                        Picasso.get().load(uri).into(profileImage);
-                        userProfilePicURL = fAuth.getCurrentUser().getUid() + ".jpg";
-                        Toast.makeText(AccountActivity.this, "`added  pic", Toast.LENGTH_SHORT).show();
-                    }
+    private void saveNewUser(DocumentReference userRef) {
+        Log.d(TAG, "in saveNewUser");
+        String userProfilePicUrl;
+        if (uploadedPhoto != null) {
+            saveProfilePicToStorage(uploadedPhoto);
+            userProfilePicUrl = userID;
 
-                    ;
-                });
+        } else {
+            userProfilePicUrl = initialUserProfilePicURI;
+        }
+        userName = textViewName.getText().toString();
+        UserModel newUserModel = new UserModel(userID,userName, userEmail,
+                userProfilePicUrl);
+        userRef.set(newUserModel).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                onUserSaveSuccess();
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
-                Toast.makeText(AccountActivity.this, "Failed", Toast.LENGTH_SHORT);
+                onUserSaveFailure(e);
             }
         });
     }
 
-
-    private void setButtonSaveOnClick() {
-        buttonSave.setOnClickListener(new View.OnClickListener() {
+    private void updateExistingUser(DocumentReference userRef) {
+        Map<String, Object> userUpdatesMap = new HashMap<>();
+        userUpdatesMap.put(getString(R.string.ff_Users_userName), textViewName.getText().toString());
+        if (uploadedPhoto != null) {
+            saveProfilePicToStorage(uploadedPhoto);
+            String userProfilePicUrl = userID;
+            userUpdatesMap.put(getString(R.string.ff_Users_userProfilePicURL), userProfilePicUrl);
+        }
+        userRef.update(userUpdatesMap).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
-            public void onClick(View v) {
-
-                String sUserName = textViewName.getText().toString();
-                if (isSaveFieldsValid(sUserName)) {
-                    //show progress
-                    progressBar.setVisibility(View.VISIBLE);
-                    // TODO: check if this finishes before saving user
-                    // get user ID for current user
-                    HashMap<String, Object> userMap = new HashMap<>();
-                    userMap.put(getString(R.string.ff_Users_userID), userID);
-                    userMap.put(getString(R.string.ff_Users_userEmail), userEmail);
-                    userMap.put(getString(R.string.ff_Users_userName), sUserName);
-                    userMap.put("userProfilePicURL", userProfilePicURL);
-                    userMap.put("userTimeCreatedProfile", Timestamp.now());
-                    usersCollectionRef.document(userID).set(userMap).addOnCompleteListener(new OnCompleteListener<Void>() {
-                        @Override
-                        public void onComplete(@NonNull Task<Void> task) {
-                            // account save successful
-                            if (task.isSuccessful()) {
-                                Toast.makeText(AccountActivity.this, "Account updated successfully",
-                                        Toast.LENGTH_LONG).show();
-                                gotoMainActivity();
-                            } else {
-                                // show error to user
-                                String errorMessage = task.getException().getMessage();
-                                Toast.makeText(AccountActivity.this, "Error: " + errorMessage,
-                                        Toast.LENGTH_LONG).show();
-                            }
-                            // after progress we don't want to see progress bar
-                            progressBar.setVisibility(View.INVISIBLE);
-                        }
-                    });
-
-
-                }
-
+            public void onSuccess(Void aVoid) {
+                onUserSaveSuccess();
             }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                onUserSaveFailure(e);
+            }
+
         });
     }
 
-    /*
-    returns true if the login fields are valid (e.g. if they are not empty etc.)
-     */
-    private boolean isSaveFieldsValid(String userName) {
-        boolean isNameEmpty = TextUtils.isEmpty(userName);
+
+    private void onUserSaveSuccess() {
+        Toast.makeText(AccountActivity.this, "User created successfully",
+                Toast.LENGTH_SHORT).show();
+        gotoMainActivity();
+    }
+
+    private void onUserSaveFailure(Exception e) {
+        Toast.makeText(AccountActivity.this, "User could not be created, " +
+                "error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+    }
+
+    private boolean areFieldsValid() {
+        boolean isNameEmpty = TextUtils.isEmpty(textViewName.getText());
+//        boolean isProfilePicURLEmpty = TextUtils.isEmpty(initialUserProfilePicURI);
         return !isNameEmpty;
     }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
 
+    private void setCancelButtonOnClick() {
+        buttonCancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                gotoMainActivity();
 
+            }
+        });
     }
+
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 1000) {
+            if (resultCode == Activity.RESULT_OK) {
+                uploadedPhoto = data.getData();
+                Picasso.get().load(uploadedPhoto).into(profileImage);
+
+            }
+        }
+    }
+
+
+    private void saveProfilePicToStorage(Uri profilePicToUpload) {
+        Log.d(TAG, "in saveProfilePicToStorage");
+        firebaseStorage.getReference().child(userID).putFile(profilePicToUpload).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                updatedUserProfilePicURI = userID;
+                Toast.makeText(AccountActivity.this, "Profile picture uploaded",
+                        Toast.LENGTH_SHORT).show();
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Toast.makeText(AccountActivity.this, "Profile Picture couldn't upload", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
 
     private void gotoLoginActivity() {
         Intent loginIntent = new Intent(AccountActivity.this, LoginActivity.class);
@@ -336,4 +404,6 @@ public class AccountActivity extends Activity {
         // prevent option to back-click back to here
         finish();
     }
+
+
 }

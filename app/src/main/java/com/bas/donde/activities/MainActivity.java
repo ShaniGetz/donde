@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Toolbar;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -98,8 +97,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void gotoAccount() {
-        Intent intent = new Intent(MainActivity.this, AccountActivity.class);
-        startActivity(intent);
+        Intent accountIntent = new Intent(MainActivity.this, AccountActivity.class);
+        accountIntent.putExtra(getString(R.string.arg_did_come_from_register_intent), false);
+
+        startActivity(accountIntent);
         // finish() makes sure user can't press back button and get here
 //        finish();
     }

@@ -18,20 +18,21 @@
             android:id="@+id/create_progressBar"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:layout_marginBottom="5dp"
+            android:indeterminate="true"
+            android:indeterminateTint="@color/white"
+            android:translationZ="150dp"
             android:visibility="gone"
-            app:layout_constraintBottom_toTopOf="@id/create_editText_event_name"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintBottom_toBottomOf="@id/create_button_create"
+            app:layout_constraintEnd_toEndOf="@id/create_button_create"
+            app:layout_constraintStart_toStartOf="@id/create_button_create"
+            app:layout_constraintTop_toTopOf="@id/create_button_create" />
 
 
         <EditText
             android:id="@+id/create_editText_event_name"
             android:layout_width="260dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="20dp"
             android:layout_marginBottom="10dp"
             android:background="@drawable/rounded_corners_info"
             android:gravity="center_horizontal"
@@ -227,7 +228,7 @@
             android:layout_marginBottom="10dp"
             android:background="@drawable/rounded_corners_info"
             android:gravity="center"
-            android:hint="your.friend@gmail.com"
+            android:hint="invite.friend@gmail.com"
             android:imeOptions="actionDone"
             android:inputType="textEmailAddress"
             android:textAlignment="center"

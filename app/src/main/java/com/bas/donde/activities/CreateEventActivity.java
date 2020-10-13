@@ -1,6 +1,7 @@
 package com.bas.donde.activities;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
@@ -21,6 +22,7 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
@@ -32,6 +34,7 @@ import android.widget.ProgressBar;
 import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.TimePicker;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -43,6 +46,7 @@ import com.bas.donde.R;
 import com.bas.donde.models.EventModel;
 import com.bas.donde.models.InvitedInEventUserModel;
 import com.bas.donde.models.InvitedInUserEventModel;
+import com.bas.donde.models.UserModel;
 import com.bas.donde.utils.map_utils.CustomMapTileProvider;
 import com.bas.donde.utils.map_utils.OfflineTileProvider;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -287,10 +291,14 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
         autoCompleteInvitedUsers.setAdapter(autoCompleteInvitedUsersAdapter);
         autoCompleteInvitedUsers.setThreshold(1);
         autoCompleteInvitedUsers.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @SuppressLint("NewApi")
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 String invitedUser = parent.getItemAtPosition(position).toString();
                 addInvitedUserToList(invitedUser);
+                hideSoftKeyboard();
+
+
             }
         });
         autoCompleteInvitedUsers.setOnEditorActionListener(new TextView.OnEditorActionListener() {
@@ -304,6 +312,12 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
             }
         });
 
+    }
+
+    private void hideSoftKeyboard() {
+        InputMethodManager in =
+                ((InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE));
+        in.hideSoftInputFromWindow(getWindow().getAttributes().token, 0);
     }
 
     /*
@@ -588,6 +602,7 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
         buttonCreateEvent.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                showProgressBar();
 
                 boolean didSetFields = retrieveAndSetEventFields();
                 if (didSetFields) {
@@ -615,6 +630,7 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
         Intent eventsIntent = new Intent(CreateEventActivity.this, MainActivity.class);
         startActivity(eventsIntent);
         // don't allow going back to creating event
+        hideProgressBar();
         finish();
 
     }
@@ -710,9 +726,19 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
         writeBatch.set(invitedInUserEventsRef.document(newEventId), newInvitedInUserEventModel);
     }
 
+    private void showProgressBar() {
+        buttonCreateEvent.setText("");
+        progressBar.setVisibility(View.VISIBLE);
+    }
+
+    private void hideProgressBar() {
+        progressBar.setVisibility(View.GONE);
+        buttonCreateEvent.setText("Create Event");
+
+    }
+
     private void createEvent() {
 
-        progressBar.setVisibility(View.VISIBLE);
 
         EventModel newEventModel = createNewEventModel();
 
@@ -744,9 +770,8 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
                     ffEventInvitedUserIDs.add(invitedInEventUserId);
 
                 }
-                eventCreateBatch.update(documentReference,
-                        App.getRes().getString(R.string.ff_Events_eventInvitedUserIDs),
-                        ffEventInvitedUserIDs);
+
+                eventCreateBatch.update(documentReference, App.getRes().getString(R.string.ff_Events_eventInvitedUserIDs), ffEventInvitedUserIDs);
                 eventCreateBatch.commit().addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
@@ -762,8 +787,7 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
                             public void onComplete(@NonNull Task<Void> task) {
                                 gotoEvents();
                             }
-                        }); // TODO: Handle
-                        // failure
+                        }); // TODO: Handle failure
                     }
                 });
 
@@ -779,7 +803,6 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
             }
         });
 
-        progressBar.setVisibility(View.GONE);
 
     }
 
@@ -790,11 +813,11 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
     }
 
 
-//    private void addEventToInvitedUser(String invitedUserId, String eventId) {
-//
-//        usersCollectionRef.document(invitedUserId).update("userInvitedEventIDs",
-//                FieldValue.arrayUnion(eventId));
-//    }
+    private void addEventToInvitedUser(String invitedUserId, String eventId) {
+
+        usersCollectionRef.document(invitedUserId).update("userInvitedEventIDs",
+                FieldValue.arrayUnion(eventId));
+    }
 
     private boolean retrieveAndSetEventFields() {
         String toastErrorMessage = "";
@@ -883,7 +906,6 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
     }
 
     private boolean setEventCreatorName() {
-        this.progressBar.setVisibility(View.VISIBLE);
         currUserDocumentRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
             public void onSuccess(DocumentSnapshot documentSnapshot) {
@@ -904,8 +926,6 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
         }).addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                progressBar.setVisibility(View.GONE);
-
             }
         });
         return true;
@@ -945,32 +965,26 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
             Query userByEmailQuery = usersRef.whereEqualTo(getString(R.string.ff_Users_userEmail)
                     , userEmail);
 
-            progressBar.setVisibility(View.VISIBLE);
             userByEmailQuery.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                 @Override
                 public void onComplete(@NonNull Task<QuerySnapshot> task) {
                     if (task.isSuccessful()) {
                         if (task.getResult().size() == 1) {
                             DocumentSnapshot invitedUserDoc = task.getResult().getDocuments().get(0);
-                            String invitedUserID = invitedUserDoc.getId();
-                            String invitedUserEmail =
-                                    invitedUserDoc.getString(getString(R.string.ff_Users_userEmail));
-                            String invitedUserName =
-                                    invitedUserDoc.getString(getString(R.string.ff_Users_userName));
-                            // TODO: retrieve
-//                            String invitedUserProfilePicURL = invitedUserDoc.getString(
-//                                    getString(R.string.ff_InvitedInEventUser_));
+                            UserModel userModel = invitedUserDoc.toObject(UserModel.class);
                             Log.d(TAG, String.format("adding user to ffInvited: %s",
-                                    invitedUserEmail));
-                            ffInvitedUserInEventModels.add(new InvitedInEventUserModel(invitedUserID,
-                                    invitedUserName, invitedUserEmail));
+                                    userModel.getUserName()));
+                            ffInvitedUserInEventModels.add(new InvitedInEventUserModel(userModel.getUserID(),
+                                    userModel.getUserName(), userModel.getUserEmail(), userModel.getUserStatus(), userModel.getUserLastLocation(), userModel.getUserProfilePicURL()));
 
                         } else if (task.getResult().size() == 0) {
-                            Log.d("CreateEventActivity", String.format("No user found" + " with email %s", userEmail));
+                            Toast.makeText(CreateEventActivity.this, String.format("No user " +
+                                    "found" + " with " + "email %s", userEmail), Toast.LENGTH_SHORT);
                         } else if (task.getResult().size() > 1) {
-                            Log.d("CreateEventActivity", String.format("Found more " + "than one user with email %s", userEmail));
+                            Toast.makeText(CreateEventActivity.this,
+                                    String.format("Found more " + "than one user with email %s",
+                                            userEmail), Toast.LENGTH_SHORT);
                         }
-                        progressBar.setVisibility(View.GONE);
 
                     } else {
                         Log.d("CreateEventActivity", String.format("Error processing " +

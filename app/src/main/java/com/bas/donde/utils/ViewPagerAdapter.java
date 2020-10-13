@@ -19,7 +19,6 @@ public class ViewPagerAdapter extends FragmentPagerAdapter {
 
     public ViewPagerAdapter(FragmentManager fm, String eventID, int position) {
         super(fm);
-
         this.eventID = eventID;
         this.position = position;
 
@@ -32,7 +31,6 @@ public class ViewPagerAdapter extends FragmentPagerAdapter {
         eventIDBundle.putString(App.getRes().getString(R.string.arg_event_id), eventID);
         eventIDBundle.putInt(App.getRes().getString(R.string.arg_position), this.position);
         switch (position) {
-
             case 0:
                 EventInfoFragment infoFragment = new EventInfoFragment();
                 infoFragment.setArguments(eventIDBundle);
@@ -48,6 +46,6 @@ public class ViewPagerAdapter extends FragmentPagerAdapter {
 
     @Override
     public int getCount() {
-        return 3;
+        return 2;
     }
 }
