@@ -57,12 +57,13 @@ public class RegisterActivity extends Activity {
                 Log.d("TAG", "sdfgsdg");
                 if (isHidden) {
                     editTextPassword.setTransformationMethod(null);
-                    showHideBtn.setBackgroundResource(R.drawable.ic_eye_visibility_off_24);
+                    showHideBtn.setBackgroundResource(R.drawable.ic_baseline_remove_red_eye_24);
                     isHidden = false;
                 } else {
                     isHidden = true;
                     editTextPassword.setTransformationMethod(new PasswordTransformationMethod());
-                    showHideBtn.setBackgroundResource(R.drawable.ic_baseline_remove_red_eye_24);
+                    showHideBtn.setBackgroundResource(R.drawable.ic_eye_visibility_off_24);
+
                 }
             }
         });
