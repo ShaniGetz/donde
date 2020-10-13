@@ -708,6 +708,7 @@ public class EditEventActivity extends AppCompatActivity implements OnMapReadyCa
         boolean validLongitude = (longitude >= -180) && (longitude <= 180);
         if (validLatitude && validLongitude) {
             this.ffEventLocation = new GeoPoint(latitude, longitude);
+            eventModel.setEventLocation(this.ffEventLocation);
             eventsCollectionRef.document(eventModel.getEventID()).update("eventLocation", this.ffEventLocation);
             return true;
         } else {
@@ -718,6 +719,7 @@ public class EditEventActivity extends AppCompatActivity implements OnMapReadyCa
         boolean nameNotEmpty = !TextUtils.isEmpty(eventName);
         if (nameNotEmpty) {
             this.ffEventName = eventName;
+            eventModel.setEventName(eventName);
             eventsCollectionRef.document(eventModel.getEventID()).update("eventName", this.ffEventName);
             return true;
         } else {
@@ -728,6 +730,7 @@ public class EditEventActivity extends AppCompatActivity implements OnMapReadyCa
         boolean descriptionNotEmpty = !TextUtils.isEmpty(eventDescription);
         if (descriptionNotEmpty) {
             this.ffEventDescription = eventDescription;
+            eventModel.setEventDescription(eventDescription);
             eventsCollectionRef.document(eventModel.getEventID()).update("eventDescription", this.ffEventDescription);
             return true;
         } else {
@@ -738,6 +741,7 @@ public class EditEventActivity extends AppCompatActivity implements OnMapReadyCa
         boolean nameNotEmpty = !TextUtils.isEmpty(eventLocationName);
         if (nameNotEmpty) {
             this.ffEventLocationName = eventLocationName;
+            eventModel.setEventLocationName(eventLocationName);
             eventsCollectionRef.document(eventModel.getEventID()).update("eventLocationName", this.ffEventLocationName);
             return true;
         } else {
@@ -788,6 +792,7 @@ public class EditEventActivity extends AppCompatActivity implements OnMapReadyCa
             date = formatter.parse(String.format("%s,%s", textViewEventDate.getText(),
                     textViewEventTime.getText()));
             this.ffEventTimeStarting = date;
+            eventModel.setEventTimeStarting(date);
             eventsCollectionRef.document(eventModel.getEventID()).update("eventTimeStarting", this.ffEventTimeStarting);
 
             return true;
