@@ -41,8 +41,10 @@ import com.bas.donde.models.InvitedInEventUserModel;
 import com.bas.donde.models.InvitedInUserEventModel;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -200,7 +202,7 @@ public class EventsFragment extends Fragment {
                         holder.textViewEventCreatorName.setText(String.format("Creator name: %s",
                                 model.getInvitedInUserEventCreatorName()));
                         holder.textViewEventLocationName.setText(String.format(model.getInvitedInUserEventLocationName()));
-                        holder.textViewEventTimeStarting.setText("Starting at "+ timeFormatting(model.getInvitedInUserEventTimeStarting().toString()));
+                        holder.textViewEventTimeStarting.setText("Starting at " + timeFormatting(model.getInvitedInUserEventTimeStarting().toString()));
 
                         //////
 
@@ -313,61 +315,15 @@ public class EventsFragment extends Fragment {
 
                 startActivity(eventIntent);
 
-//
-//                DocumentReference eventRef =
-//                        firebaseFirestore.collection(getString(R.string.ff_Events)).document(model.getInvitedInUserEventId());
-//                eventRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-//                    @Override
-//                    public void onSuccess(DocumentSnapshot documentSnapshot) {
-//                        EventModel eventModel =
-//                                documentSnapshot.toObject(EventModel.class);
-//                        CollectionReference invitedInEventUsersCollectionRef =
-//                                eventRef.collection(getString(R.string.ff_InvitedInEventUsers));
-//                        initializeInvitedUsersList(invitedInEventUsersCollectionRef, currUserID,
-//                                position, eventModel);
-
-
-//                        Intent eventIntent = new Intent(getActivity(), EventActivity.class);
-//
-//                        eventIntent.putExtra(getString(R.string.arg_position), position);
-//                        // gson helps pass objects
-//                        Gson gson = new Gson();
-//                        String eventJson = gson.toJson(eventModel);
-//                        eventIntent.putExtra(getString(R.string.arg_event_model), eventJson);
-//                        eventIntent.putExtra(getString(R.string.arg_event_id),
-//                                eventModel.getEventID());
-//                        startActivity(eventIntent);
-//                    }
-//                });
-//
-//            }
-//        });
             }
         });
     }
 
 
-//        userDocumentRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-//            @Override
-//            public void onSuccess(DocumentSnapshot documentSnapshot) {
-////                userInvitedEventIDs = (List<String>) documentSnapshot.get(getString(R.string.ff_users_userInvitedEventIDs));
-////                Log.d(TAG, String.format("userInvitedEventIDs size is %s", userInvitedEventIDs.size()));
-//
-//
-////                Query eventsQuery =
-////                        eventsCollectionRef.whereIn(FieldPath.documentId(), userInvitedEventIDs).orderBy(
-////                                getString(R.string.ff_Events_eventTimeStarting));
-//                // TODO: Fix to time starting
-
-
-//        });
-
-
-//    }
-
     private void deleteEventFromInvitedUsers(InvitedInUserEventModel model,
-                                             CollectionReference invitedInEventUsersRef) {
-
+                                             CollectionReference invitedInEventUsersRef,
+                                             EventsViewHolder holder) {
+        Log.d(TAG, "in deleteEventFromInvitedUsers");
         WriteBatch usersDeleteBatch = firebaseFirestore.batch();
 
         CollectionReference usersRef =
@@ -377,18 +333,25 @@ public class EventsFragment extends Fragment {
             public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
                 for (DocumentSnapshot userInEventSnapshot : queryDocumentSnapshots) {
                     String userInEventID = userInEventSnapshot.getId();
-                    // TODO: show loading bar and handle onFailure
                     usersDeleteBatch.delete(usersRef.document(userInEventID).collection(getString(R.string.ff_InvitedInUserEvents)).document(model.getInvitedInUserEventId()));
                 }
                 usersDeleteBatch.commit().addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
 
-
                         //TODO: Should be done with cloud functions with node.js
                         // first delete subcollection
-                        deleteEventSubcollection(model, invitedInEventUsersRef);
+                        deleteEventSubcollection(model, invitedInEventUsersRef, holder);
 
+
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        holder.hideProgressBar();
+                        Log.d(TAG, "failed to delete event from invited users. Error: " + e.getMessage());
+                        Toast.makeText(getContext(), "Failed to delete event " + model.getInvitedInUserEventId(),
+                                Toast.LENGTH_SHORT).show();
 
                     }
                 });
@@ -404,13 +367,13 @@ public class EventsFragment extends Fragment {
         holder.buttonDeleteEvent.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                holder.showProgressBar();
                 DocumentReference eventDocumentRef = eventsCollectionRef.document(model.getInvitedInUserEventId());
                 CollectionReference invitedInEventUsersRef =
                         eventDocumentRef.collection(getString(R.string.ff_InvitedInEventUsers));
-
+                Log.d(TAG, "Attempting to delete event " + model.getInvitedInUserEventName());
                 // delete event from invited users
-                deleteEventFromInvitedUsers(model, invitedInEventUsersRef);
+                deleteEventFromInvitedUsers(model, invitedInEventUsersRef, holder);
 
 
             }
@@ -420,7 +383,8 @@ public class EventsFragment extends Fragment {
 
 
     private void deleteEventSubcollection(InvitedInUserEventModel model,
-                                          CollectionReference invitedInEventUsersRef) {
+                                          CollectionReference invitedInEventUsersRef,
+                                          EventsViewHolder holder) {
         WriteBatch deleteEventSubcollectionBatch = firebaseFirestore.batch();
 
         invitedInEventUsersRef.get().addOnSuccessListener(
@@ -434,6 +398,13 @@ public class EventsFragment extends Fragment {
                             @Override
                             public void onSuccess(Void aVoid) {
                                 deleteEventDocument(model);
+                            }
+                        }).addOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+                                // TODO: Try to perform all writes and reads together in a
+                                //  transaction
+                                holder.hideProgressBar();
                             }
                         });
                     }
@@ -457,7 +428,7 @@ public class EventsFragment extends Fragment {
 
 
                 Log.d("Event MAp Fragment", String.format("Could" +
-                                " not delete event. Error: %s", e.getMessage()));
+                        " not delete event. Error: %s", e.getMessage()));
 
             }
         });
