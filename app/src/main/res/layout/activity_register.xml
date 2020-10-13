@@ -99,6 +99,7 @@
         android:textColorHint="@color/gray_dark_dark"
         android:textColorLink="@color/pink"
         android:textSize="8pt"
+        android:inputType="textPassword"
         app:layout_constraintBottom_toTopOf="@id/register_button_register"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
