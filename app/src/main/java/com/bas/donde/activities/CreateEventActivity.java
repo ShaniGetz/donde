@@ -767,7 +767,7 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
             }
         });
 
-        progressBar.setVisibility(View.INVISIBLE);
+        progressBar.setVisibility(View.GONE);
 
     }
 
@@ -892,7 +892,7 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
         }).addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                progressBar.setVisibility(View.INVISIBLE);
+                progressBar.setVisibility(View.GONE);
 
             }
         });
@@ -956,7 +956,7 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
                         } else if (task.getResult().size() > 1) {
                             Log.d("CreateEventActivity",  String.format("Found more " + "than one user with email %s", userEmail));
                         }
-                        progressBar.setVisibility(View.INVISIBLE);
+                        progressBar.setVisibility(View.GONE);
 
                     } else {
                         Log.d("CreateEventActivity",  String.format("Error processing " +
