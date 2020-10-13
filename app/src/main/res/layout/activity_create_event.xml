@@ -138,7 +138,8 @@
             android:queryHint="Search for event location"
             android:iconifiedByDefault="false"
             app:iconifiedByDefault="false"
-                android:layout_marginBottom="10dp"/>
+                android:layout_marginBottom="10dp"
+                app:theme="@style/AppTheme.Toolbar"/>
 
         <!--TODO: make map height reactive (not a fixed height)-->
 
