@@ -491,7 +491,7 @@ public class EditEventActivity extends AppCompatActivity implements OnMapReadyCa
                         @Override
                         public void run() {
                             {
-//                                upudate();
+                                update();
                                 Intent eventsIntent = new Intent(EditEventActivity.this, MainActivity.class);
                                 startActivity(eventsIntent);
                             }
@@ -504,19 +504,19 @@ public class EditEventActivity extends AppCompatActivity implements OnMapReadyCa
         });
     }
     private void update(){
-
-//        for (InvitedInEventUserModel invitedInEventUserModel : ffInvitedUserInEventModels) {
-//            Log.d(TAG, "Entering addInvitedInEventUser");
-//            addInvitedInEventUser(invitedInEventUsersRef, invitedInEventUserModel);
-//            // add event to invited users
-//            String invitedInEventUserId = invitedInEventUserModel.getInvitedInEventUserID();
-//            CollectionReference invitedInUserEventsRef =
-//                    usersCollectionRef.document(invitedInEventUserId).collection(getString(R.string.ff_InvitedInUserEvents));
-//            Log.d(TAG, "Entering addInvitedInUserEvent");
-//            addInteractedEmailsToUser(usersCollectionRef.document(invitedInEventUserId));
-//            addInvitedInUserEvent(eventModel.getEventID(), eventModel, invitedInUserEventsRef);
-//        }
+        CollectionReference invitedInEventUsersRef = eventsCollectionRef.document(eventModel.getEventID()).collection("InvitedInEventUsers");
+        for (InvitedInEventUserModel invitedInEventUserModel : ffInvitedUserInEventModels) {
+            Log.d(TAG, "Entering addInvitedInEventUser"); //yep
+            addInvitedInEventUser(invitedInEventUsersRef, invitedInEventUserModel);
+            // add event to invited users
+            String invitedInEventUserId = invitedInEventUserModel.getInvitedInEventUserID();
+            CollectionReference invitedInUserEventsRef = usersCollectionRef.document(invitedInEventUserId).collection(getString(R.string.ff_InvitedInUserEvents));
+            Log.d(TAG, "Entering addInvitedInUserEvent");
+            addInteractedEmailsToUser(usersCollectionRef.document(invitedInEventUserId)); //works
+            addInvitedInUserEvent(eventModel.getEventID(), eventModel, invitedInUserEventsRef); //works
+        }
     }
+
     private void gotoEvents() {
         Intent eventsIntent = new Intent(EditEventActivity.this, MainActivity.class);
         startActivity(eventsIntent);
@@ -610,10 +610,9 @@ public class EditEventActivity extends AppCompatActivity implements OnMapReadyCa
     }
     private void addInvitedInUserEvent(String newEventId, EventModel newEventModel,
                                        CollectionReference invitedInUserEventsRef) {
-        InvitedInUserEventModel newInvitedInUserEventModel =
-                new InvitedInUserEventModel(newEventId, newEventModel.getEventName(),
-                        newEventModel.getEventLocationName(), newEventModel.getEventCreatorName()
-                        , newEventModel.getEventTimeStarting());
+        InvitedInUserEventModel newInvitedInUserEventModel = new InvitedInUserEventModel(newEventId, newEventModel.getEventName(),
+                newEventModel.getEventLocationName(), newEventModel.getEventCreatorName()
+                , newEventModel.getEventTimeStarting());
         invitedInUserEventsRef.document(newEventId).set(newInvitedInUserEventModel).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
@@ -630,7 +629,10 @@ public class EditEventActivity extends AppCompatActivity implements OnMapReadyCa
     }
     private void addInteractedEmailsToUser(DocumentReference userRef) {
 
-        userRef.update(getString(R.string.ff_Users_userInteractedUserEmails), FieldValue.arrayUnion((Object[]) listViewInvitedUsersList.toArray(new String[listViewInvitedUsersList.size()])));
+        userRef.update(getString(R.string.ff_Users_userInteractedUserEmails),
+                FieldValue.arrayUnion((Object[])
+                        listViewInvitedUsersList.toArray(new
+                                String[listViewInvitedUsersList.size()])));
     }
 
     private boolean retrieveAndSetEventFields() {
