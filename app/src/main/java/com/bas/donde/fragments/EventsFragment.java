@@ -453,7 +453,7 @@ public class EventsFragment extends Fragment {
     private Bitmap getUserAndPutAvatar(InvitedInEventUserModel user) {
         Log.d(TAG, "in getUserAvatar for " + user.getInvitedInEventUserName());
         FirebaseStorage storage = FirebaseStorage.getInstance();
-        StorageReference imageRef = storage.getReference().child(user.getInvitedInEventUserID() + ".jpg");
+        StorageReference imageRef = storage.getReference().child(user.getInvitedInEventUserProfilePicURL());
 //                        StorageReference gsReference = storage.getReferenceFromUrl(user.getInvitedInEventUserProfilePicURL());
         imageRef.getBytes(1024 * 1024).addOnSuccessListener(new OnSuccessListener<byte[]>() {
             @Override
