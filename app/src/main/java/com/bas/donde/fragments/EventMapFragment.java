@@ -29,7 +29,7 @@ import com.bas.donde.R;
 import com.bas.donde.activities.EventActivity;
 import com.bas.donde.models.InvitedInEventUserModel;
 import com.bas.donde.utils.OfflineDataTransfer;
-import com.bas.donde.utils.map_utils.ClusterMarker;
+import com.bas.donde.utils.map_utils.MyClusterItem;
 import com.bas.donde.utils.map_utils.MyClusterManagerRenderer;
 import com.bas.donde.utils.map_utils.OfflineTileProvider;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -70,7 +70,7 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback {
     private OfflineDataTransfer offlineDataTransfer;
 
 
-    private ArrayList<ClusterMarker> mClusterMarkers;
+    private ArrayList<MyClusterItem> mMyClusterItems;
     private HashMap<String, Bitmap> mUsersBitmaps;
 
     private LocationCallback mLocationCallback;
@@ -127,8 +127,8 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback {
         for (int i = 0; i < invitedUsersList.size(); i++) {
             InvitedInEventUserModel user = invitedUsersList.get(i);
             LatLng updatedLocation = new LatLng(user.getInvitedInEventUserCurrentLocation().getLatitude(), user.getInvitedInEventUserCurrentLocation().getLongitude());
-            mClusterMarkers.get(i).setPosition(updatedLocation);
-            mClusterManagerRenderer.setUpdateMarker(mClusterMarkers.get(i));
+            mMyClusterItems.get(i).setPosition(updatedLocation);
+            mClusterManagerRenderer.setUpdateMarker(mMyClusterItems.get(i));
 
             // update user in users list
             String id = user.getInvitedInEventUserID();
@@ -266,15 +266,18 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback {
             InvitedInEventUserModel user = invitedUsersList.get(i);
             initializeMapMarker(user);
             initializeMarkerStatus(user);
+
         }
+        mClusterManager.cluster();
+
     }
 
     private void initializeClusterFields() {
         Log.d(TAG, "in initializeClusterFields");
         myAssert(mGoogleMap != null, "mGoogleMap is null");
-        mClusterManager = new ClusterManager<ClusterMarker>(getContext(), mGoogleMap);
+        mClusterManager = new ClusterManager<MyClusterItem>(getContext(), mGoogleMap);
         mClusterManagerRenderer = new MyClusterManagerRenderer(getContext(), mGoogleMap, mClusterManager);
-        mClusterMarkers = new ArrayList<>();
+        mMyClusterItems = new ArrayList<>();
         mClusterManager.setRenderer(mClusterManagerRenderer);
 
     }
@@ -286,35 +289,34 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback {
         myAssert(mGoogleMap != null, "googleMap is null");
         myAssert(mClusterManager != null, "clusterManager is null");
         myAssert(mClusterManagerRenderer != null, "clusterManagerRenderer is null");
-        myAssert(mClusterMarkers != null, "clusterMarkers is null");
+        myAssert(mMyClusterItems != null, "clusterMarkers is null");
         myAssert(invitedUsersList != null, "invitedUserList is null");
 
 
         // initialize user cluster marker
         Bitmap userBitmap = mUsersBitmaps.get(user.getInvitedInEventUserID());
         myAssert(userBitmap != null, "user bitmap is null for " + user.getInvitedInEventUserName());
-        ClusterMarker userClusterMarker = new ClusterMarker(
+        MyClusterItem userMyClusterItem = new MyClusterItem(
                 user.getInvitedInEventUserID(), new LatLng(user.getInvitedInEventUserCurrentLocation().getLatitude(),
                 user.getInvitedInEventUserCurrentLocation().getLongitude()),
                 user.getInvitedInEventUserName(),
                 user.getInvitedInEventUserStatus(),
                 userBitmap);
-        mClusterMarkers.add(userClusterMarker);
-        mClusterManager.addItem(userClusterMarker);
+        mMyClusterItems.add(userMyClusterItem);
+        mClusterManager.addItem(userMyClusterItem);
 
         // TODO: Should this be in user loop? or outside?
-        mClusterManager.cluster();
     }
 
 
     private void setClusterMarkerOnClick() {
         Log.d(TAG, "in setClusterMarkerOnClick");
         mClusterManager.setOnClusterItemClickListener(
-                new ClusterManager.OnClusterItemClickListener<ClusterMarker>() {
+                new ClusterManager.OnClusterItemClickListener<MyClusterItem>() {
                     @Override
-                    public boolean onClusterItemClick(ClusterMarker clusterItem) {
-                        Log.d(TAG, "Clicked on marker for " + clusterItem.getSnippet());
-                        if (!clusterItem.getUserID().equals(myUserId)) {
+                    public boolean onClusterItemClick(MyClusterItem myClusterItem) {
+                        Log.d(TAG, "Clicked on marker for " + myClusterItem.getSnippet());
+                        if (!myClusterItem.getUserID().equals(myUserId)) {
                             return false;
                         }
                         // else: clicked on my user marker
@@ -363,8 +365,11 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback {
                     public void onClick(DialogInterface dialogInterface, int i) {
                         status = ((EditText) view.findViewById(R.id.edit_status)).getText().toString();
                         invitedUsersList.get(currentUserIndex).setInvitedInEventUserStatus(status);
-                        mClusterMarkers.get(currentUserIndex).setSnippet(status);
-                        mClusterManagerRenderer.setUpdateMarker(mClusterMarkers.get(currentUserIndex));
+                        mMyClusterItems.get(currentUserIndex).setSnippet(status);
+                        mClusterManager.updateItem(mMyClusterItems.get(currentUserIndex));
+                        mClusterManagerRenderer.setUpdateMarker(mMyClusterItems.get(currentUserIndex));
+//                        mMyClusterItems.get(currentUserIndex).
+                        //                        mMyClusterItems.get(
                         offlineDataTransfer.updateStatus(status);
                         invitedUsersList.get(0).setInvitedInEventUserStatus(status);
                         Log.d(TAG, "clicked and set status to " + status);

@@ -5,14 +5,14 @@ import android.graphics.Bitmap;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.maps.android.clustering.ClusterItem;
 
-public class ClusterMarker implements ClusterItem {
+public class MyClusterItem implements com.google.maps.android.clustering.ClusterItem {
     private String userID;
     private LatLng position;
     private String title;
     private String snippet;
     private Bitmap iconPictureBitmap;
 
-    public ClusterMarker(String userID, LatLng position, String title, String snippet, Bitmap iconPictureBitmap) {
+    public MyClusterItem(String userID, LatLng position, String title, String snippet, Bitmap iconPictureBitmap) {
         this.userID = userID;
         this.position = position;
         this.title = title;
