@@ -40,45 +40,98 @@ import java.util.HashMap;
 
 
 public class AccountActivity extends Activity {
+    // Constants
     private final String TAG = "tagAccountActivity";
-    FirebaseAuth fAuth;
-    StorageReference storageReference;
-    Button buttonChangeProfilePic;
-    ImageView profileImage;
-    Uri DEFAULT_PROFILE_PIC_URI;
+    private final Uri DEFAULT_AVATAR_RES_URI = new Uri.Builder()
+            .scheme(ContentResolver.SCHEME_ANDROID_RESOURCE)
+            .authority(getResources().getResourcePackageName(R.drawable.avatar2))
+            .appendPath(getResources().getResourceTypeName(R.drawable.avatar2))
+            .appendPath(getResources().getResourceEntryName(R.drawable.avatar2))
+            .build();
+    private final Uri DEFAULT_AVATAR_STORAGE_URI = Uri.parse("avatar2.png");
+
+
+    // Firebase
+    private StorageReference storageReference;
+    private FirebaseAuth firebaseAuth;
+    private FirebaseFirestore firebaseFirestore;
+    private CollectionReference usersCollectionRef;
+
+    // Views
+    private Button buttonChangeProfilePic;
+    private ImageView profileImage;
     private Button buttonSave;
     private Button buttonCancel;
     private Button buttonDeleteAccount;
     private EditText textViewName;
     private ProgressBar progressBar;
-    private FirebaseAuth firebaseAuth;
-    private FirebaseFirestore firebaseFirestore;
-    private CollectionReference usersCollectionRef;
+
+    // Data
     private String userID;
     private String userEmail;
     private String userProfilePicURL;
-    private boolean hasProfilePicSet;
 
-    private boolean didSetProfilePic = false;
-
-
-//            parse("android.resource://com.example.donde/drawable/avatar2.png");
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_account);
         initializeFields();
+        boolean didComeFromRegister =
+                savedInstanceState.getBoolean(getString(R.string.arg_did_come_from_register_intent));
+        if (didComeFromRegister) {
+            initializeRegisterViews();
+
+        } else {
+            initializeUpdateViews();
+        }
+
         initializeListeners();
-        retrieveAccountDetails();
-        // TODO: Default pic shoud not upload on account edit
-        DEFAULT_PROFILE_PIC_URI=(new Uri.Builder())
-                .scheme(ContentResolver.SCHEME_ANDROID_RESOURCE)
-                .authority(getResources().getResourcePackageName(R.drawable.avatar2))
-                .appendPath(getResources().getResourceTypeName(R.drawable.avatar2))
-                .appendPath(getResources().getResourceEntryName(R.drawable.avatar2))
-                .build();
-//        setProfilePic();
+    }
+
+    private void initializeFields() {
+        initializeViews();
+        initializeFirebase();
+        initializeData();
+    }
+
+    private void initializeViews() {
+        buttonChangeProfilePic = findViewById(R.id.account_change_profile_pic);
+        profileImage = findViewById(R.id.account_profile_pic);
+        buttonSave = findViewById(R.id.account_button_save);
+        buttonCancel = findViewById(R.id.account_button_cancel);
+        buttonDeleteAccount = findViewById(R.id.account_button_delete_account);
+        textViewName = findViewById(R.id.account_editText_name);
+        progressBar = findViewById(R.id.account_progressBar);
+    }
+
+    private void initializeFirebase() {
+
+    }
+
+    private void initializeData() {
+
+    }
+
+
+    private void initializeRegisterViews() {
+        buttonCancel.setVisibility(View.GONE);
+
+        buttonChangeProfilePic.setText("Add profile picture");
+        setSaveButtonRegisterOnClick();
+
+
+    }
+
+    private void initializeUpdateViews() {
+        buttonCancel.setVisibility(View.VISIBLE);
+        buttonChangeProfilePic.setText("Change profile picture");
+        setCancelButtonOnClick();
+        setSaveButtonUpdateOnClick();
+    }
+
+    private void setCancelButtonOnClick() {
 
     }
 
@@ -121,7 +174,7 @@ public class AccountActivity extends Activity {
     }
 
 
-    private void initializeFields() {
+    private void initializeFields1() {
         buttonSave = findViewById(R.id.account_button_save);
         buttonCancel = findViewById(R.id.account_button_cancel);
         buttonDeleteAccount = findViewById(R.id.account_button_delete_account);
@@ -139,7 +192,7 @@ public class AccountActivity extends Activity {
         buttonChangeProfilePic = findViewById(R.id.change_profile_pic);
         profileImage = findViewById(R.id.profile_pic);
         storageReference = FirebaseStorage.getInstance().getReference();
-        StorageReference profileRef = storageReference.child("users/"+fAuth.getCurrentUser().getUid()+".jpg");
+        StorageReference profileRef = storageReference.child("users/" + fAuth.getCurrentUser().getUid() + ".jpg");
         profileRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
             @Override
             public void onSuccess(Uri uri) {
@@ -167,8 +220,8 @@ public class AccountActivity extends Activity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if(requestCode == 1000){
-            if(resultCode == Activity.RESULT_OK){
+        if (requestCode == 1000) {
+            if (resultCode == Activity.RESULT_OK) {
                 Uri imageUri = data.getData();
 //                profileImage.setImageURI(imageUri);
                 uploadImageToFirebase(imageUri);

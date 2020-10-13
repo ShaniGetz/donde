@@ -61,5 +61,6 @@
     <string name="ff_InvitedInEventUsers_invitedInEventUserIsGoing">invitedInEventUserIsGoing</string>
     <string name="arg_invitedInEventUserModels_intent">arg_invitedInEventUserModels_intent</string>
     <string name="arg_users_bitmaps_intent">arg_users_bitmaps_intent</string>
+    <string name="arg_did_come_from_register_intent">arg_did_come_from_register_intent</string>
 
 </resources>
