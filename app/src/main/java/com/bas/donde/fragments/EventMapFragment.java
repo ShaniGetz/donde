@@ -55,7 +55,7 @@ import static com.bas.donde.utils.CodeHelpers.myAssert;
 public class EventMapFragment extends Fragment implements OnMapReadyCallback {
     public static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
     public static final int currentUserIndex = 0;
-    public static final int locationUpdateInterval = 300;
+    public static final int locationUpdateInterval = 20;
     private static final String TAG = "tagEventMapFragment";
     LocationRequest mLocationRequest;
     GoogleMap mGoogleMap;
@@ -74,6 +74,7 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback {
     private HashMap<String, Bitmap> mUsersBitmaps;
 
     private LocationCallback mLocationCallback;
+    private AlertDialog alertDialog;
 
     @Nullable
     @Override
@@ -151,7 +152,7 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback {
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(getActivity());
         mLastLocation = (((EventActivity) getActivity()).getEvent().getEventLocation());
         myAssert(mLastLocation != null, "mLastLocation is null");
-
+        initStatusDialogBox();
         initializeMapFragment();
         initializeInvitedUsersList();
         initializeInvitedUserBitmaps();
@@ -312,18 +313,21 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback {
                 new ClusterManager.OnClusterItemClickListener<ClusterMarker>() {
                     @Override
                     public boolean onClusterItemClick(ClusterMarker clusterItem) {
+                        Log.d(TAG, "Clicked on marker for " + clusterItem.getSnippet());
                         if (!clusterItem.getUserID().equals(myUserId)) {
                             return false;
                         }
                         // else: clicked on my user marker
                         showStatusDialog();
-
+                        Log.d(TAG, "after showStatusDialog line, status is " + status);
                         //update my stats also in list
-                        clusterItem.setSnippet(status);
-                        invitedUsersList.get(currentUserIndex).setInvitedInEventUserStatus(status);
-                        mClusterMarkers.get(currentUserIndex).setSnippet(status);
-                        mClusterManagerRenderer.setUpdateMarker(mClusterMarkers.get(currentUserIndex));
-                        offlineDataTransfer.updateStatus(status);
+
+//                        clusterItem.setSnippet(status);
+//                        invitedUsersList.get(currentUserIndex).setInvitedInEventUserStatus(status);
+//                        mClusterMarkers.get(currentUserIndex).setSnippet(status);
+//                        mClusterManagerRenderer.setUpdateMarker(mClusterMarkers.get(currentUserIndex));
+//                        offlineDataTransfer.updateStatus(status);
+
                         // if true, click handling stops here and do not show info view, do not move camera
                         // you can avoid this by calling:
                         return false;
@@ -332,7 +336,7 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback {
     }
 
     private void initializeMarkerStatus(InvitedInEventUserModel user) {
-        Log.d(TAG, "in initializeMarkerStatus");
+        Log.d(TAG, "in initializeMarkerStatus with " + user.getInvitedInEventUserStatus());
         if (user.getInvitedInEventUserID().equals(myUserId)) {
             user.setInvitedInEventUserCurrentLocation(mLastLocation);
             user.setInvitedInEventUserStatus("Click to post your status");
@@ -343,9 +347,9 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback {
         }
     }
 
-    private void showStatusDialog() {
+    private void initStatusDialogBox() {
         View view = getLayoutInflater().inflate(R.layout.layout_status_dialog, null);
-        AlertDialog alertDialog = new AlertDialog.Builder(getActivity())
+        alertDialog = new AlertDialog.Builder(getActivity())
                 .setView(view)
                 .setTitle("Status")
                 .setIcon(R.drawable.ic_baseline_mode_comment_24)
@@ -358,10 +362,22 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         status = ((EditText) view.findViewById(R.id.edit_status)).getText().toString();
+                        invitedUsersList.get(currentUserIndex).setInvitedInEventUserStatus(status);
+                        mClusterMarkers.get(currentUserIndex).setSnippet(status);
+                        mClusterManagerRenderer.setUpdateMarker(mClusterMarkers.get(currentUserIndex));
+                        offlineDataTransfer.updateStatus(status);
+                        invitedUsersList.get(0).setInvitedInEventUserStatus(status);
+                        Log.d(TAG, "clicked and set status to " + status);
+                        mClusterManager.cluster();
+
+
 //                                                        listener.applyText(status);
                     }
                 })
                 .create();
+    }
+
+    private void showStatusDialog() {
 
         alertDialog.show();
     }

@@ -59,6 +59,8 @@ public class AccountActivity extends Activity {
     private String userProfilePicURL;
     private boolean hasProfilePicSet;
 
+    private boolean didSetProfilePic = false;
+
 
 //            parse("android.resource://com.example.donde/drawable/avatar2.png");
 
@@ -102,10 +104,11 @@ public class AccountActivity extends Activity {
                         String userName =
                                 userDocument.getString(getString(R.string.ff_Users_userName));
                         textViewName.setText(userName);
-                        hasProfilePicSet = userDocument.getString(getString(R.string.ff_Users_userProfilePicURL)) != null;
-                        if (!hasProfilePicSet) {
-                            setProfilePic();
-                        }
+
+//                        hasProfilePicSet = userDocument.getString(getString(R.string.ff_Users_userProfilePicURL)) != null;
+//                        if (!hasProfilePicSet) {
+//                            setProfilePic();
+//                        }
                     }
                 } else {
                     Toast.makeText(AccountActivity.this, String.format("Error retrieving user details: %s", task.getException().getMessage()), Toast.LENGTH_SHORT).show();
@@ -136,7 +139,7 @@ public class AccountActivity extends Activity {
         buttonChangeProfilePic = findViewById(R.id.change_profile_pic);
         profileImage = findViewById(R.id.profile_pic);
         storageReference = FirebaseStorage.getInstance().getReference();
-        StorageReference profileRef = storageReference.child("users/" + fAuth.getCurrentUser().getUid() + ".jpg");
+        StorageReference profileRef = storageReference.child(fAuth.getCurrentUser().getUid() + ".jpg");
         profileRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
             @Override
             public void onSuccess(Uri uri) {
@@ -152,6 +155,7 @@ public class AccountActivity extends Activity {
         buttonChangeProfilePic.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                didSetProfilePic = true;
                 //open gallery
                 Intent openGalleryIntent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
                 startActivityForResult(openGalleryIntent, 1000);
@@ -182,6 +186,8 @@ public class AccountActivity extends Activity {
         buttonCancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+                didSetProfilePic = false;
                 gotoMainActivity();
             }
         });
@@ -233,10 +239,6 @@ public class AccountActivity extends Activity {
 
     }
 
-    private void setProfilePic() {
-        setProfilePic(DEFAULT_PROFILE_PIC_URI);
-    }
-
     private void setProfilePic(Uri imageUri) {
         Toast.makeText(this, "`adding pic", Toast.LENGTH_SHORT).show();
         StorageReference fileRef = storageReference.child(fAuth.getCurrentUser().getUid() + ".jpg");
@@ -248,7 +250,7 @@ public class AccountActivity extends Activity {
                     public void onSuccess(Uri uri) {
                         Picasso.get().load(uri).into(profileImage);
                         userProfilePicURL = fAuth.getCurrentUser().getUid() + ".jpg";
-                        Toast.makeText(AccountActivity.this, "`added default pic", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(AccountActivity.this, "`added  pic", Toast.LENGTH_SHORT).show();
                     }
 
                     ;
@@ -267,7 +269,7 @@ public class AccountActivity extends Activity {
         buttonSave.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                didSetProfilePic = true;
                 String sUserName = textViewName.getText().toString();
                 if (isSaveFieldsValid(sUserName)) {
                     //show progress

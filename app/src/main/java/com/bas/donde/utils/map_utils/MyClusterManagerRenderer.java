@@ -2,6 +2,7 @@ package com.bas.donde.utils.map_utils;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.util.Log;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
@@ -17,6 +18,7 @@ import com.google.maps.android.ui.IconGenerator;
 
 public class MyClusterManagerRenderer extends DefaultClusterRenderer<ClusterMarker> {
 
+    public static final String TAG = "tagEventMapFragment";
     private final IconGenerator iconGenerator;
     private final ImageView imageView;
     private final int markerWidth;
@@ -42,6 +44,8 @@ public class MyClusterManagerRenderer extends DefaultClusterRenderer<ClusterMark
      */
     @Override
     protected void onBeforeClusterItemRendered(ClusterMarker item, MarkerOptions markerOptions) {
+        Log.d(TAG, "in onBeforeClusterItemRendered with " + item.getSnippet());
+
 //        imageView.setImageResource(item.getIconPicture());
         imageView.setImageBitmap(item.getIconPictureBitmap());
         Bitmap icon = iconGenerator.makeIcon();
@@ -59,6 +63,7 @@ public class MyClusterManagerRenderer extends DefaultClusterRenderer<ClusterMark
      * @param clusterMarker
      */
     public void setUpdateMarker(ClusterMarker clusterMarker) {
+        Log.d(TAG, "in setUpdateMarker with " + clusterMarker.getSnippet());
         Marker marker = getMarker(clusterMarker);
         if (marker != null) {
             marker.setPosition(clusterMarker.getPosition());
