@@ -9,7 +9,7 @@
     <application
         android:name=".activities.App"
         android:allowBackup="true"
-        android:icon="@drawable/icon"
+        android:icon="@drawable/icon_donde_2"
         android:label="Donde"
         android:roundIcon="@drawable/icon"
         android:supportsRtl="false"

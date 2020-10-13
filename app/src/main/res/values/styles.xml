@@ -27,7 +27,7 @@
     </style>
 
     <style name="TimePickerTheme" parent="Theme.AppCompat.Light.Dialog">
-        <item name="colorAccent">@color/pink</item>
+        <item name="colorAccent">@color/pink_orenge</item>
         <item name="android:background">@color/white</item>
         <item name="android:headerBackground">@color/pink</item>
         <item name="colorPrimary">@color/pink</item>
@@ -35,7 +35,7 @@
     </style>
 
     <style name="DialogTheme" parent="Theme.AppCompat.Light.Dialog">
-        <item name="colorAccent">@color/pink</item>
+        <item name="colorAccent">@color/pink_orenge</item>
         <item name="android:background">@color/white</item>
         <item name="android:headerBackground">@color/pink</item>
         <item name="colorPrimary">@color/pink</item>
