@@ -7,6 +7,7 @@ import android.text.TextUtils;
 import android.text.method.PasswordTransformationMethod;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
@@ -27,6 +28,7 @@ public class RegisterActivity extends Activity {
 
     Button buttonGotoLogin;
     Button buttonRegister;
+    Button buttonCancel;
     EditText editTextName;
     EditText editTextEmail;
     EditText editTextPassword;
@@ -53,6 +55,7 @@ public class RegisterActivity extends Activity {
         editTextPassword = findViewById(R.id.register_editText_password);
         progressBar = findViewById(R.id.register_progressBar);
         fAuth = FirebaseAuth.getInstance();
+
         showHideBtn = findViewById(R.id.showHideBtn);
         showHideBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -68,6 +71,12 @@ public class RegisterActivity extends Activity {
                 }
             }
         });
+
+        setCancelButtonOnCLick();
+    }
+
+    private void setCancelButtonOnCLick() {
+
     }
 
     private void initializeListeners() {
@@ -139,10 +148,15 @@ public class RegisterActivity extends Activity {
         Log.d(TAG, "in gotoAccountActivity");
         Intent accountIntent = new Intent(RegisterActivity.this, AccountActivity.class);
         accountIntent.putExtra(getString(R.string.arg_did_come_from_register_intent), true);
-
         startActivity(accountIntent);
         // prevent option to back-click back to here
         finish();
+    }
+
+    private void showProgressBar() {
+        long sPadding = buttonRegister.getPaddingStart();
+        long ePadding = buttonRegister.getPaddingEnd();
+
     }
 
     /*

@@ -220,11 +220,12 @@ public class EventsFragment extends Fragment {
                     @NonNull
                     @Override
                     public EventsViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+                        Toast.makeText(getContext(), "Creating view holder", Toast.LENGTH_SHORT).show();
                         View view =
                                 LayoutInflater.from(parent.getContext()).inflate(R.layout.single_event_item, parent, false);
                         return new EventsViewHolder(view);
                     }
-
+                    
 
                 };
 
@@ -572,12 +573,14 @@ public class EventsFragment extends Fragment {
         }
 
         private void showProgressBar() {
-            constraintLayoutEventInfo.setVisibility(View.INVISIBLE);
             progressBar.setVisibility(View.VISIBLE);
+//            constraintLayoutEventInfo.animate().alpha(0f);
+            constraintLayoutEventInfo.setVisibility(View.INVISIBLE);
         }
 
         private void hideProgressBar() {
             progressBar.setVisibility(View.INVISIBLE);
+//            constraintLayoutEventInfo.animate().alpha(1f);
             constraintLayoutEventInfo.setVisibility(View.VISIBLE);
         }
     }
