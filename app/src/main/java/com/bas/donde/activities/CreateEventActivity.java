@@ -1,6 +1,7 @@
 package com.bas.donde.activities;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
@@ -21,6 +22,7 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
@@ -287,10 +289,14 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
         autoCompleteInvitedUsers.setAdapter(autoCompleteInvitedUsersAdapter);
         autoCompleteInvitedUsers.setThreshold(1);
         autoCompleteInvitedUsers.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @SuppressLint("NewApi")
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 String invitedUser = parent.getItemAtPosition(position).toString();
                 addInvitedUserToList(invitedUser);
+                hideSoftKeyboard();
+
+
             }
         });
         autoCompleteInvitedUsers.setOnEditorActionListener(new TextView.OnEditorActionListener() {
@@ -304,6 +310,12 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
             }
         });
 
+    }
+
+    private void hideSoftKeyboard() {
+        InputMethodManager in =
+                ((InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE));
+        in.hideSoftInputFromWindow(getWindow().getAttributes().token, 0);
     }
 
     /*
