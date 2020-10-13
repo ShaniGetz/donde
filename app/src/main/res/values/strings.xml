@@ -49,6 +49,7 @@
     <string name="ff_Events_eventTimeStarting">eventTimeStarting </string>
     <string name="ff_Events_eventLocationName">eventLocationName </string>
     <string name="ff_Events_eventLocation">eventLocation </string>
+    <string name="ff_Events_eventInvitedUserIDs">eventInvitedUserIDs</string>
     <string name="ff_Events_InvitedInEventUsers">InvitedInEventUsers </string>
     <!--InvitedInEventUsers subcollection-->
     <string name="ff_InvitedInEventUsers">InvitedInEventUsers</string>

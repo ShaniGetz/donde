@@ -46,6 +46,7 @@ FIREBASE INNER API:
 -   -   eventTimeStarting   [Timefstamp]
 -   -   eventLocationName   [String]
 -   -   eventLocation       [Geopoint]
+-   -   eventInvitedUserIDs [Array<String>]
 -   -   InvitedInEventUsers [Collection]        //document ID corresponds to userID
 -   -   -   invitedInEventUserID              [String]    //references user document ID in Users collection
 -   -   -   invitedInEventUserStatus          [String]
