@@ -20,14 +20,15 @@ import androidx.annotation.Nullable;
 
 import com.bas.donde.BuildConfig;
 import com.bas.donde.R;
+import com.bas.donde.models.UserModel;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
@@ -38,6 +39,7 @@ import com.google.firebase.storage.UploadTask;
 import com.squareup.picasso.Picasso;
 
 import java.util.HashMap;
+import java.util.Map;
 
 import static com.bas.donde.utils.CodeHelpers.myAssert;
 
@@ -51,7 +53,9 @@ public class AccountActivity extends Activity {
             .appendPath(getResources().getResourceTypeName(R.drawable.avatar2))
             .appendPath(getResources().getResourceEntryName(R.drawable.avatar2))
             .build();
-    private final Uri DEFAULT_AVATAR_STORAGE_URI = Uri.parse("avatar2.png");
+    private final String DEFAULT_AVATAR_STORAGE_STRING = "avatar2.png";
+
+    private final Uri DEFAULT_AVATAR_STORAGE_URI = Uri.parse(DEFAULT_AVATAR_STORAGE_STRING);
 
 
     // Firebase
@@ -72,6 +76,9 @@ public class AccountActivity extends Activity {
     // Data
     private String userID;
     private String userEmail;
+    private String userName;
+    private boolean didComeFromRegister;
+    private String userProfilePicURI;
 
 
     @Override
@@ -80,13 +87,12 @@ public class AccountActivity extends Activity {
 
         setContentView(R.layout.activity_account);
         initializeFields();
-        boolean didComeFromRegister =
-                savedInstanceState.getBoolean(getString(R.string.arg_did_come_from_register_intent));
+        didComeFromRegister = savedInstanceState.getBoolean(getString(R.string.arg_did_come_from_register_intent));
         if (didComeFromRegister) {
-            initializeRegisterViews();
+            initializeRegister();
 
         } else {
-            initializeUpdateViews();
+            initializeUpdate();
         }
 
         initializeListeners();
@@ -106,6 +112,7 @@ public class AccountActivity extends Activity {
         buttonDeleteAccount = findViewById(R.id.account_button_delete_account);
         textViewName = findViewById(R.id.account_editText_name);
         progressBar = findViewById(R.id.account_progressBar);
+        setSaveButtonOnClick();
     }
 
 
@@ -122,27 +129,129 @@ public class AccountActivity extends Activity {
     private void initializeDataFields() {
         userID = firebaseUser.getUid();
         userEmail = firebaseUser.getEmail();
-
+        userName = "";
     }
 
 
-    private void initializeRegisterViews() {
-        buttonCancel.setVisibility(View.GONE);
-
+    private void initializeRegister() {
+        buttonCancel.setVisibility(View.INVISIBLE);
+        buttonDeleteAccount.setVisibility(View.INVISIBLE);
         buttonChangeProfilePic.setText("Add profile picture");
-        setSaveButtonRegisterOnClick();
-
+        userProfilePicURI = DEFAULT_AVATAR_STORAGE_STRING;
+        setChangeProfilePicButtonOnClick();
     }
 
-    private void initializeUpdateViews() {
+    private void initializeUpdate() {
+        // TODO show progress bar
         buttonCancel.setVisibility(View.VISIBLE);
+        buttonDeleteAccount.setVisibility(View.VISIBLE);
         buttonChangeProfilePic.setText("Change profile picture");
+        usersCollectionRef.document(userID).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+            @Override
+            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                userName = documentSnapshot.getString(getString(R.string.ff_Users_userName));
+                userProfilePicURI = documentSnapshot.getString(getString(R.string.ff_Users_userProfilePicURL));
+                showName();
+                showProfilePic();
+
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Toast.makeText(AccountActivity.this, "Failed retrieving data", Toast.LENGTH_SHORT).show();
+                gotoMainActivity();
+            }
+        });
+        setChangeProfilePicButtonOnClick();
         setCancelButtonOnClick();
-        setSaveButtonUpdateOnClick();
+
     }
+
+    private void setChangeProfilePicButtonOnClick() {
+        Intent openGalleryIntent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        startActivityForResult(openGalleryIntent, 1000);
+    }
+
+
+    private void showName() {
+        textViewName.setText(userName);
+    }
+
+    private void showProfilePic() {
+
+    }
+
+    private void setSaveButtonOnClick() {
+        buttonSave.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                DocumentReference userRef = usersCollectionRef.document(userID);
+                if (validateFields()) {
+                    if (didComeFromRegister) {
+                        saveNewUser(userRef);
+                    } else {
+                        updateExistingUser(userRef);
+                    }
+
+                }
+
+            }
+        });
+    }
+
+    private void saveNewUser(DocumentReference userRef) {
+        UserModel newUserModel = new UserModel(userID, userName, userEmail, userProfilePicURI);
+        userRef.set(newUserModel).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                onUserSaveSuccess();
+
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                onUserSaveFailure(e);
+
+            }
+        });
+    }
+
+    private void updateExistingUser(DocumentReference userRef) {
+        Map<String, Object> userUpdatesMap = new HashMap<>();
+        userUpdatesMap.put(getString(R.string.ff_Users_userName), textViewName.getText());
+        userUpdatesMap.put(getString(R.string.ff_Users_userProfilePicURL), userProfilePicURI);
+        userRef.update(userUpdatesMap).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                onUserSaveSuccess();
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                onUserSaveFailure(e);
+            }
+        });
+    }
+
+    private void onUserSaveSuccess() {
+        Toast.makeText(AccountActivity.this, "User created successfully",
+                Toast.LENGTH_SHORT).show();
+    }
+
+    private void onUserSaveFailure(Exception e) {
+        Toast.makeText(AccountActivity.this, "User could not be created, " +
+                "error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+    }
+
+    private boolean validateFields() {
+        boolean isNameEmpty = TextUtils.isEmpty(textViewName.getText());
+        boolean isProfilePicURLEmpty = TextUtils.isEmpty(userProfilePicURI);
+        return !isNameEmpty && !isProfilePicURLEmpty;
+    }
+
 
     private void setCancelButtonOnClick() {
-
+        gotoMainActivity();
     }
 
 
@@ -185,23 +294,6 @@ public class AccountActivity extends Activity {
 
 
     private void initializeFields1() {
-        buttonSave = findViewById(R.id.account_button_save);
-        buttonCancel = findViewById(R.id.account_button_cancel);
-        buttonDeleteAccount = findViewById(R.id.account_button_delete_account);
-        textViewName = findViewById(R.id.account_editText_name);
-        progressBar = findViewById(R.id.account_progressBar);
-        firebaseAuth = FirebaseAuth.getInstance();
-        firebaseFirestore = FirebaseFirestore.getInstance();
-        usersCollectionRef = firebaseFirestore.collection(getString(R.string.ff_Users));
-        userID = firebaseAuth.getCurrentUser().getUid();
-        userEmail = firebaseAuth.getCurrentUser().getEmail();
-        if (firebaseAuth.getCurrentUser() != null) {
-            buttonDeleteAccount.setVisibility(View.VISIBLE);
-        }
-        fAuth = FirebaseAuth.getInstance();
-        buttonChangeProfilePic = findViewById(R.id.change_profile_pic);
-        profileImage = findViewById(R.id.profile_pic);
-        storageReference = FirebaseStorage.getInstance().getReference();
         StorageReference profileRef = storageReference.child("users/" + fAuth.getCurrentUser().getUid() + ".jpg");
         profileRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
             @Override
@@ -211,21 +303,6 @@ public class AccountActivity extends Activity {
         });
     }
 
-    private void initializeListeners() {
-        setButtonSaveOnClick();
-        setButtonCancelOnClick();
-        setButtonDeleteAccountOnClick();
-        buttonChangeProfilePic.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                didSetProfilePic = true;
-                //open gallery
-                Intent openGalleryIntent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                startActivityForResult(openGalleryIntent, 1000);
-            }
-        });
-
-    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -245,16 +322,6 @@ public class AccountActivity extends Activity {
         setProfilePic(imageUri);
     }
 
-    private void setButtonCancelOnClick() {
-        buttonCancel.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                didSetProfilePic = false;
-                gotoMainActivity();
-            }
-        });
-    }
 
     private void setButtonDeleteAccountOnClick() {
         buttonDeleteAccount.setOnClickListener(new View.OnClickListener() {
@@ -284,7 +351,7 @@ public class AccountActivity extends Activity {
 
 
                 // delete user from authentication
-                firebaseAuth.getCurrentUser().delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+                firebaseUser.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
                         Log.d(TAG, "Successfully deleted user from auth");
@@ -304,7 +371,7 @@ public class AccountActivity extends Activity {
 
     private void setProfilePic(Uri imageUri) {
         Toast.makeText(this, "`adding pic", Toast.LENGTH_SHORT).show();
-        StorageReference fileRef = storageReference.child(fAuth.getCurrentUser().getUid() + ".jpg");
+        StorageReference fileRef = storageReference.child(userID + ".jpg");
         fileRef.putFile(imageUri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
             @Override
             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
@@ -312,7 +379,7 @@ public class AccountActivity extends Activity {
                     @Override
                     public void onSuccess(Uri uri) {
                         Picasso.get().load(uri).into(profileImage);
-                        userProfilePicURL = fAuth.getCurrentUser().getUid() + ".jpg";
+                        userProfilePicURI = userID + ".jpg";
                         Toast.makeText(AccountActivity.this, "`added  pic", Toast.LENGTH_SHORT).show();
                     }
 
@@ -327,64 +394,6 @@ public class AccountActivity extends Activity {
         });
     }
 
-
-    private void setButtonSaveOnClick() {
-        buttonSave.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                String sUserName = textViewName.getText().toString();
-                if (isSaveFieldsValid(sUserName)) {
-                    //show progress
-                    progressBar.setVisibility(View.VISIBLE);
-                    // TODO: check if this finishes before saving user
-                    // get user ID for current user
-                    HashMap<String, Object> userMap = new HashMap<>();
-                    userMap.put(getString(R.string.ff_Users_userID), userID);
-                    userMap.put(getString(R.string.ff_Users_userEmail), userEmail);
-                    userMap.put(getString(R.string.ff_Users_userName), sUserName);
-                    userMap.put("userProfilePicURL", userProfilePicURL);
-                    userMap.put("userTimeCreatedProfile", Timestamp.now());
-                    usersCollectionRef.document(userID).set(userMap).addOnCompleteListener(new OnCompleteListener<Void>() {
-                        @Override
-                        public void onComplete(@NonNull Task<Void> task) {
-                            // account save successful
-                            if (task.isSuccessful()) {
-                                Toast.makeText(AccountActivity.this, "Account updated successfully",
-                                        Toast.LENGTH_LONG).show();
-                                gotoMainActivity();
-                            } else {
-                                // show error to user
-                                String errorMessage = task.getException().getMessage();
-                                Toast.makeText(AccountActivity.this, "Error: " + errorMessage,
-                                        Toast.LENGTH_LONG).show();
-                            }
-                            // after progress we don't want to see progress bar
-                            progressBar.setVisibility(View.INVISIBLE);
-                        }
-                    });
-
-
-                }
-
-            }
-        });
-    }
-
-    /*
-    returns true if the login fields are valid (e.g. if they are not empty etc.)
-     */
-    private boolean isSaveFieldsValid(String userName) {
-        boolean isNameEmpty = TextUtils.isEmpty(userName);
-        return !isNameEmpty;
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-
-
-    }
 
     private void gotoLoginActivity() {
         Intent loginIntent = new Intent(AccountActivity.this, LoginActivity.class);

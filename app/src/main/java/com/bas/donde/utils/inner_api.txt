@@ -61,7 +61,8 @@ FIREBASE INNER API:
 -   -   userEmail           [String]
 -   -   userProfilePicURL   [String]        //URL for the profile pic inside Firebase Storage
 -   -   userInvitedEventIDs [Array<String>]
--   -   userInteracted
+-   -   userInteracted      [Array<String>]
+-   -   userLastLocation    [Geopoint]
 -   -   InvitedInUserEvents   [Collection]
 -   -   -   invitedInUserEventID              [String]    //references event document ID in Events collection
 -   -   -   invitedInUserEventName            [String]
