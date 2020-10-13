@@ -71,6 +71,19 @@
         app:layout_constraintTop_toBottomOf="@+id/textView2"
         app:layout_constraintBottom_toTopOf="@id/register_editText_password"/>
 
+    <Button
+        android:id="@+id/showHideBtn"
+        android:layout_width="90dp"
+        android:layout_height="51dp"
+        android:layout_marginEnd="64dp"
+        android:text="Show"
+        app:layout_constraintBottom_toTopOf="@id/register_button_register"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toEndOf="@+id/register_editText_password"
+        app:layout_constraintTop_toBottomOf="@id/register_editText_email"
+        app:layout_constraintVertical_bias="0.411" />
+
     <EditText
         android:id="@+id/register_editText_password"
         android:layout_width="270dp"
@@ -78,6 +91,7 @@
         android:hint="Password"
         android:gravity="center"
         android:textAlignment="center"
+        android:inputType="textPassword"
         android:background="@drawable/rounded_corners_info"
         android:textColorHighlight="@color/pink"
         android:textColor="@color/black"

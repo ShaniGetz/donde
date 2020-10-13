@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -19,10 +20,13 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import android.text.method.PasswordTransformationMethod;
 
 
 public class LoginActivity extends Activity {
     private Button buttonLogin;
+    private Button showHideBtn;
+
     private TextView textViewGotoRegister;
     private EditText textViewUserEmail;
     private EditText textViewUserPassword;
@@ -35,7 +39,6 @@ public class LoginActivity extends Activity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-
         initializeFields();
         initializeListeners();
 
@@ -48,6 +51,20 @@ public class LoginActivity extends Activity {
         textViewUserPassword = findViewById(R.id.login_editText_password);
         progressBar = findViewById(R.id.login_progressBar);
         firebaseAuth = FirebaseAuth.getInstance();
+        showHideBtn = findViewById(R.id.showHideBtn);
+        showHideBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.d("TAG", "sdfgsdg");
+                if (showHideBtn.getText().equals("Show")) {
+                    textViewUserPassword.setTransformationMethod(null);
+                    showHideBtn.setText("Hide");
+                } else {
+                    textViewUserPassword.setTransformationMethod(new PasswordTransformationMethod());
+                    showHideBtn.setText("Show");
+                }
+            }
+        });
     }
 
     private void initializeListeners() {

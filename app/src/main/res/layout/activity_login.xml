@@ -59,6 +59,7 @@
         android:layout_width="270dp"
         android:layout_height="wrap_content"
         android:hint="Password"
+        android:inputType="textPassword"
         android:gravity="center"
         android:background="@drawable/rounded_corners_info"
         android:textColorHighlight="@color/pink"
@@ -72,6 +73,19 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/login_editText_email" />
+
+    <Button
+        android:id="@+id/showHideBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="64dp"
+        android:text="Show"
+        app:layout_constraintBottom_toTopOf="@id/login_button_login"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toEndOf="@+id/login_editText_password"
+        app:layout_constraintTop_toBottomOf="@id/login_editText_email"
+        app:layout_constraintVertical_bias="0.411" />
 
     <Button
         android:id="@+id/login_button_login"
