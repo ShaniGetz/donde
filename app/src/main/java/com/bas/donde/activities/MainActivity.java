@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Toolbar;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -59,7 +60,6 @@ public class MainActivity extends AppCompatActivity {
                 return true;
             case R.id.menu_account:
                 gotoAccount();
-
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
