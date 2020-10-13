@@ -21,13 +21,17 @@ import com.bas.donde.models.EventModel;
 import com.bas.donde.models.InvitedInEventUserModel;
 import com.bas.donde.utils.OfflineDataTransfer;
 import com.bas.donde.utils.ViewPagerAdapter;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.google.gson.reflect.TypeToken;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashMap;
 
 

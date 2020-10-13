@@ -31,6 +31,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bas.donde.R;
+import com.bas.donde.activities.EditEventActivity;
 import com.bas.donde.activities.EventActivity;
 import com.bas.donde.activities.MainActivity;
 import com.bas.donde.models.EventModel;
@@ -221,7 +222,7 @@ public class EventsFragment extends Fragment {
         DividerItemDecoration dividerItemDecoration =
                 new DividerItemDecoration(recyclerViewEventsList.getContext(),
                         DividerItemDecoration.VERTICAL);
-        recyclerViewEventsList.addItemDecoration(dividerItemDecoration);
+//        recyclerViewEventsList.addItemDecoration(dividerItemDecoration);
         recyclerViewEventsList.setAdapter(eventsRecyclerAdapter);
     }
 
@@ -382,6 +383,8 @@ public class EventsFragment extends Fragment {
 
     }
 
+
+
     private void deleteEventSubcollection(InvitedInUserEventModel model,
                                           CollectionReference invitedInEventUsersRef) {
         WriteBatch deleteEventSubcollectionBatch = firebaseFirestore.batch();
@@ -523,6 +526,8 @@ public class EventsFragment extends Fragment {
         private CheckBox checkBoxEventIsGoing;
         private Button buttonGotoEvent;
         private Button buttonDeleteEvent;
+        private Button buttonEditEvent;
+
 
         public EventsViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -533,7 +538,26 @@ public class EventsFragment extends Fragment {
             checkBoxEventIsGoing = itemView.findViewById(R.id.event_item_checkBox_is_going);
             buttonGotoEvent = itemView.findViewById(R.id.event_item_button_goto_event);
             buttonDeleteEvent = itemView.findViewById(R.id.event_item_button_delete_event);
+            buttonEditEvent = itemView.findViewById(R.id.Edit_Event);
         }
+    }
+
+    private String timeFormatting(String data){
+        String hour = "";
+        String minute = "";
+        String date = "";
+        String Year = data.substring((data.length()-4));
+
+        for(int i = 0; i < data.length(); i++){
+            if(data.charAt(i)== ':'){
+                date = data.substring(0, i-3);
+                hour = data.substring(i-2,i);
+                minute = data.substring(i+1, i + 3);
+                break;
+            }
+        }
+        Log.d("TIMEER", ( date + "/" + Year + "    " +hour + ":" + minute));
+        return ( date + "/" + Year + "    " +hour + ":" + minute);
     }
 
 }

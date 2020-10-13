@@ -23,6 +23,10 @@ import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 public class EventInfoFragment extends Fragment {
 
     // Firebase
@@ -35,6 +39,7 @@ public class EventInfoFragment extends Fragment {
     private TextView textViewEventCreatorName;
     private TextView textViewEventTimeStarting;
     private TextView textViewEventTimeCreated;
+    private TextView textViewTnvitedHadline;
     private RecyclerView recyclerViewInvitedUsers;
 
     // data fields
@@ -51,6 +56,7 @@ public class EventInfoFragment extends Fragment {
         textViewEventTimeStarting = view.findViewById(R.id.info_textView_time_starting);
         textViewEventTimeCreated = view.findViewById(R.id.info_textView_time_created);
         recyclerViewInvitedUsers = view.findViewById(R.id.info_recyclerView_invited_users);
+        textViewTnvitedHadline = view.findViewById(R.id.invited_hadline);
 
         event = ((EventActivity) getActivity()).getEvent();
         eventId = ((EventActivity) getActivity()).getEventID();
@@ -60,15 +66,32 @@ public class EventInfoFragment extends Fragment {
 
     private void initializeViews() {
         textViewEventName.setText(String.format(event.getEventName()));
-        textViewEventDescription.setText(String.format(event.getEventDescription()));
-        textViewEventLocationName.setText(String.format("Location:" + "\n"+ "%s",
+        textViewEventDescription.setText(String.format(
+                event.getEventDescription()));
+        textViewEventLocationName.setText(String.format(
                 event.getEventLocationName()));
-        textViewEventCreatorName.setText(String.format("Creator name: %s",
+        textViewEventCreatorName.setText(String.format("Creator: %s",
                 event.getEventCreatorName()));
-        textViewEventTimeStarting.setText(String.format("Event time starting: %s",
-                event.getEventTimeStarting()));
-        textViewEventTimeCreated.setText(String.format("Event time created: %s",
-                event.getEventTimeCreated()));
+        textViewEventTimeStarting.setText("Starting at " +TimeHandMade(event.getEventTimeStarting().toString()));
+        textViewEventTimeCreated.setText("Created at " + TimeHandMade(event.getEventTimeCreated().toString()));
+        textViewTnvitedHadline.setText("Participants:");
+    }
+
+    private String TimeHandMade(String allDate)  {
+        String hour = "";
+        String minute = "";
+        String date = "";
+        String Year = allDate.substring((allDate.length()-4));
+
+        for(int i = 0; i < allDate.length(); i++){
+            if(allDate.charAt(i)== ':'){
+                date = allDate.substring(0, i-3);
+                hour = allDate.substring(i-2,i);
+                minute = allDate.substring(i+1, i + 3);
+                break;
+            }
+        }
+        return ( date + "/" + Year + "    " +hour + ":" + minute);
     }
 
     @Nullable
@@ -89,20 +112,16 @@ public class EventInfoFragment extends Fragment {
 
 
     private void initializeInvitedUsersList() {
-
         Query invitedUsersQuery =
                 firebaseFirestore.collection(getString(R.string.ff_Events)).document(this.eventId).collection(getString(R.string.ff_InvitedInEventUsers));
         FirestoreRecyclerOptions<InvitedInEventUserModel> invitedUsersOptions =
                 new FirestoreRecyclerOptions.Builder<InvitedInEventUserModel>().setQuery(invitedUsersQuery, InvitedInEventUserModel.class).build();
-        invitedUsersRecyclerAdapter =
-                new FirestoreRecyclerAdapter<InvitedInEventUserModel, InvitedUsersViewHolder>(invitedUsersOptions) {
+        invitedUsersRecyclerAdapter = new FirestoreRecyclerAdapter<InvitedInEventUserModel, InvitedUsersViewHolder>(invitedUsersOptions) {
                     @Override
                     protected void onBindViewHolder(@NonNull InvitedUsersViewHolder holder, int position, @NonNull InvitedInEventUserModel model) {
                         Log.e("EventInfoFragment", String.format("user name is %s", model.getInvitedInEventUserName()));
                         holder.textViewInvitedUserName.setText(model.getInvitedInEventUserName());
                     }
-
-
                     @NonNull
                     @Override
                     public InvitedUsersViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
