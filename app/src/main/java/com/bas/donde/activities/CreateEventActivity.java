@@ -69,6 +69,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.common.base.CaseFormat;
 import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -833,6 +834,8 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
             toastErrorMessage = "Error inviting guests";
         } else if (!setEventDescription(editTextEventDescription.getText().toString())) {
             toastErrorMessage = "Fix event description";
+
+
         } else if (!setEventLocationName(searchViewLocationSearch.getQuery().toString())) {
             toastErrorMessage = "Fix event location name";
             // ffEventLocation should be full since it is retrieved from the search query
@@ -895,7 +898,11 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
     private boolean setEventLocationName(String eventLocationName) {
         boolean nameNotEmpty = !TextUtils.isEmpty(eventLocationName);
         if (nameNotEmpty) {
-            this.ffEventLocationName = eventLocationName;
+            this.ffEventLocationName = CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL,
+                    eventLocationName);
+
+
+
             return true;
         } else {
             return false;

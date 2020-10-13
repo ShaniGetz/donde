@@ -8,5 +8,6 @@
         android:endColor="@color/gray_dark_dark"
         android:centerX="0.2"
         android:centerY="0.3"
+
         android:angle="45" />
 </shape>
