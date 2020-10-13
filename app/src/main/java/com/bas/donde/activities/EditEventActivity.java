@@ -115,19 +115,16 @@ public class EditEventActivity extends AppCompatActivity implements OnMapReadyCa
     private ListView listViewInvitedUsers;
     private AutoCompleteTextView autoCompleteInvitedUsers;
 
-
     private TextView textViewEventTime;
     private TextView textViewEventDate;
     private TimePicker timePicker;
     private DatePicker datePicker;
-
 
     // Utils
     private ArrayAdapter<String> autoCompleteInvitedUsersAdapter;
     private ArrayList<String> autoCompleteInvitedUsersList;
     private ArrayAdapter<String> listViewInvitedUsersAdapter;
     private ArrayList<String> listViewInvitedUsersList;
-
 
     // Firebase
     private FirebaseAuth firebaseAuth;
@@ -138,13 +135,13 @@ public class EditEventActivity extends AppCompatActivity implements OnMapReadyCa
     private CollectionReference eventsCollectionRef;
 
     // Fields for storing data to push to FirebaseFirestore (ff)
-    private String ffEventName;
-    private String ffEventDescription;
-    private String ffEventLocationName;
-    private GeoPoint ffEventLocation;
-    private String ffEventCreatorUID;
-    private String ffEventCreatorName;
-    private Date ffEventTimeCreated;
+    private String ffEventName; //yes
+    private String ffEventDescription; //yes
+    private String ffEventLocationName; //yes
+    private GeoPoint ffEventLocation; //yes
+    private String ffEventCreatorUID; //dont need
+    private String ffEventCreatorName; //dont need
+    private Date ffEventTimeCreated; //
     private Date ffEventTimeStarting;
     private List<InvitedInEventUserModel> ffInvitedUserInEventModels;
 
@@ -318,12 +315,9 @@ public class EditEventActivity extends AppCompatActivity implements OnMapReadyCa
         initializeListViewInvitedUsers();
         initializeAutocompleteInvitedUsers();
 
-
         // Location
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
-        mapFrag =
-                (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.create_mapView);
-
+        mapFrag = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.create_mapView);
         mapFrag.getMapAsync(this);
         // Location
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
@@ -351,11 +345,8 @@ public class EditEventActivity extends AppCompatActivity implements OnMapReadyCa
 
     private void initializeTimeAndDate() {
         Context createContext = this;
-
-
         initializeTimePicker(createContext);
         initializeDatePicker(createContext);
-
     }
 
     private void updateCurrentDate(){
@@ -368,7 +359,6 @@ public class EditEventActivity extends AppCompatActivity implements OnMapReadyCa
     }
     private void initializeDatePicker(Context createContext) {
         updateCurrentDate();
-
         textViewEventDate.setOnClickListener(new View.OnClickListener() {
             //TODO: Hide soft keyboard when choosing items in craeteevent
             @Override
@@ -390,10 +380,8 @@ public class EditEventActivity extends AppCompatActivity implements OnMapReadyCa
                     }
                 }
                 textViewEventDate.setText(day + "/" + month + "/" + year);
-
                 DatePickerDialog mDatePicker;
 //                int resTheme = R.style.SpinnerTimePicker;
-
                 int resTheme = DatePickerDialog.THEME_HOLO_DARK;
                 mDatePicker = new DatePickerDialog(createContext, resTheme,
                         new DatePickerDialog.OnDateSetListener() {
@@ -487,14 +475,6 @@ public class EditEventActivity extends AppCompatActivity implements OnMapReadyCa
             }
         });
     }
-    private void setUpMap(GoogleMap mMap, Double LAT, Double LON, float ZOOM) {
-        mMap.setMapType(GoogleMap.MAP_TYPE_NONE);
-        mMap.addTileOverlay(new TileOverlayOptions().tileProvider(new
-                CustomMapTileProvider(getFilesDir().getAbsolutePath())));
-        LatLng latlinger = new LatLng(eventModel.getEventLocation().getLatitude(),eventModel.getEventLocation().getLongitude());
-        CameraUpdate upd = CameraUpdateFactory.newLatLngZoom(new LatLng(LAT, LON), ZOOM);
-        mMap.moveCamera(upd);
-    }
     private void initializeListeners() {
         initializeSearchQuery();
         buttonEditEvent.findViewById(R.id.Update);
@@ -511,7 +491,9 @@ public class EditEventActivity extends AppCompatActivity implements OnMapReadyCa
                         @Override
                         public void run() {
                             {
-                                createEvent();
+//                                upudate();
+                                Intent eventsIntent = new Intent(EditEventActivity.this, MainActivity.class);
+                                startActivity(eventsIntent);
                             }
                         }
                     }, 2000);
@@ -520,6 +502,20 @@ public class EditEventActivity extends AppCompatActivity implements OnMapReadyCa
 
             }
         });
+    }
+    private void update(){
+
+//        for (InvitedInEventUserModel invitedInEventUserModel : ffInvitedUserInEventModels) {
+//            Log.d(TAG, "Entering addInvitedInEventUser");
+//            addInvitedInEventUser(invitedInEventUsersRef, invitedInEventUserModel);
+//            // add event to invited users
+//            String invitedInEventUserId = invitedInEventUserModel.getInvitedInEventUserID();
+//            CollectionReference invitedInUserEventsRef =
+//                    usersCollectionRef.document(invitedInEventUserId).collection(getString(R.string.ff_InvitedInUserEvents));
+//            Log.d(TAG, "Entering addInvitedInUserEvent");
+//            addInteractedEmailsToUser(usersCollectionRef.document(invitedInEventUserId));
+//            addInvitedInUserEvent(eventModel.getEventID(), eventModel, invitedInUserEventsRef);
+//        }
     }
     private void gotoEvents() {
         Intent eventsIntent = new Intent(EditEventActivity.this, MainActivity.class);
@@ -536,6 +532,15 @@ public class EditEventActivity extends AppCompatActivity implements OnMapReadyCa
             // get event object from intent
             Gson gson = new Gson();
             eventModel = gson.fromJson(getIntent().getStringExtra(getString(R.string.arg_event_model)), EventModel.class);
+            //set all ff:
+            ffEventName = eventModel.getEventName();
+            ffEventDescription = eventModel.getEventDescription();
+            ffEventLocationName = eventModel.getEventLocationName();
+            ffEventLocation = eventModel.getEventLocation();
+            ffEventCreatorUID = eventModel.getEventCreatorUID();
+            ffEventCreatorName = eventModel.getEventCreatorName();
+            ffEventTimeCreated = eventModel.getEventTimeCreated();
+            ffEventTimeStarting = eventModel.getEventTimeStarting();
             setContentView(R.layout.activity_edit_event);
             initializeFields();
             initializeListeners();
@@ -584,18 +589,6 @@ public class EditEventActivity extends AppCompatActivity implements OnMapReadyCa
         //move map camera
         mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 17));
     }
-    private EventModel createNewEventModel() {
-        EventModel createdEvent = new EventModel();
-        createdEvent.setEventName(ffEventName);
-        createdEvent.setEventDescription(ffEventDescription);
-        createdEvent.setEventLocationName(ffEventLocationName);
-        createdEvent.setEventLocation(ffEventLocation);
-        createdEvent.setEventTimeCreated(ffEventTimeCreated);
-        createdEvent.setEventTimeStarting(ffEventTimeStarting);
-        createdEvent.setEventCreatorUID(ffEventCreatorUID);
-        createdEvent.setEventCreatorName(ffEventCreatorName);
-        return createdEvent;
-    }
 
     private void addInvitedInEventUser(CollectionReference invitedInEventUsersRef,
                                        InvitedInEventUserModel invitedInEventUserModel) {
@@ -635,57 +628,11 @@ public class EditEventActivity extends AppCompatActivity implements OnMapReadyCa
             }
         });
     }
-    private void createEvent() {
-
-        progressBar.setVisibility(View.VISIBLE);
-
-        EventModel newEventModel = createNewEventModel();
-
-
-        eventsCollectionRef.document(newEventModel.getEventID()).delete();
-        eventsCollectionRef.add(newEventModel).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-            @Override
-            public void onSuccess(DocumentReference documentReference) {
-                // add invited users to event
-                String newEventId = documentReference.getId();
-                CollectionReference invitedInEventUsersRef =
-                        documentReference.collection(getString(R.string.ff_InvitedInEventUsers));
-                for (InvitedInEventUserModel invitedInEventUserModel : ffInvitedUserInEventModels) {
-                    Log.d(TAG, "Entering addInvitedInEventUser");
-                    addInvitedInEventUser(invitedInEventUsersRef, invitedInEventUserModel);
-
-                    // add event to invited users
-                    String invitedInEventUserId = invitedInEventUserModel.getInvitedInEventUserID();
-                    CollectionReference invitedInUserEventsRef =
-                            usersCollectionRef.document(invitedInEventUserId).collection(getString(R.string.ff_InvitedInUserEvents));
-                    Log.d(TAG, "Entering addInvitedInUserEvent");
-                    addInteractedEmailsToUser(usersCollectionRef.document(invitedInEventUserId));
-                    addInvitedInUserEvent(newEventId, newEventModel, invitedInUserEventsRef);
-                }
-
-
-                Toast.makeText(EditEventActivity.this, "Event updated successfully",
-                        Toast.LENGTH_SHORT).show();
-                gotoEvents();
-
-            }
-
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                Toast.makeText(EditEventActivity.this,
-                        "Error while creating event: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-            }
-        });
-
-        progressBar.setVisibility(View.INVISIBLE);
-
-    }
     private void addInteractedEmailsToUser(DocumentReference userRef) {
 
-        userRef.update(getString(R.string.ff_Users_userInteractedUserEmails),
-                FieldValue.arrayUnion((Object[]) listViewInvitedUsersList.toArray(new String[listViewInvitedUsersList.size()])));
+        userRef.update(getString(R.string.ff_Users_userInteractedUserEmails), FieldValue.arrayUnion((Object[]) listViewInvitedUsersList.toArray(new String[listViewInvitedUsersList.size()])));
     }
+
     private boolean retrieveAndSetEventFields() {
         String toastErrorMessage = "";
         if (!setEventName(editTextEventName.getText().toString())) {
@@ -759,6 +706,7 @@ public class EditEventActivity extends AppCompatActivity implements OnMapReadyCa
         boolean validLongitude = (longitude >= -180) && (longitude <= 180);
         if (validLatitude && validLongitude) {
             this.ffEventLocation = new GeoPoint(latitude, longitude);
+            eventsCollectionRef.document(eventModel.getEventID()).update("eventLocation", this.ffEventLocation);
             return true;
         } else {
             return false;
@@ -768,6 +716,7 @@ public class EditEventActivity extends AppCompatActivity implements OnMapReadyCa
         boolean nameNotEmpty = !TextUtils.isEmpty(eventName);
         if (nameNotEmpty) {
             this.ffEventName = eventName;
+            eventsCollectionRef.document(eventModel.getEventID()).update("eventName", this.ffEventName);
             return true;
         } else {
             return false;
@@ -777,6 +726,7 @@ public class EditEventActivity extends AppCompatActivity implements OnMapReadyCa
         boolean descriptionNotEmpty = !TextUtils.isEmpty(eventDescription);
         if (descriptionNotEmpty) {
             this.ffEventDescription = eventDescription;
+            eventsCollectionRef.document(eventModel.getEventID()).update("eventDescription", this.ffEventDescription);
             return true;
         } else {
             return false;
@@ -786,6 +736,7 @@ public class EditEventActivity extends AppCompatActivity implements OnMapReadyCa
         boolean nameNotEmpty = !TextUtils.isEmpty(eventLocationName);
         if (nameNotEmpty) {
             this.ffEventLocationName = eventLocationName;
+            eventsCollectionRef.document(eventModel.getEventID()).update("eventLocationName", this.ffEventLocationName);
             return true;
         } else {
             return false;
@@ -825,6 +776,7 @@ public class EditEventActivity extends AppCompatActivity implements OnMapReadyCa
     }
     private boolean setEventTimeCreated() {
         this.ffEventTimeCreated = Timestamp.now().toDate();
+        eventsCollectionRef.document(eventModel.getEventID()).update("eventTimeCreated", this.ffEventTimeCreated);
         return true;
     }
     private boolean setEventTimeStarting() {
@@ -834,6 +786,8 @@ public class EditEventActivity extends AppCompatActivity implements OnMapReadyCa
             date = formatter.parse(String.format("%s,%s", textViewEventDate.getText(),
                     textViewEventTime.getText()));
             this.ffEventTimeStarting = date;
+            eventsCollectionRef.document(eventModel.getEventID()).update("eventTimeStarting", this.ffEventTimeStarting);
+
             return true;
         } catch (ParseException e) {
             e.printStackTrace();
@@ -872,6 +826,7 @@ public class EditEventActivity extends AppCompatActivity implements OnMapReadyCa
                                     invitedUserEmail));
                             ffInvitedUserInEventModels.add(new InvitedInEventUserModel(invitedUserID,
                                     invitedUserName, invitedUserEmail));
+                            eventsCollectionRef.document(eventModel.getEventID()).update("InvitedInEventUsers", ffInvitedUserInEventModels);
 
                         } else if (task.getResult().size() == 0) {
                             Toast.makeText(EditEventActivity.this, String.format("No user found" +
