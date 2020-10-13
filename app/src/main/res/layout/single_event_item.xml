@@ -1,9 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.cardview.widget.CardView
+    app:cardCornerRadius="24dp"
+    android:layout_width="370dp"
+    android:layout_height="wrap_content"
+    android:layout_marginRight="16dp"
+    android:layout_marginLeft="16dp"
+    android:layout_marginTop="16dp"
+    android:layout_marginBottom="16dp"
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:tools="http://schemas.android.com/tools">
+<androidx.constraintlayout.widget.ConstraintLayout
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:layout_gravity="center_vertical"
     android:padding="16dp">
 
 
@@ -74,8 +84,8 @@
         android:layout_height="wrap_content"
         android:text="Are you going?"
         android:textSize="7pt"
-        android:layout_marginTop="10dp"
-        android:layout_marginBottom="10dp"
+        android:layout_marginTop="6dp"
+        android:layout_marginBottom="20dp"
         app:layout_constraintBottom_toTopOf="@id/event_item_button_goto_event"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toStartOf="@id/event_item_checkBox_is_going"
@@ -95,38 +105,44 @@
 
     <Button
         android:id="@+id/event_item_button_goto_event"
-        android:layout_width="160dp"
+        android:layout_width="90dp"
         android:layout_height="wrap_content"
+        android:background="@drawable/rounded_corners_butten"
         android:text="GO TO EVENT"
+        android:textColor="@color/white"
+        android:textSize="7pt"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/Edit_Event"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <Button
+        android:id="@+id/Edit_Event"
+        android:layout_width="90dp"
+        android:layout_height="wrap_content"
+        android:background="@drawable/rounded_corners_butten"
+        android:text="EDIT"
+        android:textColor="@color/white"
         android:textSize="7pt"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@id/event_item_button_delete_event"
-        app:layout_constraintStart_toStartOf="parent"
-         />
-
-    <Button
-        android:id="@+id/event_item_button_delete_event"
-        android:layout_width="92dp"
-        android:layout_height="58dp"
-        android:text="DELETE EVENT"
-        android:textSize="7pt"
-        app:layout_constraintBottom_toBottomOf="@+id/event_item_button_goto_event"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toEndOf="@id/event_item_button_goto_event"
         app:layout_constraintTop_toTopOf="@+id/event_item_button_goto_event"
         app:layout_constraintVertical_bias="1.0" />
 
     <Button
-        android:id="@+id/Edit_Event"
-        android:layout_width="86dp"
-        android:layout_height="51dp"
-        android:text="EDIT EVENT"
+        android:id="@+id/event_item_button_delete_event"
+        android:layout_width="90dp"
+        android:layout_height="wrap_content"
+        android:background="@drawable/rounded_corners_butten"
+        android:text="DELETE EVENT"
+        android:textColor="@color/white"
         android:textSize="7pt"
-        app:layout_constraintBottom_toBottomOf="@+id/event_item_button_goto_event"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toEndOf="@id/event_item_button_delete_event"
+        app:layout_constraintStart_toEndOf="@id/Edit_Event"
         app:layout_constraintTop_toTopOf="@+id/event_item_button_goto_event"
         app:layout_constraintVertical_bias="1.0" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.cardview.widget.CardView>

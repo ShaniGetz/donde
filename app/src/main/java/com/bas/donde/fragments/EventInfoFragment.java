@@ -39,6 +39,7 @@ public class EventInfoFragment extends Fragment {
     private TextView textViewEventCreatorName;
     private TextView textViewEventTimeStarting;
     private TextView textViewEventTimeCreated;
+    private TextView textViewTnvitedHadline;
     private RecyclerView recyclerViewInvitedUsers;
 
     // data fields
@@ -55,6 +56,7 @@ public class EventInfoFragment extends Fragment {
         textViewEventTimeStarting = view.findViewById(R.id.info_textView_time_starting);
         textViewEventTimeCreated = view.findViewById(R.id.info_textView_time_created);
         recyclerViewInvitedUsers = view.findViewById(R.id.info_recyclerView_invited_users);
+        textViewTnvitedHadline = view.findViewById(R.id.invited_hadline);
 
         event = ((EventActivity) getActivity()).getEvent();
         eventId = ((EventActivity) getActivity()).getEventID();
@@ -63,15 +65,16 @@ public class EventInfoFragment extends Fragment {
     }
 
     private void initializeViews() {
-        textViewEventName.setText(String.format("Event name: %s", event.getEventName()));
-        textViewEventDescription.setText(String.format("Event description: %s",
+        textViewEventName.setText(String.format(event.getEventName()));
+        textViewEventDescription.setText(String.format(
                 event.getEventDescription()));
-        textViewEventLocationName.setText(String.format("Event location name: %s",
+        textViewEventLocationName.setText(String.format(
                 event.getEventLocationName()));
-        textViewEventCreatorName.setText(String.format("Event creator name: %s",
+        textViewEventCreatorName.setText(String.format("Creator: %s",
                 event.getEventCreatorName()));
-        textViewEventTimeStarting.setText("Event Starting at " +TimeHandMade(event.getEventTimeStarting().toString()));
-        textViewEventTimeCreated.setText("Event Created at " + TimeHandMade(event.getEventTimeCreated().toString()));
+        textViewEventTimeStarting.setText("Starting at " +TimeHandMade(event.getEventTimeStarting().toString()));
+        textViewEventTimeCreated.setText("Created at " + TimeHandMade(event.getEventTimeCreated().toString()));
+        textViewTnvitedHadline.setText("Participants:");
     }
 
     private String TimeHandMade(String allDate)  {

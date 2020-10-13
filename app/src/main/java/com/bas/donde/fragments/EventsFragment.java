@@ -112,8 +112,8 @@ public class EventsFragment extends Fragment {
                         holder.textViewEventName.setText(String.format(model.getInvitedInUserEventName()));
                         holder.textViewEventCreatorName.setText(String.format("Creator name: %s",
                                 model.getInvitedInUserEventCreatorName()));
-                        holder.textViewEventLocationName.setText(String.format("Location: %s", model.getInvitedInUserEventLocationName()));
-                        holder.textViewEventTimeStarting.setText("Time starting: "+ timeFormatting(model.getInvitedInUserEventTimeStarting().toString()));
+                        holder.textViewEventLocationName.setText(String.format(model.getInvitedInUserEventLocationName()));
+                        holder.textViewEventTimeStarting.setText("Starting at "+ timeFormatting(model.getInvitedInUserEventTimeStarting().toString()));
                         holder.buttonGotoEvent.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
@@ -182,7 +182,7 @@ public class EventsFragment extends Fragment {
         DividerItemDecoration dividerItemDecoration =
                 new DividerItemDecoration(recyclerViewEventsList.getContext(),
                         DividerItemDecoration.VERTICAL);
-        recyclerViewEventsList.addItemDecoration(dividerItemDecoration);
+//        recyclerViewEventsList.addItemDecoration(dividerItemDecoration);
         recyclerViewEventsList.setAdapter(eventsRecyclerAdapter);
     }
 

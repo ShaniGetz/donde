@@ -42,7 +42,7 @@
             android:windowSoftInputMode="adjustPan" />
         <activity
             android:name=".activities.EventActivity"
-            android:theme="@style/Theme.AppCompat.NoActionBar" />
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyAqVEnRRK2le4e6Mr4wod7RaYzSMvKH3_c" />
