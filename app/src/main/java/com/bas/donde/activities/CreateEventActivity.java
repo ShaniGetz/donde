@@ -722,8 +722,7 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
     }
 
 
-    private void addInvitedInUserEvent(String newEventId, EventModel newEventModel,
-                                       CollectionReference invitedInUserEventsRef) {
+    private void addInvitedInUserEvent(String newEventId, EventModel newEventModel, CollectionReference invitedInUserEventsRef) {
         InvitedInUserEventModel newInvitedInUserEventModel =
                 new InvitedInUserEventModel(newEventId, newEventModel.getEventName(),
                         newEventModel.getEventLocationName(), newEventModel.getEventCreatorName()
