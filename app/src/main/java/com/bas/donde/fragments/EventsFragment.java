@@ -165,7 +165,6 @@ public class EventsFragment extends Fragment {
                 }).addOnSuccessListener(new OnSuccessListener<ArrayList<InvitedInEventUserModel>>() {
                     @Override
                     public void onSuccess(ArrayList<InvitedInEventUserModel> invitedInEventUserModels) {
-
                         Gson gson = new Gson();
                         eventJson = gson.toJson(eventModel);
                         invitedInEventUserModelsList = invitedInEventUserModels;
@@ -270,6 +269,8 @@ public class EventsFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 holder.showProgressBar();
+                holder.buttonGotoEvent.setEnabled(true);
+                holder.buttonGotoEvent.setBackgroundColor(R.drawable.rounded_corners_butten);
                 Toast.makeText(getContext(), "Downloading invited users list",
                         Toast.LENGTH_SHORT).show();
                 DocumentReference eventRef =
@@ -281,8 +282,7 @@ public class EventsFragment extends Fragment {
                                 documentSnapshot.toObject(EventModel.class);
                         CollectionReference invitedInEventUsersCollectionRef =
                                 eventRef.collection(getString(R.string.ff_InvitedInEventUsers));
-                        initializeInvitedUsersList(invitedInEventUsersCollectionRef, currUserID,
-                                position, eventModel, holder);
+                        initializeInvitedUsersList(invitedInEventUsersCollectionRef, currUserID, position, eventModel, holder);
                     }
                 });
             }
@@ -475,8 +475,7 @@ public class EventsFragment extends Fragment {
             @Override
             public void onFailure(@NonNull Exception e) {
                 // TODO: Implement default avatar
-                myAssert(false,
-                        "Failed to get user avatar for " + user.getInvitedInEventUserName() + " uri" +
+                myAssert(false, "Failed to get user avatar for " + user.getInvitedInEventUserName() + " uri" +
                                 ": " + user.getInvitedInEventUserID() + ".jpg" +
                                 " Error: " + e.getMessage());
 //                avatar = defaultAvatar();

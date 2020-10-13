@@ -6,6 +6,7 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -70,6 +71,7 @@ public class EventActivity extends AppCompatActivity {
     }
 
     public static boolean hasPermissions(Context context, String... permissions) {
+
         for (String permission : permissions) {
             if (ContextCompat.checkSelfPermission(context, permission)
                     != PackageManager.PERMISSION_GRANTED) {
@@ -93,6 +95,8 @@ public class EventActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
+        Log.d(TAG, "in onCreate");
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_event);
         initializeFields();
@@ -112,6 +116,7 @@ public class EventActivity extends AppCompatActivity {
     @Override
     public void onRequestPermissionsResult(
             int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        Log.d(TAG, "in onRequestPermissionsResult");
         if (requestCode == REQUEST_CODE_REQUIRED_PERMISSIONS) {
             for (int grantResult : grantResults) {
                 if (grantResult == PackageManager.PERMISSION_DENIED) {
@@ -141,60 +146,6 @@ public class EventActivity extends AppCompatActivity {
         super.onStop();
         offlineDataTransfer.stopAll();
     }
-
-
-//    private void initializeInvitedUsersList() {
-//        firebaseFirestore.collection(getString(R.string.ff_Events)).document(eventID).collection(getString(R.string.ff_InvitedInEventUsers)).get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-//            @Override
-//            public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-//
-//                firebaseFirestore.runTransaction(new Transaction.Function<ArrayList<InvitedInEventUserModel>>() {
-//
-//                    @Nullable
-//                    @Override
-//                    public ArrayList<InvitedInEventUserModel> apply(@NonNull Transaction transaction) throws FirebaseFirestoreException {
-//                        ArrayList<InvitedInEventUserModel> invitedInEventUserModels = new ArrayList<>();
-//                        for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
-//                            Log.d(TAG, String.format("Adding query snapshot name: %s",
-//                                    documentSnapshot.get(getString(R.string.ff_InvitedInEventUsers_invitedInEventUserName))));
-//                            String userId =
-//                                    documentSnapshot.getString(getString(R.string.ff_InvitedInEventUsers_invitedInEventUserID));
-//
-//                            Log.d(TAG, "checking if " + userId + "==" + currUserID);
-//                            if (TextUtils.equals(userId, currUserID)) {
-//                                Log.d(TAG, "enteres");
-//                                invitedInEventUserModels.add(0,
-//                                        documentSnapshot.toObject(InvitedInEventUserModel.class));
-//                            } else {
-//
-//                                invitedInEventUserModels.add(documentSnapshot.toObject(InvitedInEventUserModel.class));
-//                            }
-//
-//
-//                        }
-//                        Log.d(TAG, "index 0: " + invitedInEventUserModels.get(0)
-//                                .getInvitedInEventUserName());
-//                        return invitedInEventUserModels;
-//                    }
-//                }).addOnSuccessListener(new OnSuccessListener<ArrayList<InvitedInEventUserModel>>() {
-//                    @Override
-//                    public void onSuccess(ArrayList<InvitedInEventUserModel> invitedInEventUserModels) {
-//                        Log.d(TAG, String.format("Size of array after transaction is %s and first " +
-//                                        "user is %s", invitedInEventUserModels.size(),
-//                                invitedInEventUserModels.size() == 0 ? "NO " +
-//                                        "USER" : invitedInEventUserModels.get(0)));
-//                        invitedUserInEventModelList = invitedInEventUserModels;
-//                    }
-//                }).addOnFailureListener(new OnFailureListener() {
-//                    @Override
-//                    public void onFailure(@NonNull Exception e) {
-//                        Log.d(TAG, String.format("Transaction failed with error: %s", e.getMessage()));
-//                    }
-//                });
-//
-//            }
-//        });
-//    }
 
 
     public EventModel getEvent() {
@@ -290,11 +241,12 @@ public class EventActivity extends AppCompatActivity {
             default:
                 mainTab = null;
                 subTab1 = null;
-
+                break;
 
         }
         mainTab.setTextSize(20);
         subTab1.setTextSize(15);
     }
+
 
 }

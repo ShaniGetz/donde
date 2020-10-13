@@ -11,6 +11,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -87,12 +88,14 @@ public class LoginActivity extends Activity {
                             // login successful
                             if (task.isSuccessful()) {
 
-                                Log.d("LoginActivity", "User Logged in successfully");
+                                Toast.makeText(LoginActivity.this, "User Logged in successfully",
+                                        Toast.LENGTH_SHORT).show();
                                 gotoMainActivity();
                             } else {
                                 // show error to user
                                 String errorMessage = task.getException().getMessage();
-                                Log.d("LoginActivity", "Error: " + errorMessage);
+                                Toast.makeText(LoginActivity.this, "Error: " + errorMessage,
+                                        Toast.LENGTH_SHORT).show();
                             }
                             // after progress we don't want to see progress bar
                             progressBar.setVisibility(View.INVISIBLE);
@@ -149,4 +152,6 @@ public class LoginActivity extends Activity {
         startActivity(registerIntent);
 
     }
+
+
 }
