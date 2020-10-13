@@ -8,6 +8,7 @@
         <item name="colorAccent">@color/pink</item>
         <item name="android:textColor">@color/gray_dark_dark</item>
         <item name="android:textColorSecondary">@color/gray_dark_dark</item>
+
     </style>
 
     <style name="EventTitle" parent="Theme.AppCompat.Light">
@@ -18,6 +19,29 @@
     <style name="Alert" parent="ThemeOverlay.AppCompat.Light">
 
     </style>
+
+    <style name="MyDialogTheme" parent="Theme.AppCompat.Light.Dialog.Alert">
+        <item name="android:windowBackground">@color/white</item>
+        <item name="android:textColorHighlight">@color/pink</item>
+        <item name="android:textColor">@color/gray_dark_dark</item>
+    </style>
+
+    <style name="TimePickerTheme" parent="Theme.AppCompat.Light.Dialog">
+        <item name="colorAccent">@color/pink</item>
+        <item name="android:background">@color/white</item>
+        <item name="android:headerBackground">@color/pink</item>
+        <item name="colorPrimary">@color/pink</item>
+        <item name="android:textColorPrimaryInverse">@color/gray_dark_dark</item>
+    </style>
+
+    <style name="DialogTheme" parent="Theme.AppCompat.Light.Dialog">
+        <item name="colorAccent">@color/pink</item>
+        <item name="android:background">@color/white</item>
+        <item name="android:headerBackground">@color/pink</item>
+        <item name="colorPrimary">@color/pink</item>
+        <item name="android:textColorPrimaryInverse">@color/gray_dark_dark</item>
+    </style>
+
     <style name="SpinnerTimePicker" parent="android:Widget.Material.Light.TimePicker">
         <item name="android:timePickerMode">spinner</item>
     </style>

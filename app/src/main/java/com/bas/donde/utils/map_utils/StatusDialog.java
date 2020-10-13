@@ -23,7 +23,7 @@ public class StatusDialog extends AppCompatDialogFragment {
         LayoutInflater inflater = getActivity().getLayoutInflater();
         View view = inflater.inflate(R.layout.layout_status_dialog, null);
         builder.setView(view)
-                .setTitle("Status")
+                .setTitle("My status")
                 .setIcon(R.drawable.ic_baseline_mode_comment_24)
                 .setNegativeButton("cancel", new DialogInterface.OnClickListener() {
                     @Override

@@ -193,7 +193,7 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
                 // Show an explanation to the user *asynchronously* -- don't block
                 // this thread waiting for the user's response! After the user
                 // sees the explanation, try again to request the permission.
-                new AlertDialog.Builder(this)
+                new AlertDialog.Builder(this, R.style.MyDialogTheme)
                         .setTitle("Location Permission Needed")
                         .setMessage("This app needs the Location permission, please accept to use location functionality")
                         .setPositiveButton("OK", new DialogInterface.OnClickListener() {
@@ -435,8 +435,8 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
                 DatePickerDialog mDatePicker;
 //                int resTheme = R.style.SpinnerTimePicker;
 
-                int resTheme = DatePickerDialog.THEME_HOLO_DARK;
-                mDatePicker = new DatePickerDialog(createContext, resTheme,
+//                int resTheme = DatePickerDialog.THEME_HOLO_LIGHT;
+                mDatePicker = new DatePickerDialog(createContext, R.style.DialogTheme,
                         new DatePickerDialog.OnDateSetListener() {
                             @Override
                             public void onDateSet(DatePicker view, int selectedYear, int selectedMonth, int selectedDayOfMonth) {
@@ -485,8 +485,8 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
                     }
                 }
                 TimePickerDialog mTimePicker;
-                int resTheme = TimePickerDialog.THEME_HOLO_DARK;
-                mTimePicker = new TimePickerDialog(createContext, resTheme,
+//                int resTheme = TimePickerDialog.THEME_HOLO_LIGHT;
+                mTimePicker = new TimePickerDialog(createContext, R.style.TimePickerTheme,
                         new TimePickerDialog.OnTimeSetListener() {
                             @Override
                             public void onTimeSet(TimePicker timePicker, int selectedHour, int selectedMinute) {
