@@ -1,13 +1,13 @@
 <resources>
 
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat">
+    <style name="AppTheme" parent="Theme.AppCompat.Light">
         <!-- Customize your theme here. -->
-        <item name="colorPrimary">@color/black</item>
+        <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-        <item name="colorAccent">@color/green</item>
-        <item name="android:textColor">@color/white</item>
-        <item name="android:textColorSecondary">@color/white</item>
+        <item name="colorAccent">@color/pink</item>
+        <item name="android:textColor">@color/gray_dark_dark</item>
+        <item name="android:textColorSecondary">@color/gray_dark_dark</item>
     </style>
 
     <style name="EventTitle" parent="Theme.AppCompat.Light">
@@ -15,7 +15,7 @@
 
     </style>
 
-    <style name="Alert" parent="ThemeOverlay.AppCompat.Dark">
+    <style name="Alert" parent="ThemeOverlay.AppCompat.Light">
 
     </style>
     <style name="SpinnerTimePicker" parent="android:Widget.Material.Light.TimePicker">

@@ -159,7 +159,7 @@ public class EventsFragment extends Fragment {
         DividerItemDecoration dividerItemDecoration =
                 new DividerItemDecoration(recyclerViewEventsList.getContext(),
                         DividerItemDecoration.VERTICAL);
-        recyclerViewEventsList.addItemDecoration(dividerItemDecoration);
+//        recyclerViewEventsList.addItemDecoration(dividerItemDecoration);
         recyclerViewEventsList.setAdapter(eventsRecyclerAdapter);
     }
 

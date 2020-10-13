@@ -5,7 +5,8 @@
     android:textSize="7pt"
     android:gravity="center"
     android:layout_centerHorizontal="true"
-    android:padding="8dp">
+    android:padding="8dp"
+    android:textColor="@color/gray_dark_dark">
 
 
 </TextView>
