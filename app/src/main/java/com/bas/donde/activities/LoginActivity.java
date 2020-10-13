@@ -4,13 +4,13 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.text.method.PasswordTransformationMethod;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -20,7 +20,6 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
-import android.text.method.PasswordTransformationMethod;
 
 
 public class LoginActivity extends Activity {
@@ -93,7 +92,7 @@ public class LoginActivity extends Activity {
                             } else {
                                 // show error to user
                                 String errorMessage = task.getException().getMessage();
-                                Log.d("LoginActivity","Error: " + errorMessage);
+                                Log.d("LoginActivity", "Error: " + errorMessage);
                             }
                             // after progress we don't want to see progress bar
                             progressBar.setVisibility(View.INVISIBLE);
@@ -108,8 +107,7 @@ public class LoginActivity extends Activity {
         textViewGotoRegister.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent registerIntent = new Intent(LoginActivity.this, RegisterActivity.class);
-                startActivity(registerIntent);
+                gotoRegister();
 
             }
         });
@@ -144,5 +142,11 @@ public class LoginActivity extends Activity {
         startActivity(mainIntent);
         // prevent option to back-click back to here
         finish();
+    }
+
+    private void gotoRegister() {
+        Intent registerIntent = new Intent(LoginActivity.this, RegisterActivity.class);
+        startActivity(registerIntent);
+
     }
 }
