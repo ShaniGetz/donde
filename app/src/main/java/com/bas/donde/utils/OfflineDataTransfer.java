@@ -158,21 +158,17 @@ public class OfflineDataTransfer {
         return Location_dict.get(name);
 
     }
-
     public String getOtherStatus(String name) {
         return Status_dict.get(name);
     }
-
     public void stopAdvertising() {
         isAdvertising = false;
         Nearby.getConnectionsClient(context).stopAdvertising();
     }
-
     public void stopDiscovering() {
         isDiscovering = false;
         Nearby.getConnectionsClient(context).stopDiscovery();
     }
-
     public void startAdvertising() {
         isAdvertising = true;
         AdvertisingOptions advertisingOptions =
@@ -192,7 +188,6 @@ public class OfflineDataTransfer {
 
                         });
     }
-
     public void startDiscovery() {
         isDiscovering = true;
         DiscoveryOptions discoveryOptions = new DiscoveryOptions.Builder().setStrategy(STRATEGY).build();
@@ -209,7 +204,6 @@ public class OfflineDataTransfer {
                             Log.d("OfflineDataTransfer", e.toString());
                         });
     }
-
     public void connect() {
         if (isDiscovering) {
             stopDiscovering();

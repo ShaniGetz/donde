@@ -113,7 +113,6 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback {
                 mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(localLatling,
                         17));
                 offlineDataTransfer.connect();
-
                 updateUsersData();
             }
         };
@@ -128,6 +127,7 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback {
             InvitedInEventUserModel user = invitedUsersList.get(i);
             LatLng updatedLocation = new LatLng(user.getInvitedInEventUserLastLocation().getLatitude(), user.getInvitedInEventUserLastLocation().getLongitude());
             mMyClusterItems.get(i).setPosition(updatedLocation);
+            mMyClusterItems.get(i).setSnippet(user.getInvitedInEventUserStatus());
             mClusterManagerRenderer.setUpdateMarker(mMyClusterItems.get(i));
 
             // update user in users list
