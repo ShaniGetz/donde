@@ -219,7 +219,7 @@ public class EditEventActivity extends AppCompatActivity implements OnMapReadyCa
                         mGoogleMap.setMyLocationEnabled(true);
                     }
                 } else {
-                    Toast.makeText(this, "permission denied", Toast.LENGTH_LONG).show();
+                    Log.d("EDIT EVENT ACTIVTY", "permission denied");
                 }
             }
 
@@ -545,8 +545,7 @@ public class EditEventActivity extends AppCompatActivity implements OnMapReadyCa
             initializeFields();
             initializeListeners();
         } else {
-            // TODO: Make dialog box and not toast
-            Toast.makeText(this, "Go online in order to create an event", Toast.LENGTH_SHORT).show();
+            Log.d("editActivity", "Go online in order to create an event");
             gotoEvents();
         }
     }
@@ -656,7 +655,7 @@ public class EditEventActivity extends AppCompatActivity implements OnMapReadyCa
             toastErrorMessage = "Fix time starting";
         }
         if (!TextUtils.isEmpty(toastErrorMessage)) {
-            Toast.makeText(this, toastErrorMessage, Toast.LENGTH_SHORT).show();
+            Log.d("editActivty", toastErrorMessage);
             return false;
         } else {
             return true;
@@ -664,8 +663,7 @@ public class EditEventActivity extends AppCompatActivity implements OnMapReadyCa
     }
 
     void searchQuerry(String location){
-        Toast.makeText(EditEventActivity.this, "Search query is: " + location,
-                Toast.LENGTH_SHORT).show();
+        Log.d("EditEventActivity", "Search query is: " + location);
         List<Address> addressList = new ArrayList<>();
         if (location != null || !location.equals("")) {
             Geocoder geocoder = new Geocoder(EditEventActivity.this);
@@ -677,7 +675,7 @@ public class EditEventActivity extends AppCompatActivity implements OnMapReadyCa
                 e.printStackTrace();
             }
             if (addressList.size() == 0) {
-                Toast.makeText(EditEventActivity.this, "Search query failed", Toast.LENGTH_SHORT).show();
+                Log.d("EditEventActivity", "Search query failed");
             } else {
 
                 Address address = addressList.get(0);
@@ -766,9 +764,7 @@ public class EditEventActivity extends AppCompatActivity implements OnMapReadyCa
             @Override
             public void onFailure(@NonNull Exception e) {
 
-                Toast.makeText(EditEventActivity.this, String.format("Error getting creator" +
-                                " user name: %s", e.getMessage()),
-                        Toast.LENGTH_SHORT).show();
+                Log.d("EditEventActivity", String.format("Error getting creator" + " user name: %s", e.getMessage()));
             }
 
         }).addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
@@ -836,20 +832,14 @@ public class EditEventActivity extends AppCompatActivity implements OnMapReadyCa
                             eventsCollectionRef.document(eventModel.getEventID()).update("InvitedInEventUsers", ffInvitedUserInEventModels);
 
                         } else if (task.getResult().size() == 0) {
-                            Toast.makeText(EditEventActivity.this, String.format("No user found" +
-                                            " with email %s", userEmail),
-                                    Toast.LENGTH_SHORT).show();
+                            Log.d("EditEventActivity", String.format("No user found" + " with email %s", userEmail));
                         } else if (task.getResult().size() > 1) {
-                            Toast.makeText(EditEventActivity.this, String.format("Found more " +
-                                            "than one user with email %s", userEmail),
-                                    Toast.LENGTH_SHORT).show();
+                            Log.d("EditEventActivity", String.format("Found more " + "than one user with email %s", userEmail));
                         }
                         progressBar.setVisibility(View.INVISIBLE);
 
                     } else {
-                        Toast.makeText(EditEventActivity.this, String.format("Error processing " +
-                                        "email %s, error: %s", userEmail, task.getException().getMessage()),
-                                Toast.LENGTH_SHORT).show();
+                        Log.d("EditEventActivity", String.format("Error processing " + "email %s, error: %s", userEmail, task.getException().getMessage()));
                     }
                     didFinishSettingUsers = true;
                 }

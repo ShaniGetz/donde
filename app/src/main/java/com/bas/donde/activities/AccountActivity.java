@@ -72,7 +72,7 @@ public class AccountActivity extends Activity {
         initializeListeners();
         retrieveAccountDetails();
         // TODO: Default pic shoud not upload on account edit
-        DEFAULT_PROFILE_PIC_URI = (new Uri.Builder())
+        DEFAULT_PROFILE_PIC_URI=(new Uri.Builder())
                 .scheme(ContentResolver.SCHEME_ANDROID_RESOURCE)
                 .authority(getResources().getResourcePackageName(R.drawable.avatar2))
                 .appendPath(getResources().getResourceTypeName(R.drawable.avatar2))
@@ -139,7 +139,7 @@ public class AccountActivity extends Activity {
         buttonChangeProfilePic = findViewById(R.id.change_profile_pic);
         profileImage = findViewById(R.id.profile_pic);
         storageReference = FirebaseStorage.getInstance().getReference();
-        StorageReference profileRef = storageReference.child(fAuth.getCurrentUser().getUid() + ".jpg");
+        StorageReference profileRef = storageReference.child("users/"+fAuth.getCurrentUser().getUid()+".jpg");
         profileRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
             @Override
             public void onSuccess(Uri uri) {
@@ -167,8 +167,8 @@ public class AccountActivity extends Activity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == 1000) {
-            if (resultCode == Activity.RESULT_OK) {
+        if(requestCode == 1000){
+            if(resultCode == Activity.RESULT_OK){
                 Uri imageUri = data.getData();
 //                profileImage.setImageURI(imageUri);
                 uploadImageToFirebase(imageUri);
@@ -269,7 +269,7 @@ public class AccountActivity extends Activity {
         buttonSave.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                didSetProfilePic = true;
+
                 String sUserName = textViewName.getText().toString();
                 if (isSaveFieldsValid(sUserName)) {
                     //show progress

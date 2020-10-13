@@ -2,8 +2,10 @@ package com.bas.donde.activities;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -14,6 +16,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.bas.donde.R;
+import android.text.method.PasswordTransformationMethod;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
@@ -27,12 +30,17 @@ public class RegisterActivity extends Activity {
     EditText editTextPassword;
     ProgressBar progressBar;
     FirebaseAuth fAuth;
+    private Button showHideBtn;
+    boolean isHidden = true;
+
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
 
+        //
+        
         initializeFields();
         initializeListeners();
     }
@@ -44,6 +52,23 @@ public class RegisterActivity extends Activity {
         editTextPassword = findViewById(R.id.register_editText_password);
         progressBar = findViewById(R.id.register_progressBar);
         fAuth = FirebaseAuth.getInstance();
+        showHideBtn = findViewById(R.id.showHideBtn);
+        showHideBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.d("TAG", "sdfgsdg");
+                if (isHidden) {
+                    editTextPassword.setTransformationMethod(null);
+                    showHideBtn.setBackgroundResource(R.drawable.ic_baseline_remove_red_eye_24);
+                    isHidden = false;
+                } else {
+                    isHidden = true;
+                    editTextPassword.setTransformationMethod(new PasswordTransformationMethod());
+                    showHideBtn.setBackgroundResource(R.drawable.ic_eye_visibility_off_24);
+
+                }
+            }
+        });
     }
 
     private void initializeListeners() {
@@ -71,14 +96,12 @@ public class RegisterActivity extends Activity {
                             // register successful
                             if (task.isSuccessful()) {
 
-                                Toast.makeText(RegisterActivity.this, "User added successfully",
-                                        Toast.LENGTH_LONG).show();
+                                Log.d("RegisterActivity", "User added successfully");
                                 gotoAccountActivity();
                             } else {
                                 // show error to user
                                 String errorMessage = task.getException().getMessage();
-                                Toast.makeText(RegisterActivity.this, "Error: " + errorMessage,
-                                        Toast.LENGTH_LONG).show();
+                                Log.d("RegisterActivity",  "Error: " + errorMessage);
                             }
                             // after progress we don't want to see progress bar
                             progressBar.setVisibility(View.INVISIBLE);
