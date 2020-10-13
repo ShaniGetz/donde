@@ -39,7 +39,6 @@ import com.bas.donde.activities.MainActivity;
 import com.bas.donde.models.EventModel;
 import com.bas.donde.models.InvitedInEventUserModel;
 import com.bas.donde.models.InvitedInUserEventModel;
-import com.bas.donde.utils.EventDeleter;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -538,45 +537,6 @@ public class EventsFragment extends Fragment {
         return (date + "/" + Year + "    " + hour + ":" + minute);
     }
 
-
-
-
-
-    private void testingFF() {
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        DocumentReference docRef = db.collection("Events").document("fgsdfg");
-        db.runTransaction(new Transaction.Function<Void>() {
-            @Override
-            public Void apply(Transaction transaction) throws FirebaseFirestoreException {
-                DocumentSnapshot snapshot = transaction.get(docRef);
-
-                EventDeleter.deleteEvent("sdfasdf", db, transaction);
-
-                // Note: this could be done without a transaction
-                //       by updating the population using FieldValue.increment()
-                double newPopulation = snapshot.getDouble("population") + 1;
-                transaction.update(docRef, "population", newPopulation);
-
-                // Success
-                return null;
-            }
-        }).addOnSuccessListener(new OnSuccessListener<Void>() {
-            @Override
-            public void onSuccess(Void aVoid) {
-                Log.d(TAG, "Transaction success!");
-            }
-        })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.w(TAG, "Transaction failure.", e);
-                    }
-                });
-
-
-
-
-    }
 
     class EventsViewHolder extends RecyclerView.ViewHolder {
 

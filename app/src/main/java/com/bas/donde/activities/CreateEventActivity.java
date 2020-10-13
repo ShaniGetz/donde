@@ -310,9 +310,12 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
     Adds invited user from autocomplete text view to invited users list
      */
     private void addInvitedUserToList(String invitedUser) {
-        autoCompleteInvitedUsers.setText("");
-        listViewInvitedUsersList.add(invitedUser);
-        listViewInvitedUsersAdapter.notifyDataSetChanged();
+        if (!TextUtils.isEmpty(invitedUser)) {
+            listViewInvitedUsersList.add(invitedUser);
+            autoCompleteInvitedUsers.setText("");
+            // Moving this to UI thread
+            listViewInvitedUsersAdapter.notifyDataSetChanged();
+        }
     }
 
     private void initializeFields() {
@@ -322,11 +325,6 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
         editTextEventDescription = findViewById(R.id.create_editText_event_description);
         buttonCreateEvent = findViewById(R.id.create_button_create);
         progressBar = findViewById(R.id.create_progressBar);
-//        editTextEventDay = findViewById(R.id.create_editText_event_day);
-//        editTextEventMonth = findViewById(R.id.create_editText_event_month);
-//        editTextEventYear = findViewById(R.id.create_editText_event_year);
-//        editTextEventHour = findViewById(R.id.create_editText_event_hour);
-//        editTextEventMinute = findViewById(R.id.create_editText_event_minute);
         searchViewLocationSearch = findViewById(R.id.create_searchView_location_search);
         timePicker = findViewById(R.id.create_timePicker);
         datePicker = findViewById(R.id.create_datePicker);
@@ -727,47 +725,57 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
                         documentReference.collection(getString(R.string.ff_InvitedInEventUsers));
                 WriteBatch eventCreateBatch = firebaseFirestore.batch();
                 for (InvitedInEventUserModel invitedInEventUserModel : ffInvitedUserInEventModels) {
+
+
                     Log.d(TAG, "Entering addInvitedInEventUser");
-
-
                     addInvitedInEventUser(invitedInEventUsersRef, invitedInEventUserModel, eventCreateBatch);
-                    // add event to invited users
+
+
                     String invitedInEventUserId = invitedInEventUserModel.getInvitedInEventUserID();
                     CollectionReference invitedInUserEventsRef =
                             usersCollectionRef.document(invitedInEventUserId).collection(getString(R.string.ff_InvitedInUserEvents));
+
                     Log.d(TAG, "Entering addInvitedInUserEvent");
                     addInteractedEmailsToUser(usersCollectionRef.document(invitedInEventUserId),
                             eventCreateBatch);
                     addInvitedInUserEvent(newEventId, newEventModel, invitedInUserEventsRef, eventCreateBatch);
-                    eventCreateBatch.update(documentReference,
-                            App.getRes().getString(R.string.ff_Events_eventInvitedUserIDs),
-                            invitedInEventUsersRef);
+
+                    Log.d(TAG, "Adding userID to array of IDs");
+                    ffEventInvitedUserIDs.add(invitedInEventUserId);
 
                 }
+                eventCreateBatch.update(documentReference,
+                        App.getRes().getString(R.string.ff_Events_eventInvitedUserIDs),
+                        ffEventInvitedUserIDs);
                 eventCreateBatch.commit().addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
                         Log.d(TAG, "event created succesfully");
+                        gotoEvents();
                     }
                 }).addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        documentReference.delete(); // TODO: Handle failure
                         Log.d(TAG, "event failed to create");
+                        documentReference.delete().addOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+                                gotoEvents();
+                            }
+                        }); // TODO: Handle
+                        // failure
                     }
                 });
 
-
-                Log.d("CreateEventActivity", "Event created successfully");
-                gotoEvents();
 
             }
 
         }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
-                Log.d("CreateEventActivity",
+                Log.d(TAG,
                         "Error while creating event: " + e.getMessage());
+                gotoEvents();
             }
         });
 
@@ -778,8 +786,7 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
     private void addInteractedEmailsToUser(DocumentReference userRef, WriteBatch writeBatch) {
 
         writeBatch.update(userRef, getString(R.string.ff_Users_userInteractedUserEmails),
-                FieldValue.arrayUnion((Object[]) listViewInvitedUsersList.toArray(new String[listViewInvitedUsersList.size()])));)
-        ;
+                FieldValue.arrayUnion((Object[]) listViewInvitedUsersList.toArray(new String[listViewInvitedUsersList.size()])));
     }
 
 
@@ -928,8 +935,10 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
         ffInvitedUserInEventModels = new ArrayList<>();
         CollectionReference usersRef = firebaseFirestore.collection(getString(R.string.ff_Users));
         // add self to invitees
-        userEmails.add(firebaseUser.getEmail());
-        for (String userEmail : userEmails) {
+        ArrayList<String> newListWithUser = new ArrayList<>();
+        newListWithUser.add(firebaseUser.getEmail());
+        newListWithUser.addAll(userEmails);
+        for (String userEmail : newListWithUser) {
             if (TextUtils.isEmpty(userEmail)) {
                 continue;
             }
