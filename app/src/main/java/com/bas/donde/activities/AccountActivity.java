@@ -109,6 +109,7 @@ public class AccountActivity extends Activity {
         buttonDeleteAccount = findViewById(R.id.account_button_delete_account);
         textViewName = findViewById(R.id.account_editText_name);
         progressBar = findViewById(R.id.account_progressBar);
+        setButtonDeleteAccountOnClick();
         setSaveButtonOnClick();
     }
 
@@ -144,8 +145,8 @@ public class AccountActivity extends Activity {
 
     private void initializeFromRegister() {
         Log.d(TAG, "in initializeFromRegister");
-        buttonCancel.setVisibility(View.INVISIBLE);
-        buttonDeleteAccount.setVisibility(View.INVISIBLE);
+//        buttonCancel.setVisibility(View.INVISIBLE);
+//        buttonDeleteAccount.setVisibility(View.INVISIBLE);
         buttonChangeProfilePic.setText("Add profile picture");
         initialUserProfilePicURI = DEFAULT_AVATAR_STORAGE_STRING;
         setChangeProfilePicButtonOnClick();
@@ -235,6 +236,50 @@ public class AccountActivity extends Activity {
 
             }
         });
+    }
+
+    private void setButtonDeleteAccountOnClick() {
+        buttonDeleteAccount.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                // TODO: handle deleting users from events theyre invited to
+                // delete user from Users collection
+                usersCollectionRef.document(userID).delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Toast.makeText(AccountActivity.this, String.format("Successfully deleted " +
+                                        "account with email %s", userEmail),
+                                Toast.LENGTH_SHORT).show();
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+
+                        Toast.makeText(AccountActivity.this, String.format("Failed to delete " +
+                                        "account with email %s, error:", userEmail, e.getMessage()),
+                                Toast.LENGTH_SHORT).show();
+                    }
+                });
+
+                // delete user from Events collection
+                // delete user from authentication
+                firebaseUser.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Log.d(TAG, "Successfully deleted user from auth");
+                        gotoLoginActivity();
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Toast.makeText(AccountActivity.this, "Failed to delete user from FirebaseAuth", Toast.LENGTH_SHORT).show();
+                    }
+                });
+
+            }
+        });
+
     }
 
     private void saveNewUser(DocumentReference userRef) {
@@ -359,4 +404,6 @@ public class AccountActivity extends Activity {
         // prevent option to back-click back to here
         finish();
     }
+
+
 }

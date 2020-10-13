@@ -92,6 +92,7 @@
         android:layout_height="wrap_content"
         android:hint="Password"
         android:gravity="center"
+        android:inputType="textPassword"
         android:textAlignment="center"
         android:background="@drawable/rounded_corners_info"
         android:textColorHighlight="@color/pink_orenge"

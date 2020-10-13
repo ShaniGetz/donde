@@ -964,7 +964,6 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
             }
             Query userByEmailQuery = usersRef.whereEqualTo(getString(R.string.ff_Users_userEmail)
                     , userEmail);
-
             userByEmailQuery.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                 @Override
                 public void onComplete(@NonNull Task<QuerySnapshot> task) {
@@ -979,20 +978,16 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
                             // TODO: retrieve
 //                            String invitedUserProfilePicURL = invitedUserDoc.getString(
 //                                    getString(R.string.ff_InvitedInEventUser_));
-                            Log.d(TAG, String.format("adding user to ffInvited: %s",
-                                    invitedUserEmail));
+                            Log.d(TAG, String.format("adding user to ffInvited: %s", invitedUserEmail));
                             ffInvitedUserInEventModels.add(new InvitedInEventUserModel(invitedUserID,
                                     invitedUserName, invitedUserEmail));
 
                         } else if (task.getResult().size() == 0) {
-                            Toast.makeText(CreateEventActivity.this, String.format("No user " +
-                                    "found" + " with " + "email %s", userEmail), Toast.LENGTH_SHORT);
+                            Toast.makeText(CreateEventActivity.this, String.format("No user " + "found" + " with " + "email %s", userEmail), Toast.LENGTH_SHORT);
                         } else if (task.getResult().size() > 1) {
                             Toast.makeText(CreateEventActivity.this,
-                                    String.format("Found more " + "than one user with email %s",
-                                            userEmail), Toast.LENGTH_SHORT);
+                                    String.format("Found more " + "than one user with email %s", userEmail), Toast.LENGTH_SHORT);
                         }
-
                     } else {
                         Log.d("CreateEventActivity", String.format("Error processing " +
                                 "email %s, error: %s", userEmail, task.getException().getMessage()));

@@ -228,7 +228,7 @@
             android:layout_marginBottom="10dp"
             android:background="@drawable/rounded_corners_info"
             android:gravity="center"
-            android:hint="your.friend@gmail.com"
+            android:hint="invite.friend@gmail.com"
             android:imeOptions="actionDone"
             android:inputType="textEmailAddress"
             android:textAlignment="center"
