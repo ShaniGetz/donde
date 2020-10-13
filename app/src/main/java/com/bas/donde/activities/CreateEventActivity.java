@@ -32,7 +32,6 @@ import android.widget.ProgressBar;
 import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.TimePicker;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -77,6 +76,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.WriteBatch;
 
 import java.io.IOException;
 import java.text.ParseException;
@@ -142,6 +142,7 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
 
     private boolean didFinishSettingCreatorName;
     private boolean didFinishSettingUsers;
+    private ArrayList<String> ffEventInvitedUserIDs;
 
     void checkForPermissions() {
 
@@ -344,6 +345,9 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
         initializeListViewInvitedUsers();
         initializeAutocompleteInvitedUsers();
 
+        ffEventInvitedUserIDs = new ArrayList<>();
+
+
         // Location
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         mapFrag =
@@ -395,12 +399,12 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
 
     }
 
-    private void updateCurrentDate(){
+    private void updateCurrentDate() {
         textViewEventDate = findViewById(R.id.create_textView_event_date);
         Date currDate = Calendar.getInstance().getTime();
-        String day          = (String) DateFormat.format("dd",   currDate); // 20
-        String monthNumber  = (String) DateFormat.format("MM",   currDate); // 06
-        String year         = (String) DateFormat.format("yyyy", currDate); // 2013
+        String day = (String) DateFormat.format("dd", currDate); // 20
+        String monthNumber = (String) DateFormat.format("MM", currDate); // 06
+        String year = (String) DateFormat.format("yyyy", currDate); // 2013
         textViewEventDate.setText(day + "/" + monthNumber + "/" + year);
     }
 
@@ -412,20 +416,20 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
             //TODO: Hide soft keyboard when choosing items in craeteevent
             @Override
             public void onClick(View v) {
-                String date= textViewEventDate.getText().toString();
+                String date = textViewEventDate.getText().toString();
                 int day = -1;
-                int month =-1;
+                int month = -1;
                 int year = -1;
                 int idx = 0;
-                for(int i =0; i <date.length(); i++){
-                    if(date.charAt(i) == '/'){
-                       if(day ==-1){
-                           day = Integer.parseInt(date.substring(0, i));
-                           idx = i;
-                       }else if(month == -1){
-                           month = Integer.parseInt(date.substring(idx + 1, i));
-                           year = Integer.parseInt(date.substring(i +1));
-                       }
+                for (int i = 0; i < date.length(); i++) {
+                    if (date.charAt(i) == '/') {
+                        if (day == -1) {
+                            day = Integer.parseInt(date.substring(0, i));
+                            idx = i;
+                        } else if (month == -1) {
+                            month = Integer.parseInt(date.substring(idx + 1, i));
+                            year = Integer.parseInt(date.substring(i + 1));
+                        }
                     }
                 }
                 textViewEventDate.setText(day + "/" + month + "/" + year);
@@ -441,7 +445,7 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
 //                                int correctMonth = selectedMonth + 1;
                                 textViewEventDate.setText(selectedDayOfMonth + "/" + selectedMonth + "/" + selectedYear);
                             }
-                        },  year, month, day);//Yes 24 hour time
+                        }, year, month, day);//Yes 24 hour time
                 mDatePicker.setTitle("Select Date");
                 mDatePicker.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
                 mDatePicker.show();
@@ -452,21 +456,22 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
         });
     }
 
-    private void updateTime(){
+    private void updateTime() {
         textViewEventTime = findViewById(R.id.create_textView_event_time);
-        Calendar cal  = Calendar.getInstance();
+        Calendar cal = Calendar.getInstance();
         String time = cal.getTime().toString();
         String hour = "";
         String minute = "";
-        for(int i = 0; i < time.length(); i++){
-            if(time.charAt(i)== ':'){
-                hour = time.substring(i-2,i);
-                minute = time.substring(i+1, i + 3);
+        for (int i = 0; i < time.length(); i++) {
+            if (time.charAt(i) == ':') {
+                hour = time.substring(i - 2, i);
+                minute = time.substring(i + 1, i + 3);
                 break;
             }
         }
-        textViewEventTime.setText(hour +":"+ minute);
+        textViewEventTime.setText(hour + ":" + minute);
     }
+
     private void initializeTimePicker(Context createContext) {
         updateTime();
         textViewEventTime.setOnClickListener(new View.OnClickListener() {
@@ -475,10 +480,10 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
                 int hour = -1;
                 int minute = -1;
                 String time = textViewEventTime.getText().toString();
-                for(int i = 0; i < time.length(); i++){
-                    if(time.charAt(i)== ':'){
-                        hour = Integer.parseInt(time.substring(i-2,i));
-                        minute = Integer.parseInt(time.substring(i+1, i + 3));
+                for (int i = 0; i < time.length(); i++) {
+                    if (time.charAt(i) == ':') {
+                        hour = Integer.parseInt(time.substring(i - 2, i));
+                        minute = Integer.parseInt(time.substring(i + 1, i + 3));
                         break;
                     }
                 }
@@ -509,9 +514,9 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
         searchViewLocationSearch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(searchViewLocationSearch.getQuery()=="") {
+                if (searchViewLocationSearch.getQuery() == "") {
                     searchViewLocationSearch.onActionViewExpanded();
-                }else{
+                } else {
                     searchQuerry(searchViewLocationSearch.getQuery().toString());
                 }
             }
@@ -530,7 +535,8 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
             }
         });
     }
-    void searchQuerry(String location){
+
+    void searchQuerry(String location) {
         Log.d("CreateEventActivity", "Search query is: " + location);
         List<Address> addressList = new ArrayList<>();
         if (location != null || !location.equals("")) {
@@ -543,7 +549,7 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
                 e.printStackTrace();
             }
             if (addressList.size() == 0) {
-                Log.d("CreateEventActivity",  "Search query failed");
+                Log.d("CreateEventActivity", "Search query failed");
             } else {
 
                 Address address = addressList.get(0);
@@ -689,43 +695,21 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
     }
 
     private void addInvitedInEventUser(CollectionReference invitedInEventUsersRef,
-                                       InvitedInEventUserModel invitedInEventUserModel) {
-        invitedInEventUsersRef.document(invitedInEventUserModel.getInvitedInEventUserID()).set(invitedInEventUserModel).addOnSuccessListener(new OnSuccessListener<Void>() {
-            @Override
-            public void onSuccess(Void aVoid) {
-                Log.d(TAG, String.format("Added user %s to event",
-                        invitedInEventUserModel.getInvitedInEventUserName()));
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                Log.d(TAG, String.format("Failed to add user %s to event, error: %s",
-                        invitedInEventUserModel.getInvitedInEventUserName(), e.getMessage()));
-
-            }
-        });
+                                       InvitedInEventUserModel invitedInEventUserModel,
+                                       WriteBatch writeBatch) {
+        String invitedUserID = invitedInEventUserModel.getInvitedInEventUserID();
+        writeBatch.set(invitedInEventUsersRef.document(invitedUserID), invitedInEventUserModel);
 
     }
 
 
-    private void addInvitedInUserEvent(String newEventId, EventModel newEventModel, CollectionReference invitedInUserEventsRef) {
+    private void addInvitedInUserEvent(String newEventId, EventModel newEventModel,
+                                       CollectionReference invitedInUserEventsRef, WriteBatch writeBatch) {
         InvitedInUserEventModel newInvitedInUserEventModel =
                 new InvitedInUserEventModel(newEventId, newEventModel.getEventName(),
                         newEventModel.getEventLocationName(), newEventModel.getEventCreatorName()
                         , newEventModel.getEventTimeStarting());
-        invitedInUserEventsRef.document(newEventId).set(newInvitedInUserEventModel).addOnSuccessListener(new OnSuccessListener<Void>() {
-            @Override
-            public void onSuccess(Void aVoid) {
-                Log.d(TAG, String.format("Added event %s to user", newEventModel.getEventName()));
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                Log.d(TAG, String.format("Failed to add event %s to user, error: %s",
-                        newEventModel.getEventName(), e.getMessage()));
-
-            }
-        });
+        writeBatch.set(invitedInUserEventsRef.document(newEventId), newInvitedInUserEventModel);
     }
 
     private void createEvent() {
@@ -741,20 +725,40 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
                 String newEventId = documentReference.getId();
                 CollectionReference invitedInEventUsersRef =
                         documentReference.collection(getString(R.string.ff_InvitedInEventUsers));
+                WriteBatch eventCreateBatch = firebaseFirestore.batch();
                 for (InvitedInEventUserModel invitedInEventUserModel : ffInvitedUserInEventModels) {
                     Log.d(TAG, "Entering addInvitedInEventUser");
-                    addInvitedInEventUser(invitedInEventUsersRef, invitedInEventUserModel);
+
+
+                    addInvitedInEventUser(invitedInEventUsersRef, invitedInEventUserModel, eventCreateBatch);
                     // add event to invited users
                     String invitedInEventUserId = invitedInEventUserModel.getInvitedInEventUserID();
                     CollectionReference invitedInUserEventsRef =
                             usersCollectionRef.document(invitedInEventUserId).collection(getString(R.string.ff_InvitedInUserEvents));
                     Log.d(TAG, "Entering addInvitedInUserEvent");
-                    addInteractedEmailsToUser(usersCollectionRef.document(invitedInEventUserId));
-                    addInvitedInUserEvent(newEventId, newEventModel, invitedInUserEventsRef);
+                    addInteractedEmailsToUser(usersCollectionRef.document(invitedInEventUserId),
+                            eventCreateBatch);
+                    addInvitedInUserEvent(newEventId, newEventModel, invitedInUserEventsRef, eventCreateBatch);
+                    eventCreateBatch.update(documentReference,
+                            App.getRes().getString(R.string.ff_Events_eventInvitedUserIDs),
+                            invitedInEventUsersRef);
+
                 }
+                eventCreateBatch.commit().addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Log.d(TAG, "event created succesfully");
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        documentReference.delete(); // TODO: Handle failure
+                        Log.d(TAG, "event failed to create");
+                    }
+                });
 
 
-                Log.d("CreateEventActivity",  "Event created successfully");
+                Log.d("CreateEventActivity", "Event created successfully");
                 gotoEvents();
 
             }
@@ -771,10 +775,11 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
 
     }
 
-    private void addInteractedEmailsToUser(DocumentReference userRef) {
+    private void addInteractedEmailsToUser(DocumentReference userRef, WriteBatch writeBatch) {
 
-        userRef.update(getString(R.string.ff_Users_userInteractedUserEmails),
-                FieldValue.arrayUnion((Object[]) listViewInvitedUsersList.toArray(new String[listViewInvitedUsersList.size()])));
+        writeBatch.update(userRef, getString(R.string.ff_Users_userInteractedUserEmails),
+                FieldValue.arrayUnion((Object[]) listViewInvitedUsersList.toArray(new String[listViewInvitedUsersList.size()])));)
+        ;
     }
 
 
@@ -813,7 +818,7 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
             toastErrorMessage = "Fix time starting";
         }
         if (!TextUtils.isEmpty(toastErrorMessage)) {
-            Log.d("CreateEventActivity",  toastErrorMessage);
+            Log.d("CreateEventActivity", toastErrorMessage);
             return false;
         } else {
             return true;
@@ -884,8 +889,8 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
             @Override
             public void onFailure(@NonNull Exception e) {
 
-                Log.d("CreateEventActivity",  String.format("Error getting creator" +
-                                " user name: %s", e.getMessage()));
+                Log.d("CreateEventActivity", String.format("Error getting creator" +
+                        " user name: %s", e.getMessage()));
             }
 
 
@@ -952,15 +957,15 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
                                     invitedUserName, invitedUserEmail));
 
                         } else if (task.getResult().size() == 0) {
-                            Log.d("CreateEventActivity",  String.format("No user found" + " with email %s", userEmail));
+                            Log.d("CreateEventActivity", String.format("No user found" + " with email %s", userEmail));
                         } else if (task.getResult().size() > 1) {
-                            Log.d("CreateEventActivity",  String.format("Found more " + "than one user with email %s", userEmail));
+                            Log.d("CreateEventActivity", String.format("Found more " + "than one user with email %s", userEmail));
                         }
                         progressBar.setVisibility(View.GONE);
 
                     } else {
-                        Log.d("CreateEventActivity",  String.format("Error processing " +
-                                        "email %s, error: %s", userEmail, task.getException().getMessage()));
+                        Log.d("CreateEventActivity", String.format("Error processing " +
+                                "email %s, error: %s", userEmail, task.getException().getMessage()));
                     }
                     didFinishSettingUsers = true;
                 }
