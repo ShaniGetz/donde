@@ -305,8 +305,8 @@ public class EventsFragment extends Fragment {
         holder.buttonGotoEvent.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                holder.buttonGotoEvent.setEnabled(true);
-                holder.buttonGotoEvent.setBackgroundColor(R.drawable.rounded_corners_butten);
+//                holder.buttonGotoEvent.setEnabled(true);
+//                holder.buttonGotoEvent.setBackground(R.drawable.rounded_corners_butten);
                 Intent eventIntent = new Intent(getActivity(), EventActivity.class);
                 eventIntent.putExtra(getString(R.string.arg_position), position);
                 eventIntent.putExtra(getString(R.string.arg_event_model), eventJson);
@@ -565,7 +565,7 @@ public class EventsFragment extends Fragment {
             checkBoxEventIsGoing = itemView.findViewById(R.id.event_item_checkBox_is_going);
             checkBoxEventIsGoing.setChecked(false);
             buttonGotoEvent = itemView.findViewById(R.id.event_item_button_goto_event);
-            buttonGotoEvent.setEnabled(false);
+//            buttonGotoEvent.setEnabled(false);
             buttonGotoEvent.setBackgroundColor(R.drawable.rounded_corners_butten_gray);
             buttonDeleteEvent = itemView.findViewById(R.id.event_item_button_delete_event);
             buttonEditEvent = itemView.findViewById(R.id.Edit_Event);

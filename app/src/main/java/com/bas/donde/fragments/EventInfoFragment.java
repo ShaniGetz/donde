@@ -66,12 +66,9 @@ public class EventInfoFragment extends Fragment {
 
     private void initializeViews() {
         textViewEventName.setText(String.format(event.getEventName()));
-        textViewEventDescription.setText(String.format(
-                event.getEventDescription()));
-        textViewEventLocationName.setText(String.format(
-                event.getEventLocationName()));
-        textViewEventCreatorName.setText(String.format("Creator: %s",
-                event.getEventCreatorName()));
+        textViewEventDescription.setText(String.format(event.getEventDescription()));
+        textViewEventLocationName.setText(String.format(event.getEventLocationName()));
+        textViewEventCreatorName.setText(String.format("Creator: %s", event.getEventCreatorName()));
         textViewEventTimeStarting.setText("Starting at " +TimeHandMade(event.getEventTimeStarting().toString()));
         textViewEventTimeCreated.setText("Created at " + TimeHandMade(event.getEventTimeCreated().toString()));
         textViewTnvitedHadline.setText("Participants:");
