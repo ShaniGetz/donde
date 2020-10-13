@@ -732,7 +732,7 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
     }
 
     private void hideProgressBar() {
-        progressBar.setVisibility(View.GONE);
+        progressBar.setVisibility(View.INVISIBLE);
         buttonCreateEvent.setText("Create Event");
 
     }
@@ -848,7 +848,9 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
             toastErrorMessage = "Fix time starting";
         }
         if (!TextUtils.isEmpty(toastErrorMessage)) {
-            Log.d("CreateEventActivity", toastErrorMessage);
+            Toast.makeText(this, toastErrorMessage, Toast.LENGTH_SHORT).show();
+            Log.d(TAG, toastErrorMessage);
+            hideProgressBar();
             return false;
         } else {
             return true;
