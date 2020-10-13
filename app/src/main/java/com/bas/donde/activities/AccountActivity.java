@@ -7,7 +7,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -18,21 +17,16 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.bas.donde.BuildConfig;
 import com.bas.donde.R;
 import com.bas.donde.models.UserModel;
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.Query;
-import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
@@ -59,7 +53,7 @@ public class AccountActivity extends Activity {
 
 
     // Firebase
-    private StorageReference storageReference;
+    private FirebaseStorage firebaseStorage;
     private FirebaseUser firebaseUser;
     private FirebaseFirestore firebaseFirestore;
     private CollectionReference usersCollectionRef;
@@ -79,6 +73,7 @@ public class AccountActivity extends Activity {
     private String userName;
     private boolean didComeFromRegister;
     private String userProfilePicURI;
+    private String newUserProfilePicURI;
 
 
     @Override
@@ -89,13 +84,12 @@ public class AccountActivity extends Activity {
         initializeFields();
         didComeFromRegister = savedInstanceState.getBoolean(getString(R.string.arg_did_come_from_register_intent));
         if (didComeFromRegister) {
-            initializeRegister();
+            initializeFromRegister();
 
         } else {
-            initializeUpdate();
+            initializeFromUpdate();
         }
 
-        initializeListeners();
     }
 
     private void initializeFields() {
@@ -117,12 +111,12 @@ public class AccountActivity extends Activity {
 
 
     private void initializeFirebaseFields() {
-        storageReference = FirebaseStorage.getInstance().getReference();
         myAssert(FirebaseAuth.getInstance().getCurrentUser() != null, "User in null upon account " +
                 "activity");
         firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
         firebaseFirestore = FirebaseFirestore.getInstance();
         usersCollectionRef = firebaseFirestore.collection(getString(R.string.ff_Users));
+        firebaseStorage = FirebaseStorage.getInstance();
 
     }
 
@@ -133,7 +127,7 @@ public class AccountActivity extends Activity {
     }
 
 
-    private void initializeRegister() {
+    private void initializeFromRegister() {
         buttonCancel.setVisibility(View.INVISIBLE);
         buttonDeleteAccount.setVisibility(View.INVISIBLE);
         buttonChangeProfilePic.setText("Add profile picture");
@@ -141,7 +135,7 @@ public class AccountActivity extends Activity {
         setChangeProfilePicButtonOnClick();
     }
 
-    private void initializeUpdate() {
+    private void initializeFromUpdate() {
         // TODO show progress bar
         buttonCancel.setVisibility(View.VISIBLE);
         buttonDeleteAccount.setVisibility(View.VISIBLE);
@@ -178,7 +172,14 @@ public class AccountActivity extends Activity {
     }
 
     private void showProfilePic() {
+        StorageReference userStorageRef = firebaseStorage.getReference().child(userProfilePicURI);
 
+        userStorageRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+            @Override
+            public void onSuccess(Uri uri) {
+                Picasso.get().load(uri).into(profileImage);
+            }
+        });
     }
 
     private void setSaveButtonOnClick() {
@@ -200,6 +201,9 @@ public class AccountActivity extends Activity {
     }
 
     private void saveNewUser(DocumentReference userRef) {
+        if (!TextUtils.isEmpty(newUserProfilePicURI)) {
+            saveProfilePicToStorage(newUserProfilePicURI);
+        }
         UserModel newUserModel = new UserModel(userID, userName, userEmail, userProfilePicURI);
         userRef.set(newUserModel).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
@@ -233,6 +237,7 @@ public class AccountActivity extends Activity {
         });
     }
 
+
     private void onUserSaveSuccess() {
         Toast.makeText(AccountActivity.this, "User created successfully",
                 Toast.LENGTH_SHORT).show();
@@ -255,141 +260,30 @@ public class AccountActivity extends Activity {
     }
 
 
-    private void retrieveAccountDetails() {
-        // details are loading
-        progressBar.setVisibility(View.VISIBLE);
-        buttonSave.setEnabled(false);
-        // TODO: set other buttons as enabled/disabled
-
-        // check if user with given ID exists
-        CollectionReference usersRef = firebaseFirestore.collection(getString(R.string.ff_Users));
-        Query userExistsQuery = usersRef.whereEqualTo(getString(R.string.ff_Users_userID), userID);
-        userExistsQuery.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-
-            @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                if (task.isSuccessful()) {
-                    if (BuildConfig.DEBUG && task.getResult().size() > 1) {
-                        throw new AssertionError("More than one user exists with given ID");
-                    } else if (task.getResult().size() == 1) {
-                        DocumentSnapshot userDocument = task.getResult().getDocuments().get(0);
-                        String userName =
-                                userDocument.getString(getString(R.string.ff_Users_userName));
-                        textViewName.setText(userName);
-
-//                        hasProfilePicSet = userDocument.getString(getString(R.string.ff_Users_userProfilePicURL)) != null;
-//                        if (!hasProfilePicSet) {
-//                            setProfilePic();
-//                        }
-                    }
-                } else {
-                    Toast.makeText(AccountActivity.this, String.format("Error retrieving user details: %s", task.getException().getMessage()), Toast.LENGTH_SHORT).show();
-                }
-                // details finished loading
-                progressBar.setVisibility(View.INVISIBLE);
-                buttonSave.setEnabled(true);
-            }
-        });
-    }
-
-
-    private void initializeFields1() {
-        StorageReference profileRef = storageReference.child("users/" + fAuth.getCurrentUser().getUid() + ".jpg");
-        profileRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-            @Override
-            public void onSuccess(Uri uri) {
-                Picasso.get().load(uri).into(profileImage);
-            }
-        });
-    }
-
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == 1000) {
             if (resultCode == Activity.RESULT_OK) {
                 Uri imageUri = data.getData();
-//                profileImage.setImageURI(imageUri);
-                uploadImageToFirebase(imageUri);
+                Picasso.get().load(imageUri).into(profileImage);
+
             }
         }
     }
 
-    private void uploadImageToFirebase(Uri imageUri) {
-        //upload image to firebase storage
-//        userProfilePicURL = "avatar2.png";
-        setProfilePic(imageUri);
-    }
 
-
-    private void setButtonDeleteAccountOnClick() {
-        buttonDeleteAccount.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                // TODO: handle deleting users from events theyre invited to
-                // delete user from Users collection
-                usersCollectionRef.document(userID).delete().addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        Toast.makeText(AccountActivity.this, String.format("Successfully deleted " +
-                                        "account with email %s", userEmail),
-                                Toast.LENGTH_SHORT).show();
-                    }
-                }).addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-
-                        Toast.makeText(AccountActivity.this, String.format("Failed to delete " +
-                                        "account with email %s, error:", userEmail, e.getMessage()),
-                                Toast.LENGTH_SHORT).show();
-                    }
-                });
-
-                // delete user from Events collection
-
-
-                // delete user from authentication
-                firebaseUser.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        Log.d(TAG, "Successfully deleted user from auth");
-                        gotoLoginActivity();
-                    }
-                }).addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Toast.makeText(AccountActivity.this, "Failed to delete user from FirebaseAuth", Toast.LENGTH_SHORT).show();
-                    }
-                });
-
-            }
-        });
-
-    }
-
-    private void setProfilePic(Uri imageUri) {
-        Toast.makeText(this, "`adding pic", Toast.LENGTH_SHORT).show();
-        StorageReference fileRef = storageReference.child(userID + ".jpg");
-        fileRef.putFile(imageUri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+    private void saveProfilePicToStorage(Uri profilePicToUpload) {
+        firebaseStorage.getReference().child(userID).putFile(profilePicToUpload).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
             @Override
             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                fileRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                    @Override
-                    public void onSuccess(Uri uri) {
-                        Picasso.get().load(uri).into(profileImage);
-                        userProfilePicURI = userID + ".jpg";
-                        Toast.makeText(AccountActivity.this, "`added  pic", Toast.LENGTH_SHORT).show();
-                    }
-
-                    ;
-                });
+                Toast.makeText(AccountActivity.this, "Profile picture uploaded",
+                        Toast.LENGTH_SHORT).show();
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
-                Toast.makeText(AccountActivity.this, "Failed", Toast.LENGTH_SHORT);
+                Toast.makeText(AccountActivity.this, "Profile Picture couldn't upload", Toast.LENGTH_SHORT).show();
             }
         });
     }
