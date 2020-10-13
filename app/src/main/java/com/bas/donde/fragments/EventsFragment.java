@@ -271,6 +271,7 @@ public class EventsFragment extends Fragment {
                 holder.showProgressBar();
                 holder.buttonGotoEvent.setEnabled(true);
                 holder.buttonGotoEvent.setBackgroundResource(R.drawable.rounded_corners_butten);
+                holder.buttonGotoEvent.setTextColor(getResources().getColor(R.color.white));
                 Toast.makeText(getContext(), "Downloading invited users list",
                         Toast.LENGTH_SHORT).show();
                 DocumentReference eventRef =

@@ -133,7 +133,7 @@
                 android:layout_height="wrap_content"
                 android:background="@drawable/rounded_corners_butten_gray"
                 android:text="GO TO EVENT"
-                android:textColor="@color/white"
+                android:textColor="@color/gray_dark_dark"
                 android:textSize="7pt"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@id/Edit_Event"
