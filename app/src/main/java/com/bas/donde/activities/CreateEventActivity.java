@@ -34,6 +34,7 @@ import android.widget.ProgressBar;
 import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.TimePicker;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -984,9 +985,12 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
                                     invitedUserName, invitedUserEmail));
 
                         } else if (task.getResult().size() == 0) {
-                            Log.d("CreateEventActivity", String.format("No user found" + " with email %s", userEmail));
+                            Toast.makeText(CreateEventActivity.this, String.format("No user " +
+                                    "found" + " with " + "email %s", userEmail), Toast.LENGTH_SHORT);
                         } else if (task.getResult().size() > 1) {
-                            Log.d("CreateEventActivity", String.format("Found more " + "than one user with email %s", userEmail));
+                            Toast.makeText(CreateEventActivity.this,
+                                    String.format("Found more " + "than one user with email %s",
+                                            userEmail), Toast.LENGTH_SHORT);
                         }
 
                     } else {

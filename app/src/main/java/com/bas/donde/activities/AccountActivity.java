@@ -151,6 +151,7 @@ public class AccountActivity extends Activity {
         setChangeProfilePicButtonOnClick();
     }
 
+
     private void initializeFromUpdate() {
         Log.d(TAG, "in initializeFromUpdate");
 
@@ -264,7 +265,7 @@ public class AccountActivity extends Activity {
 
     private void updateExistingUser(DocumentReference userRef) {
         Map<String, Object> userUpdatesMap = new HashMap<>();
-        userUpdatesMap.put(getString(R.string.ff_Users_userName), textViewName.getText());
+        userUpdatesMap.put(getString(R.string.ff_Users_userName), textViewName.getText().toString());
         if (uploadedPhoto != null) {
             saveProfilePicToStorage(uploadedPhoto);
             String userProfilePicUrl = userID;
@@ -280,6 +281,7 @@ public class AccountActivity extends Activity {
             public void onFailure(@NonNull Exception e) {
                 onUserSaveFailure(e);
             }
+
         });
     }
 
