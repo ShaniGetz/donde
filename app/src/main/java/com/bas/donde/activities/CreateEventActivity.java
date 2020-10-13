@@ -103,7 +103,6 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
     private EditText editTextEventDescription;
 
     private Button buttonCreateEvent;
-    private Button buttonDebugAutofill;
     private ProgressBar progressBar;
     private SearchView searchViewLocationSearch;
     private ListView listViewInvitedUsers;
@@ -321,7 +320,6 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
         editTextEventName = findViewById(R.id.create_editText_event_name);
         editTextEventDescription = findViewById(R.id.create_editText_event_description);
         buttonCreateEvent = findViewById(R.id.create_button_create);
-        buttonDebugAutofill = findViewById(R.id.create_button_debug_fill_default);
         progressBar = findViewById(R.id.create_progressBar);
 //        editTextEventDay = findViewById(R.id.create_editText_event_day);
 //        editTextEventMonth = findViewById(R.id.create_editText_event_month);
@@ -579,16 +577,7 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
 
     private void initializeListeners() {
         initializeSearchQuery();
-        initializeDebugAutofill();
         initializeCreateEventListener();
-    }
-
-    private void initializeDebugAutofill() {
-        buttonDebugAutofill.setOnClickListener(v -> {
-            editTextEventName.setText("A Debug Event Name");
-            editTextEventDescription.setText("A debug description for an event. This text is kind of long but" + " also not too long.");
-            searchViewLocationSearch.setQuery("Ein Bokek", true);
-        });
     }
 
     private void initializeCreateEventListener() {
