@@ -10,7 +10,6 @@ import androidx.fragment.app.FragmentPagerAdapter;
 import com.bas.donde.R;
 import com.bas.donde.activities.App;
 //import com.example.donde.archive.EventInfoFragment;
-import com.bas.donde.fragments.EventChatFragment;
 import com.bas.donde.fragments.EventInfoFragment;
 import com.bas.donde.fragments.EventMapFragment;
 
@@ -42,10 +41,6 @@ public class ViewPagerAdapter extends FragmentPagerAdapter {
                 EventMapFragment mapFragment = new EventMapFragment();
                 mapFragment.setArguments(eventIDBundle);
                 return mapFragment;
-            case 2:
-                EventChatFragment chatFragment = new EventChatFragment();
-                chatFragment.setArguments(eventIDBundle);
-                return chatFragment;
             default:
                 return null;
         }

@@ -21,17 +21,13 @@ import com.bas.donde.models.EventModel;
 import com.bas.donde.models.InvitedInEventUserModel;
 import com.bas.donde.utils.OfflineDataTransfer;
 import com.bas.donde.utils.ViewPagerAdapter;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.google.gson.reflect.TypeToken;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashMap;
 
 
@@ -49,12 +45,10 @@ public class EventActivity extends AppCompatActivity {
     private static String myUserId;
     final int INFO_TAB = 0;
     final int MAP_TAB = 1;
-    final int CHAT_TAB = 2;
     FirebaseFirestore firebaseFirestore;
     OfflineDataTransfer offlineDataTransfer;
     private TextView textViewInfoLabel;
     private TextView textViewMapLabel;
-    private TextView textViewChatLabel;
     private TextView infoEventName;
     private TextView infoDescription;
     private TextView infoLocationName;
@@ -214,7 +208,6 @@ public class EventActivity extends AppCompatActivity {
     private void initializeFields() {
         textViewInfoLabel = findViewById(R.id.event_textView_info_label);
         textViewMapLabel = findViewById(R.id.event_textView_map_label);
-        textViewChatLabel = findViewById(R.id.event_textView_chat_label);
         viewPager = findViewById(R.id.event_viewPager);
         eventID = getIntent().getStringExtra(getString(R.string.arg_event_id));
         position = getIntent().getIntExtra(getString(R.string.arg_position), -1);
@@ -261,12 +254,6 @@ public class EventActivity extends AppCompatActivity {
                 viewPager.setCurrentItem(MAP_TAB);
             }
         });
-        textViewChatLabel.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                viewPager.setCurrentItem(CHAT_TAB);
-            }
-        });
 
         viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
@@ -289,34 +276,25 @@ public class EventActivity extends AppCompatActivity {
 
     private void changeTabs(int position) {
         TextView mainTab;
-        TextView subTab1, subTab2;
+        TextView subTab1;
 
         switch (position) {
             case INFO_TAB:
                 mainTab = textViewInfoLabel;
                 subTab1 = textViewMapLabel;
-                subTab2 = textViewChatLabel;
                 break;
             case MAP_TAB:
                 subTab1 = textViewInfoLabel;
                 mainTab = textViewMapLabel;
-                subTab2 = textViewChatLabel;
-                break;
-            case CHAT_TAB:
-                subTab1 = textViewInfoLabel;
-                subTab2 = textViewMapLabel;
-                mainTab = textViewChatLabel;
                 break;
             default:
                 mainTab = null;
                 subTab1 = null;
-                subTab2 = null;
 
 
         }
         mainTab.setTextSize(20);
         subTab1.setTextSize(15);
-        subTab2.setTextSize(15);
     }
 
 }
