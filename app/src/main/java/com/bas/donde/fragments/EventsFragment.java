@@ -327,7 +327,7 @@ public class EventsFragment extends Fragment {
         private CheckBox checkBoxEventIsGoing;
         private Button buttonGotoEvent;
         private Button buttonDeleteEvent;
-        private Button buttonEditEvent=null;
+        private Button buttonEditEvent;
 
 
         public EventsViewHolder(@NonNull View itemView) {
