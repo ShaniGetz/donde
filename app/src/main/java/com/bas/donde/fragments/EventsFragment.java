@@ -570,6 +570,7 @@ public class EventsFragment extends Fragment {
             textViewEventCreatorName = itemView.findViewById(R.id.event_item_textView_event_creator_name);
             textViewEventLocationName = itemView.findViewById(R.id.event_item_textView_event_location_name);
             checkBoxEventIsGoing = itemView.findViewById(R.id.event_item_checkBox_is_going);
+            checkBoxEventIsGoing.setChecked(false);
             buttonGotoEvent = itemView.findViewById(R.id.event_item_button_goto_event);
             buttonDeleteEvent = itemView.findViewById(R.id.event_item_button_delete_event);
             buttonEditEvent = itemView.findViewById(R.id.Edit_Event);
