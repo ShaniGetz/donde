@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Toolbar;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -18,6 +19,9 @@ public class MainActivity extends AppCompatActivity {
     private FloatingActionButton fabCreateEvent;
     private FirebaseAuth mAuth;
 
+    public FirebaseAuth getmAuth() {
+        return mAuth;
+    }
 
     public FirebaseAuth getFirebaseAuth() {
         return mAuth;
@@ -27,6 +31,7 @@ public class MainActivity extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
         fabCreateEvent = findViewById(R.id.main_create_fab);
     }
+
 
     private void initializeListeners() {
         fabCreateEvent.setOnClickListener(new View.OnClickListener() {
@@ -55,7 +60,6 @@ public class MainActivity extends AppCompatActivity {
                 return true;
             case R.id.menu_account:
                 gotoAccount();
-
                 return true;
             default:
                 return super.onOptionsItemSelected(item);

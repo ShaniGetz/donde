@@ -2,6 +2,7 @@ package com.bas.donde.utils.map_utils;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.util.Log;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
@@ -15,14 +16,15 @@ import com.google.maps.android.clustering.ClusterManager;
 import com.google.maps.android.clustering.view.DefaultClusterRenderer;
 import com.google.maps.android.ui.IconGenerator;
 
-public class MyClusterManagerRenderer extends DefaultClusterRenderer<ClusterMarker> {
+public class MyClusterManagerRenderer extends DefaultClusterRenderer<MyClusterItem> {
 
+    public static final String TAG = "tagEventMapFragment";
     private final IconGenerator iconGenerator;
     private final ImageView imageView;
     private final int markerWidth;
     private final int markerHeight;
 
-    public MyClusterManagerRenderer (Context context, GoogleMap map, ClusterManager<ClusterMarker> clusterManager){
+    public MyClusterManagerRenderer (Context context, GoogleMap map, ClusterManager<MyClusterItem> clusterManager){
         super(context, map, clusterManager);
 
         iconGenerator = new IconGenerator(context.getApplicationContext());
@@ -41,7 +43,9 @@ public class MyClusterManagerRenderer extends DefaultClusterRenderer<ClusterMark
      * @param markerOptions
      */
     @Override
-    protected void onBeforeClusterItemRendered(ClusterMarker item, MarkerOptions markerOptions) {
+    protected void onBeforeClusterItemRendered(MyClusterItem item, MarkerOptions markerOptions) {
+        Log.d(TAG, "in onBeforeClusterItemRendered with " + item.getSnippet());
+
 //        imageView.setImageResource(item.getIconPicture());
         imageView.setImageBitmap(item.getIconPictureBitmap());
         Bitmap icon = iconGenerator.makeIcon();
@@ -50,19 +54,20 @@ public class MyClusterManagerRenderer extends DefaultClusterRenderer<ClusterMark
 
 
     @Override
-    protected boolean shouldRenderAsCluster(Cluster<ClusterMarker> cluster) {
+    protected boolean shouldRenderAsCluster(Cluster<MyClusterItem> cluster) {
         return false;
     }
 
     /**
      * Update the GPS coordinate of a ClusterItem
-     * @param clusterMarker
+     * @param myClusterItem
      */
-    public void setUpdateMarker(ClusterMarker clusterMarker) {
-        Marker marker = getMarker(clusterMarker);
+    public void setUpdateMarker(MyClusterItem myClusterItem) {
+        Log.d(TAG, "in setUpdateMarker with " + myClusterItem.getSnippet());
+        Marker marker = getMarker(myClusterItem);
         if (marker != null) {
-            marker.setPosition(clusterMarker.getPosition());
-            marker.setSnippet(clusterMarker.getSnippet());
+            marker.setPosition(myClusterItem.getPosition());
+            marker.setSnippet(myClusterItem.getSnippet());
         }
     }
 

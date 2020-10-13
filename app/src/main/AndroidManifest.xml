@@ -11,7 +11,7 @@
         android:allowBackup="true"
         android:icon="@drawable/icon_donde_2"
         android:label="Donde"
-        android:roundIcon="@drawable/icon"
+        android:roundIcon="@drawable/icon_donde_rounded"
         android:supportsRtl="false"
         android:theme="@style/AppTheme">
         <activity android:name=".activities.EditEventActivity"></activity>

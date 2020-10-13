@@ -55,7 +55,7 @@
         android:layout_height="wrap_content"
         android:hint="Name"
         android:background="@drawable/rounded_corners_info"
-        android:textColorHighlight="@color/pink"
+        android:textColorHighlight="@color/pink_orenge"
         android:textAlignment="center"
         android:gravity="center"
         android:textColor="@color/black"
