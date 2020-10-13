@@ -76,17 +76,17 @@ import static com.bas.donde.utils.CodeHelpers.myAssert;
 public class EventsFragment extends Fragment {
 
     private final String TAG = "tagEventsFragment";
+
+
     private FirebaseFirestore firebaseFirestore;
     private CollectionReference eventsCollectionRef;
     private RecyclerView recyclerViewEventsList;
     private FirestoreRecyclerAdapter eventsRecyclerAdapter;
     private String currUserID;
-
     private HashMap<String, Bitmap> mUsersBitmaps;
     private String eventJson;
     private ArrayList<InvitedInEventUserModel> invitedInEventUserModelsList;
     private String invitedUserInEventModelListJson;
-
 
     public EventsFragment() {
         Log.e("EventsFragment", "Constructor");
@@ -319,7 +319,6 @@ public class EventsFragment extends Fragment {
         });
     }
 
-
     private void deleteEventFromInvitedUsers(InvitedInUserEventModel model,
                                              CollectionReference invitedInEventUsersRef,
                                              EventsViewHolder holder) {
@@ -380,7 +379,6 @@ public class EventsFragment extends Fragment {
         });
 
     }
-
 
     private void deleteEventSubcollection(InvitedInUserEventModel model,
                                           CollectionReference invitedInEventUsersRef,
@@ -537,6 +535,19 @@ public class EventsFragment extends Fragment {
         }
         Log.d("TIMEER", (date + "/" + Year + "    " + hour + ":" + minute));
         return (date + "/" + Year + "    " + hour + ":" + minute);
+    }
+
+    private void testingFF() {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        DocumentReference docRef = db.collection("Events").document("fgsdfg");
+        db.runTransaction(new Transaction.Function<Object>() {
+            @Nullable
+            @Override
+            public Object apply(@NonNull Transaction transaction) throws FirebaseFirestoreException {
+                return null;
+            }
+        });
+
     }
 
     class EventsViewHolder extends RecyclerView.ViewHolder {
