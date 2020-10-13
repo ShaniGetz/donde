@@ -770,9 +770,8 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
                     ffEventInvitedUserIDs.add(invitedInEventUserId);
 
                 }
-                eventCreateBatch.update(documentReference,
-                        App.getRes().getString(R.string.ff_Events_eventInvitedUserIDs),
-                        ffEventInvitedUserIDs);
+
+                eventCreateBatch.update(documentReference, App.getRes().getString(R.string.ff_Events_eventInvitedUserIDs), ffEventInvitedUserIDs);
                 eventCreateBatch.commit().addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
@@ -814,11 +813,11 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
     }
 
 
-//    private void addEventToInvitedUser(String invitedUserId, String eventId) {
-//
-//        usersCollectionRef.document(invitedUserId).update("userInvitedEventIDs",
-//                FieldValue.arrayUnion(eventId));
-//    }
+    private void addEventToInvitedUser(String invitedUserId, String eventId) {
+
+        usersCollectionRef.document(invitedUserId).update("userInvitedEventIDs",
+                FieldValue.arrayUnion(eventId));
+    }
 
     private boolean retrieveAndSetEventFields() {
         String toastErrorMessage = "";
