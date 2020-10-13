@@ -32,7 +32,7 @@
     <string name="ff_InvitedInEventUsers">InvitedInEventUsers</string>
     <string name="ff_InvitedInEventUsers_invitedInEventUserID">invitedInEventUserID</string>
     <string name="ff_InvitedInEventUsers_invitedInEventUserStatus">invitedInEventUserStatus</string>
-    <string name="ff_InvitedInEventUsers_invitedInEventUserCurrentLocation">invitedInEventUserCurrentLocation</string>
+    <string name="ff_InvitedInEventUsers_invitedInEventUserLastLocation">invitedInEventUserCurrentLocation</string>
     <string name="ff_InvitedInEventUsers_invitedInEventUserProfilePicURL">invitedInEventUserProfilePicURL</string>
     <string name="ff_InvitedInEventUsers_invitedInEventUserName">invitedInEventUserName</string>
     <string name="ff_InvitedInEventUsers_invitedInEventUserIsGoing">invitedInEventUserIsGoing</string>

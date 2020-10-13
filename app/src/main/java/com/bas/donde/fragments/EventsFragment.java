@@ -129,12 +129,15 @@ public class EventsFragment extends Fragment {
             @Override
             public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
 
+                Log.d(TAG, "before running  transaction");
                 firebaseFirestore.runTransaction(new Transaction.Function<ArrayList<InvitedInEventUserModel>>() {
 
                     @Nullable
                     @Override
                     public ArrayList<InvitedInEventUserModel> apply(@NonNull Transaction transaction) throws FirebaseFirestoreException {
+                        Log.d(TAG, "inside apply");
                         ArrayList<InvitedInEventUserModel> invitedInEventUserModels = new ArrayList<>();
+
                         for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
                             Log.d(TAG, String.format("Adding query snapshot name: %s",
                                     documentSnapshot.get(getString(R.string.ff_InvitedInEventUsers_invitedInEventUserName))));
@@ -144,15 +147,17 @@ public class EventsFragment extends Fragment {
                             Log.d(TAG, "checking if " + userId + "==" + currUserID);
                             if (TextUtils.equals(userId, currUserID)) {
                                 Log.d(TAG, "enteres");
-                                invitedInEventUserModels.add(0,
-                                        documentSnapshot.toObject(InvitedInEventUserModel.class));
+                                    invitedInEventUserModels.add(0,
+                                            documentSnapshot.toObject(InvitedInEventUserModel.class));
+
+
                             } else {
 
                                 invitedInEventUserModels.add(documentSnapshot.toObject(InvitedInEventUserModel.class));
                             }
-
-
                         }
+
+
                         Log.d(TAG, "index 0: " + invitedInEventUserModels.get(0)
                                 .getInvitedInEventUserName());
                         return invitedInEventUserModels;
@@ -300,8 +305,8 @@ public class EventsFragment extends Fragment {
         holder.buttonGotoEvent.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-
+                holder.buttonGotoEvent.setEnabled(true);
+                holder.buttonGotoEvent.setBackgroundColor(R.drawable.rounded_corners_butten);
                 Intent eventIntent = new Intent(getActivity(), EventActivity.class);
                 eventIntent.putExtra(getString(R.string.arg_position), position);
                 eventIntent.putExtra(getString(R.string.arg_event_model), eventJson);
@@ -453,7 +458,7 @@ public class EventsFragment extends Fragment {
     private Bitmap getUserAndPutAvatar(InvitedInEventUserModel user) {
         Log.d(TAG, "in getUserAvatar for " + user.getInvitedInEventUserName());
         FirebaseStorage storage = FirebaseStorage.getInstance();
-        StorageReference imageRef = storage.getReference().child(user.getInvitedInEventUserID() + ".jpg");
+        StorageReference imageRef = storage.getReference().child(user.getInvitedInEventUserProfilePicURL());
 //                        StorageReference gsReference = storage.getReferenceFromUrl(user.getInvitedInEventUserProfilePicURL());
         imageRef.getBytes(1024 * 1024).addOnSuccessListener(new OnSuccessListener<byte[]>() {
             @Override

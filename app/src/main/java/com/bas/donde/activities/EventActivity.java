@@ -234,7 +234,7 @@ public class EventActivity extends AppCompatActivity {
         viewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager(), eventID, position);
         viewPager.setAdapter(viewPagerAdapter);
         // meaning all 3 screens will always be loaded
-        viewPager.setOffscreenPageLimit(2);
+        viewPager.setOffscreenPageLimit(1);
         currUserID = FirebaseAuth.getInstance().getUid();
 
 

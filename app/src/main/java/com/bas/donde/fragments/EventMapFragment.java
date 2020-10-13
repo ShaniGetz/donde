@@ -126,7 +126,7 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback {
 
         for (int i = 0; i < invitedUsersList.size(); i++) {
             InvitedInEventUserModel user = invitedUsersList.get(i);
-            LatLng updatedLocation = new LatLng(user.getInvitedInEventUserCurrentLocation().getLatitude(), user.getInvitedInEventUserCurrentLocation().getLongitude());
+            LatLng updatedLocation = new LatLng(user.getInvitedInEventUserLastLocation().getLatitude(), user.getInvitedInEventUserLastLocation().getLongitude());
             mMyClusterItems.get(i).setPosition(updatedLocation);
             mClusterManagerRenderer.setUpdateMarker(mMyClusterItems.get(i));
 
@@ -135,7 +135,7 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback {
             String status = offlineDataTransfer.getOtherStatus(id);
             GeoPoint location = offlineDataTransfer.getOtherLocation(id);
             user.setInvitedInEventUserStatus(status);
-            user.setInvitedInEventUserCurrentLocation(location);
+            user.setInvitedInEventUserLastLocation(location);
 
         }
         // update cluster
@@ -297,8 +297,8 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback {
         Bitmap userBitmap = mUsersBitmaps.get(user.getInvitedInEventUserID());
         myAssert(userBitmap != null, "user bitmap is null for " + user.getInvitedInEventUserName());
         MyClusterItem userMyClusterItem = new MyClusterItem(
-                user.getInvitedInEventUserID(), new LatLng(user.getInvitedInEventUserCurrentLocation().getLatitude(),
-                user.getInvitedInEventUserCurrentLocation().getLongitude()),
+                user.getInvitedInEventUserID(), new LatLng(user.getInvitedInEventUserLastLocation().getLatitude(),
+                user.getInvitedInEventUserLastLocation().getLongitude()),
                 user.getInvitedInEventUserName(),
                 user.getInvitedInEventUserStatus(),
                 userBitmap);
@@ -340,7 +340,7 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback {
     private void initializeMarkerStatus(InvitedInEventUserModel user) {
         Log.d(TAG, "in initializeMarkerStatus with " + user.getInvitedInEventUserStatus());
         if (user.getInvitedInEventUserID().equals(myUserId)) {
-            user.setInvitedInEventUserCurrentLocation(mLastLocation);
+            user.setInvitedInEventUserLastLocation(mLastLocation);
             user.setInvitedInEventUserStatus("Click to post your status");
             offlineDataTransfer.updateStatus("Click to post your status");
         } else {

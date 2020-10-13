@@ -50,7 +50,7 @@ FIREBASE INNER API:
 -   -   InvitedInEventUsers [Collection]        //document ID corresponds to userID
 -   -   -   invitedInEventUserID              [String]    //references user document ID in Users collection
 -   -   -   invitedInEventUserStatus          [String]
--   -   -   invitedInEventUserCurrentLocation [Geopoint]
+-   -   -   invitedInEventUserLastLocation [Geopoint]
 -   -   -   invitedInEventUserProfilePicURL   [String]
 -   -   -   invitedInEventUserName            [String]
 -   -   -   invitedInEventUserIsGoing         [boolean]
