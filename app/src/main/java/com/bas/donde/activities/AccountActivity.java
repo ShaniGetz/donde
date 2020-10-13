@@ -41,6 +41,11 @@ import java.util.HashMap;
 
 public class AccountActivity extends Activity {
     private final String TAG = "tagAccountActivity";
+    FirebaseAuth fAuth;
+    StorageReference storageReference;
+    Button buttonChangeProfilePic;
+    ImageView profileImage;
+    Uri DEFAULT_PROFILE_PIC_URI;
     private Button buttonSave;
     private Button buttonCancel;
     private Button buttonDeleteAccount;
@@ -52,13 +57,7 @@ public class AccountActivity extends Activity {
     private String userID;
     private String userEmail;
     private String userProfilePicURL;
-    FirebaseAuth fAuth;
-    StorageReference storageReference;
-    Button buttonChangeProfilePic;
-    ImageView profileImage;
-
-
-    Uri DEFAULT_PROFILE_PIC_URI;
+    private boolean hasProfilePicSet;
 
 
 //            parse("android.resource://com.example.donde/drawable/avatar2.png");
@@ -71,13 +70,13 @@ public class AccountActivity extends Activity {
         initializeListeners();
         retrieveAccountDetails();
         // TODO: Default pic shoud not upload on account edit
-        DEFAULT_PROFILE_PIC_URI=(new Uri.Builder())
+        DEFAULT_PROFILE_PIC_URI = (new Uri.Builder())
                 .scheme(ContentResolver.SCHEME_ANDROID_RESOURCE)
                 .authority(getResources().getResourcePackageName(R.drawable.avatar2))
                 .appendPath(getResources().getResourceTypeName(R.drawable.avatar2))
                 .appendPath(getResources().getResourceEntryName(R.drawable.avatar2))
                 .build();
-        setProfilePic();
+//        setProfilePic();
 
     }
 
@@ -103,6 +102,10 @@ public class AccountActivity extends Activity {
                         String userName =
                                 userDocument.getString(getString(R.string.ff_Users_userName));
                         textViewName.setText(userName);
+                        hasProfilePicSet = userDocument.getString(getString(R.string.ff_Users_userProfilePicURL)) != null;
+                        if (!hasProfilePicSet) {
+                            setProfilePic();
+                        }
                     }
                 } else {
                     Toast.makeText(AccountActivity.this, String.format("Error retrieving user details: %s", task.getException().getMessage()), Toast.LENGTH_SHORT).show();
@@ -133,7 +136,7 @@ public class AccountActivity extends Activity {
         buttonChangeProfilePic = findViewById(R.id.change_profile_pic);
         profileImage = findViewById(R.id.profile_pic);
         storageReference = FirebaseStorage.getInstance().getReference();
-        StorageReference profileRef = storageReference.child("users/"+fAuth.getCurrentUser().getUid()+".jpg");
+        StorageReference profileRef = storageReference.child("users/" + fAuth.getCurrentUser().getUid() + ".jpg");
         profileRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
             @Override
             public void onSuccess(Uri uri) {
@@ -160,8 +163,8 @@ public class AccountActivity extends Activity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if(requestCode == 1000){
-            if(resultCode == Activity.RESULT_OK){
+        if (requestCode == 1000) {
+            if (resultCode == Activity.RESULT_OK) {
                 Uri imageUri = data.getData();
 //                profileImage.setImageURI(imageUri);
                 uploadImageToFirebase(imageUri);
@@ -230,12 +233,12 @@ public class AccountActivity extends Activity {
 
     }
 
-    private void setProfilePic(){
+    private void setProfilePic() {
         setProfilePic(DEFAULT_PROFILE_PIC_URI);
     }
 
     private void setProfilePic(Uri imageUri) {
-        Toast.makeText(this, "`adding deafult pic", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "`adding pic", Toast.LENGTH_SHORT).show();
         StorageReference fileRef = storageReference.child(fAuth.getCurrentUser().getUid() + ".jpg");
         fileRef.putFile(imageUri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
             @Override
@@ -244,9 +247,11 @@ public class AccountActivity extends Activity {
                     @Override
                     public void onSuccess(Uri uri) {
                         Picasso.get().load(uri).into(profileImage);
-                        userProfilePicURL = fAuth.getCurrentUser().getUid()+".jpg";
+                        userProfilePicURL = fAuth.getCurrentUser().getUid() + ".jpg";
                         Toast.makeText(AccountActivity.this, "`added default pic", Toast.LENGTH_SHORT).show();
-                    };
+                    }
+
+                    ;
                 });
             }
         }).addOnFailureListener(new OnFailureListener() {

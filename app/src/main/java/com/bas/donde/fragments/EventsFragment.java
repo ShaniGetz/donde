@@ -70,7 +70,7 @@ import static com.bas.donde.utils.CodeHelpers.myAssert;
  */
 public class EventsFragment extends Fragment {
 
-    private final String TAG = "TagEventsFragment";
+    private final String TAG = "tagEventsFragment";
     private FirebaseFirestore firebaseFirestore;
     private CollectionReference eventsCollectionRef;
     private RecyclerView recyclerViewEventsList;
@@ -465,7 +465,10 @@ public class EventsFragment extends Fragment {
             @Override
             public void onFailure(@NonNull Exception e) {
                 // TODO: Implement default avatar
-                myAssert(false, "Failed to get user avatar for " + user.getInvitedInEventUserName());
+                myAssert(false,
+                        "Failed to get user avatar for " + user.getInvitedInEventUserName()+" uri" +
+                                ": "+user.getInvitedInEventUserID() + ".jpg"+
+                                " Error: "+e.getMessage());
 //                avatar = defaultAvatar();
             }
         });

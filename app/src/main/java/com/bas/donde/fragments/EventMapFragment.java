@@ -60,7 +60,7 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback {
     LocationRequest mLocationRequest;
     GoogleMap mGoogleMap;
     FusedLocationProviderClient mFusedLocationClient;
-    Location mLastLocation;
+    GeoPoint mLastLocation;
     //    Marker mCurrLocationMarker;
     ArrayList<InvitedInEventUserModel> invitedUsersList;
     private String myUserId;
@@ -106,8 +106,8 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback {
                 }
                 //The last location in the list is the newest
                 Location location = locationList.get(locationList.size() - 1);
-                mLastLocation = location;
-                offlineDataTransfer.updateLocation(new GeoPoint(location.getLatitude(), location.getLongitude()));
+                mLastLocation = new GeoPoint(location.getLatitude(), location.getLongitude());
+                offlineDataTransfer.updateLocation(mLastLocation);
                 LatLng localLatling = new LatLng(location.getLatitude(), location.getLongitude());
                 mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(localLatling,
                         17));
@@ -149,6 +149,9 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback {
         myUserId = EventActivity.getMyUserId();
         offlineDataTransfer = ((EventActivity) getActivity()).getOfflineDataTransfer();
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(getActivity());
+        mLastLocation = (((EventActivity) getActivity()).getEvent().getEventLocation());
+        myAssert(mLastLocation != null, "mLastLocation is null");
+
         initializeMapFragment();
         initializeInvitedUsersList();
         initializeInvitedUserBitmaps();
@@ -270,6 +273,7 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback {
         myAssert(mGoogleMap != null, "mGoogleMap is null");
         mClusterManager = new ClusterManager<ClusterMarker>(getContext(), mGoogleMap);
         mClusterManagerRenderer = new MyClusterManagerRenderer(getContext(), mGoogleMap, mClusterManager);
+        mClusterMarkers = new ArrayList<>();
         mClusterManager.setRenderer(mClusterManagerRenderer);
 
     }
@@ -281,6 +285,7 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback {
         myAssert(mGoogleMap != null, "googleMap is null");
         myAssert(mClusterManager != null, "clusterManager is null");
         myAssert(mClusterManagerRenderer != null, "clusterManagerRenderer is null");
+        myAssert(mClusterMarkers != null, "clusterMarkers is null");
         myAssert(invitedUsersList != null, "invitedUserList is null");
 
 
@@ -329,7 +334,7 @@ public class EventMapFragment extends Fragment implements OnMapReadyCallback {
     private void initializeMarkerStatus(InvitedInEventUserModel user) {
         Log.d(TAG, "in initializeMarkerStatus");
         if (user.getInvitedInEventUserID().equals(myUserId)) {
-            user.setInvitedInEventUserCurrentLocation(new GeoPoint(mLastLocation.getLatitude(), mLastLocation.getLongitude()));
+            user.setInvitedInEventUserCurrentLocation(mLastLocation);
             user.setInvitedInEventUserStatus("Click to post your status");
             offlineDataTransfer.updateStatus("Click to post your status");
         } else {
