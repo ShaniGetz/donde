@@ -65,7 +65,6 @@ public class RegisterActivity extends Activity {
                     isHidden = true;
                     editTextPassword.setTransformationMethod(new PasswordTransformationMethod());
                     showHideBtn.setBackgroundResource(R.drawable.ic_eye_visibility_off_24);
-
                 }
             }
         });
