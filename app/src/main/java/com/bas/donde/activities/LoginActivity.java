@@ -18,22 +18,26 @@ import androidx.annotation.Nullable;
 
 import com.bas.donde.R;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 
 public class LoginActivity extends Activity {
+    private final String TAG = "tagLoginActivity";
     private Button buttonLogin;
     private Button showHideBtn;
-
     private TextView textViewGotoRegister;
     private EditText textViewUserEmail;
     private EditText textViewUserPassword;
     private ProgressBar progressBar;
     private boolean isHidden = true;
     private FirebaseAuth firebaseAuth;
-
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -125,14 +129,30 @@ public class LoginActivity extends Activity {
     protected void onStart() {
         super.onStart();
 
-        handleUserAlreadyLoggedIn();
+        checkIfUserExistsAndAct();
 
     }
 
-    private void handleUserAlreadyLoggedIn() {
-        // if a user is already logged in, he shouldn't be on this page
-        if (firebaseAuth.getCurrentUser() != null) {
-            gotoMainActivity();
+    private void checkIfUserExistsAndAct() {
+        FirebaseUser currentUser = firebaseAuth.getCurrentUser();
+        // if user does not exist in auth, goto login
+        if (currentUser != null) {
+
+            // if he does exist in auth, he might still posses token (remains for one hour after
+            // accout is deleted from auth
+            String uid = currentUser.getUid();
+            DocumentReference userRef =
+                    FirebaseFirestore.getInstance().collection(getString(R.string.ff_Users)).document(uid);
+            userRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                @Override
+                public void onSuccess(DocumentSnapshot documentSnapshot) {
+                    if (documentSnapshot.exists()) {
+                        Log.d(TAG, String.format("User with email %s is logged in", currentUser.getEmail()));
+                        gotoMainActivity();
+                    }
+                }
+
+            });
         }
     }
 
