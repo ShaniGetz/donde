@@ -70,6 +70,7 @@ public class RegisterActivity extends Activity {
         });
     }
 
+
     private void initializeListeners() {
         buttonGotoLogin.setOnClickListener(new View.OnClickListener() {
             @Override

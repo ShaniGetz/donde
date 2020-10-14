@@ -93,6 +93,24 @@ public class AccountActivity extends Activity {
 
     }
 
+    @Override
+    public void onBackPressed() {
+        usersCollectionRef.document(userID).delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                Toast.makeText(AccountActivity.this,"please add name to use", Toast.LENGTH_SHORT).show();
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.d("AccountActivity.this", String.format("failed deleted " +
+                        "account with email %s", userEmail));
+            }
+        });
+
+    }
+
+
     private void initializeFields() {
         Log.d(TAG, "in initializeFields");
 

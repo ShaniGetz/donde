@@ -75,6 +75,7 @@ public class LoginActivity extends Activity {
 
                 String sUserEmail = textViewUserEmail.getText().toString();
                 String sUserPassword = textViewUserPassword.getText().toString();
+
                 if (isLoginFieldsValid(sUserEmail, sUserPassword)) {
                     //show progress
                     progressBar.setVisibility(View.VISIBLE);
@@ -97,9 +98,11 @@ public class LoginActivity extends Activity {
                             progressBar.setVisibility(View.INVISIBLE);
                         }
                     });
-
                 }
 
+                else{
+                    Toast.makeText(LoginActivity.this, "please fill out email and password", Toast.LENGTH_SHORT).show();
+                }
             }
         });
 
