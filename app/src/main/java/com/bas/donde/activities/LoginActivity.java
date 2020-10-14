@@ -98,9 +98,7 @@ public class LoginActivity extends Activity {
                             progressBar.setVisibility(View.INVISIBLE);
                         }
                     });
-                }
-
-                else{
+                } else{
                     Toast.makeText(LoginActivity.this, "please fill out email and password", Toast.LENGTH_SHORT).show();
                 }
             }

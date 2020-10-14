@@ -99,13 +99,12 @@ public class AccountActivity extends Activity {
         usersCollectionRef.document(userID).delete().addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
-                Toast.makeText(AccountActivity.this,"please add name to use", Toast.LENGTH_SHORT).show();
+                Toast.makeText(AccountActivity.this,"please add name to user", Toast.LENGTH_SHORT).show();
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
-                Log.d("AccountActivity.this", String.format("failed deleted " +
-                        "account with email %s", userEmail));
+                Log.d("AccountActivity.this", String.format("failed deleted " + "account with email %s", userEmail));
             }
         });
 
