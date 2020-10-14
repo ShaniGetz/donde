@@ -7,19 +7,29 @@
     tools:context=".activities.LoginActivity"
     android:background="@drawable/bg_gradient">
 
+    <ImageView
+        android:id="@+id/logo"
+        android:layout_width="170dp"
+        android:layout_height="100dp"
+        android:src="@drawable/logo_donde_2"
+        android:layout_marginTop="20dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"/>
+
+
     <TextView
         android:id="@+id/textView2"
         android:fontFamily="monospace"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:layout_marginLeft="30dp"
+        android:gravity="center_horizontal"
         android:text="Account"
         android:textColor="@color/pink"
         android:textSize="30sp"
         android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/logo" />
 
 
     <ImageView
@@ -87,9 +97,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
-        android:layout_marginLeft="92dp"
+        android:layout_marginStart="92dp"
         android:background="@drawable/rounded_corners_butten"
         android:text="Save"
+        android:layout_marginEnd="200dp"
         android:textColor="@color/white"
         android:textSize="7pt"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -105,6 +116,7 @@
         android:layout_centerHorizontal="true"
         android:layout_marginTop="20dp"
         android:layout_marginEnd="92dp"
+        android:layout_marginStart="200dp"
         android:background="@drawable/rounded_corners_butten"
         android:text="CANCEL"
         android:textColor="@color/white"
@@ -121,11 +133,13 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="108dp"
+        android:layout_marginBottom="150dp"
         android:background="@drawable/rounded_corners_butten"
         android:textColor="@color/white"
         android:text="  DELETE ACCOUNT  "
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toBottomOf="@id/account_button_save" />
 
 

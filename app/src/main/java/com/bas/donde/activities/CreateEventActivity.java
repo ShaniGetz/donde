@@ -776,13 +776,15 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
                 eventCreateBatch.commit().addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        Log.d(TAG, "event created succesfully");
+                        Log.d(TAG, "Event created successfully");
+                        Toast.makeText(CreateEventActivity.this, "Event created successfully", Toast.LENGTH_SHORT).show();
                         gotoEvents();
                     }
                 }).addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        Log.d(TAG, "event failed to create");
+                        Log.d(TAG, "Failed to create event");
+                        Toast.makeText(CreateEventActivity.this, "Failed to create event", Toast.LENGTH_SHORT).show();
                         documentReference.delete().addOnCompleteListener(new OnCompleteListener<Void>() {
                             @Override
                             public void onComplete(@NonNull Task<Void> task) {
@@ -988,11 +990,12 @@ public class CreateEventActivity extends AppCompatActivity implements OnMapReady
 
                         } else if (task.getResult().size() == 0) {
                             Toast.makeText(CreateEventActivity.this, String.format("No user " +
-                                    "found" + " with " + "email %s", userEmail), Toast.LENGTH_SHORT);
+                                    "found" + " with " + "email %s", userEmail),
+                                    Toast.LENGTH_SHORT).show();
                         } else if (task.getResult().size() > 1) {
                             Toast.makeText(CreateEventActivity.this,
                                     String.format("Found more " + "than one user with email %s",
-                                            userEmail), Toast.LENGTH_SHORT);
+                                            userEmail), Toast.LENGTH_SHORT).show();
                         }
 
                     } else {
