@@ -20,6 +20,10 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 public class RegisterActivity extends Activity {
     private final String TAG = "logtagRegisterActivity";
@@ -31,9 +35,9 @@ public class RegisterActivity extends Activity {
     EditText editTextEmail;
     EditText editTextPassword;
     ProgressBar progressBar;
-    FirebaseAuth fAuth;
     boolean isHidden = true;
     private Button showHideBtn;
+    FirebaseAuth firebaseAuth;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -52,7 +56,7 @@ public class RegisterActivity extends Activity {
         editTextEmail = findViewById(R.id.register_editText_email);
         editTextPassword = findViewById(R.id.register_editText_password);
         progressBar = findViewById(R.id.register_progressBar);
-        fAuth = FirebaseAuth.getInstance();
+        firebaseAuth = FirebaseAuth.getInstance();
         showHideBtn = findViewById(R.id.showHideBtn);
         showHideBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -90,7 +94,7 @@ public class RegisterActivity extends Activity {
                     //show progress
                     progressBar.setVisibility(View.VISIBLE);
 
-                    fAuth.createUserWithEmailAndPassword(sUserEmail, sUserPassword).addOnSuccessListener(new OnSuccessListener<AuthResult>() {
+                    firebaseAuth.createUserWithEmailAndPassword(sUserEmail, sUserPassword).addOnSuccessListener(new OnSuccessListener<AuthResult>() {
                         @Override
                         public void onSuccess(AuthResult authResult) {
                             gotoAccountActivity();
@@ -118,16 +122,33 @@ public class RegisterActivity extends Activity {
     protected void onStart() {
         super.onStart();
 
-        handleUserAlreadyLoggedIn();
+        checkIfUserExistsAndAct();
 
     }
 
-    private void handleUserAlreadyLoggedIn() {
-        // if a user is already logged in, he shouldn't be on this page
-        if (fAuth.getCurrentUser() != null) {
-            gotoMainActivity();
+    private void checkIfUserExistsAndAct() {
+        FirebaseUser currentUser = firebaseAuth.getCurrentUser();
+        // if user does not exist in auth, goto login
+        if (currentUser != null) {
+
+            // if he does exist in auth, he might still posses token (remains for one hour after
+            // accout is deleted from auth
+            String uid = currentUser.getUid();
+            DocumentReference userRef =
+                    FirebaseFirestore.getInstance().collection(getString(R.string.ff_Users)).document(uid);
+            userRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                @Override
+                public void onSuccess(DocumentSnapshot documentSnapshot) {
+                    if (documentSnapshot.exists()) {
+                        Log.d(TAG, String.format("User with email %s is logged in", currentUser.getEmail()));
+                        gotoMainActivity();
+                    }
+                }
+
+            });
         }
     }
+
 
     private void gotoMainActivity() {
         Intent mainIntent = new Intent(RegisterActivity.this, MainActivity.class);

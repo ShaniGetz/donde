@@ -268,9 +268,23 @@ public class AccountActivity extends Activity {
                 usersCollectionRef.document(userID).delete().addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        Toast.makeText(AccountActivity.this, String.format("Successfully deleted " +
-                                        "account with email %s", userEmail),
-                                Toast.LENGTH_SHORT).show();
+
+                        // delete user from Events collection
+                        // delete user from authentication
+                        firebaseUser.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) {
+                                Log.d(TAG, "Successfully deleted user");
+                                Toast.makeText(AccountActivity.this, "Successfully deleted user", Toast.LENGTH_SHORT).show();
+                                gotoLoginActivity();
+                            }
+                        }).addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Toast.makeText(AccountActivity.this, "Failed to delete user", Toast.LENGTH_SHORT).show();
+                            }
+                        });
+
                     }
                 }).addOnFailureListener(new OnFailureListener() {
                     @Override
@@ -282,20 +296,7 @@ public class AccountActivity extends Activity {
                     }
                 });
 
-                // delete user from Events collection
-                // delete user from authentication
-                firebaseUser.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        Log.d(TAG, "Successfully deleted user from auth");
-                        gotoLoginActivity();
-                    }
-                }).addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Toast.makeText(AccountActivity.this, "Failed to delete user from FirebaseAuth", Toast.LENGTH_SHORT).show();
-                    }
-                });
+
 
             }
         });
