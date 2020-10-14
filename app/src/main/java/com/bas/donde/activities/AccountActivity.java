@@ -57,6 +57,7 @@ public class AccountActivity extends Activity {
     // Views
     private Button buttonChangeProfilePic;
     private ImageView profileImage;
+    private ImageView logoView;
     private Button buttonSave;
     private Button buttonCancel;
     private Button buttonDeleteAccount;
@@ -104,6 +105,7 @@ public class AccountActivity extends Activity {
     private void initializeViews() {
         buttonChangeProfilePic = findViewById(R.id.account_change_profile_pic);
         profileImage = findViewById(R.id.account_profile_pic);
+        logoView = findViewById(R.id.logo);
         buttonSave = findViewById(R.id.account_button_save);
         buttonCancel = findViewById(R.id.account_button_cancel);
         buttonDeleteAccount = findViewById(R.id.account_button_delete_account);
